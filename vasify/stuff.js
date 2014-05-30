@@ -14,26 +14,28 @@ var contorls;
 var reader;
 var directionalLight;
 
-function init(){
+// global file holder
+var fileFile
 
+function init(){
 	// sized container
 	container = document.getElementById( 'container' );
-	document.body.appendChild( container );
+	//document.body.appendChild( container );
 
 	currentObj = new Array();
 	scene = new THREE.Scene();
-	camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+	camera = new THREE.PerspectiveCamera(75, window.innerWidth/400, 0.1, 1000);
 
 	minY = 100;
 
 	renderer = new THREE.WebGLRenderer({ alpha: true});
-	renderer.setSize(400, 400);
+	renderer.setSize(window.innerWidth, 400);
 	renderer.setClearColor( 0x000000, 0);
 	container.appendChild(renderer.domElement);
-	renderer.domElement.style.position = 'absolute';
-	renderer.domElement.style.top = '0px';
-	renderer.domElement.style.left = '0px';
-	renderer.domElement.style.zIndex = '-9998';
+	//renderer.domElement.style.position = 'absolute';
+	//renderer.domElement.style.top = '0px';
+	//renderer.domElement.style.left = '0px';
+	//renderer.domElement.style.zIndex = '-9998';
 
 	directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
 	directionalLight.position.set( 0, 0, 1 );
@@ -43,27 +45,39 @@ function init(){
 
 	render = function () {
 		requestAnimationFrame(render);
-
-
 		directionalLight.position.set( camera.position.x,camera.position.y,camera.position.z );
 		renderer.render(scene,camera);
 		controls.update();
 	};
 
+	// automatically resize on window resize.
+	THREEx.WindowResize(renderer, camera);
+
 	reader = new FileReader();
 }
 
 function readText(that){
+	fileFile = that;
 	removeAll(scene);
 
-	if(that.files && that.files[0]){
-		var reader = new FileReader();
-		reader.onload = function (e) {  
-			var output=e.target.result;
-			addModel(output);
-		};//end onload()
-		reader.readAsBinaryString(that.files[0]);
-	}//end if html5 filelist support
+	var reader = new FileReader();
+	reader.onload = function (e) {
+		var output=e.target.result;
+		addModel(output);
+	};//end onload()
+	reader.readAsBinaryString(that[0]);
+}
+
+// loads from global fileFile
+function reloadFile(){
+	removeAll(scene);
+
+	var reader = new FileReader();
+	reader.onload = function (e) {
+		var output=e.target.result;
+		addModel(output);
+	};//end onload()
+	reader.readAsBinaryString(fileFile[0]);
 }
 
 /*function addGrid() {
@@ -115,7 +129,7 @@ function addModel(data){
 	}
 
 	//Apply transformations to the STL
-	if (editor.getValue() != "Transformations") eval(editor.getValue());
+	/*if (editor.getValue() != "Transformations") eval(editor.getValue());*/
 
 	cube.geometry.computeFaceNormals();
 	//cube.geometry.computeVertexNormals();

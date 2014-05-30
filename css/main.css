@@ -1,4 +1,7 @@
-canvas{
-	width: 400px;
-	height: 400px;
+#drop_zone{
+	border: 2px dashed #BBB;
+	padding: 10px 5px;
+	border-radius: 5px;
+	color: #BBB;
+	text-align: center;
 }
