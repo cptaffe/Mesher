@@ -10,7 +10,7 @@ var scene;
 var minY;
 var renderer;
 var render;
-var contorls;
+var controls;
 var reader;
 var directionalLight;
 
@@ -25,7 +25,6 @@ function init(){
 	currentObj = new Array();
 	scene = new THREE.Scene();
 	camera = new THREE.PerspectiveCamera(75, window.innerWidth/400, 0.1, 1000);
-	controls = new THREE.OrbitControls(camera, document.getElementByID("container").getElementsByTagName("canvas")[0]);
 
 	minY = 100;
 
@@ -42,7 +41,7 @@ function init(){
 	directionalLight.position.set( 0, 0, 1 );
 	scene.add( directionalLight );
 
-	controls = new THREE.OrbitControls(camera, document.body);
+	controls = new THREE.OrbitControls(camera, document.getElementById("container").getElementsByTagName("canvas")[0]);
 
 	render = function () {
 		requestAnimationFrame(render);
