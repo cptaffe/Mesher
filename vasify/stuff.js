@@ -22,10 +22,12 @@ function init(){
 	container = document.getElementById( 'container' );
 
 	scene = new THREE.Scene();
-	camera = new THREE.PerspectiveCamera(75, (($('.container').width() * 0.75) - 7)/400, 0.1, 1000);
+	//camera = new THREE.PerspectiveCamera(75, (($('.container').width() * 0.75) - 7)/400, 0.1, 1000);
+	camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 
 	renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-	renderer.setSize((($('.container').width() * 0.75) - 7), 400);
+	//renderer.setSize((($('.container').width() * 0.75) - 7), 400);
+	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor( 0x000000, 0);
 	container.appendChild(renderer.domElement);
 
