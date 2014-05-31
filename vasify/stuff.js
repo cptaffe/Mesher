@@ -35,10 +35,6 @@ function init(){
 	directionalLight.position.set( 0, 0, 1 );
 	scene.add( directionalLight );
 
-	//plane
-	var plane = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshNormalMaterial());
-	scene.add(plane);
-
 	controls = new THREE.OrbitControls(camera, document.getElementById("container").getElementsByTagName("canvas")[0]);
 
 	render = function () {
@@ -110,7 +106,7 @@ function addModel(data){
 		//transparent: true
 	}   );
 	
-	var material = new THREE.MeshLambertMaterial({color: 0x4444FF, opacity : 1, transparent: true, side: THREE.DoubleSide});
+	var material = new THREE.MeshLambertMaterial({color: 0xAAAAB9, opacity : 1, transparent: true, side: THREE.DoubleSide});
 	var loader = new THREE.STLLoader();
 	var cube;
 	
