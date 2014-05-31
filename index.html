@@ -110,7 +110,7 @@
           </div>
 
           <div class="list-group">
-                <button id="scale-tool" class="btn list-group-item" style="width: 100%;">
+                <button id="scale-tool" class="btn list-group-item" style="width: 100%;" onclick="ScaleToolInit();">
                   Scale
                 </button>
           </div>
@@ -139,13 +139,13 @@
     <script src="./js/FileSaver.js"></script>
     <script src="./js/ace.js"></script>
     <script src='./js/THREEx.WindowResize.js'></script>
+    <script src="./rangeslider/rangeslider.min.js"></script>
     <!-- Vasify libraries -->
     <script src="./vasify/transforms.js"></script>
     <script src="./vasify/stuff.js"></script>
     <!-- Bootstrap -->
     <script src="./bootstrap-3.1.1-dist/js/bootstrap.min.js"></script>
     <script src="./bootstrap-3.1.1-dist/js/"></script>
-    <script>
     <script src="./bootstrap-3.1.1-dist/optional-js/popover.js"></script>
     <script>
     // Initial setup
@@ -156,9 +156,17 @@
           placement: 'left',
           title: 'Scale',
           html: true,
-          content: '<div class="input-group"><span class="input-group-addon">X</span><input type="text" class="form-control" placeholder="Scale"></div><input type="range" min="1" max="10"/><div class="input-group"><span class="input-group-addon">Y</span><input type="text" class="form-control" placeholder="Scale"></div><input type="range" min="1" max="10"/><div class="input-group"><span class="input-group-addon">Z</span><input type="text" class="form-control" placeholder="Scale"></div><input type="range" min="1" max="10"/><button class="btn btn-defualt" style="width: 100%;">Apply</button>'
+          content: '<div class="input-group"><span class="input-group-addon">X</span><input id="x-scale" type="text" class="form-control" placeholder="Scale"></div><input id="x-scale-r" type="range" min="1" max="10"/><div class="input-group"><span class="input-group-addon">Y</span><input type="text" class="form-control" placeholder="Scale"></div><input type="range" min="1" max="10"/><div class="input-group"><span class="input-group-addon">Z</span><input type="text" class="form-control" placeholder="Scale"></div><input type="range" min="1" max="10"/><button class="btn btn-defualt" style="width: 100%;">Apply</button>'
          });
       });
+
+    // RangeSlider
+    
+    $('#scale-tool').on('shown.bs.popover', function() { 
+      $('#x-scale-r').rangeslider({
+        onSlide: function(position, value) {alert(position+":"+value)},
+      });
+    });
 
     // File Upload
         function handleFileSelect(evt) {
