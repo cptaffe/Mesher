@@ -20,26 +20,22 @@ var fileFile
 function init(){
 	// sized container
 	container = document.getElementById( 'container' );
-	//document.body.appendChild( container );
 
-	currentObj = new Array();
 	scene = new THREE.Scene();
-	camera = new THREE.PerspectiveCamera(75, window.innerWidth/400, 0.1, 1000);
-
-	minY = 100;
+	camera = new THREE.PerspectiveCamera(75, (($('.container').width() * 0.75) - 7)/400, 0.1, 1000);
 
 	renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-	renderer.setSize(window.innerWidth, 400);
+	renderer.setSize((($('.container').width() * 0.75) - 7), 400);
 	renderer.setClearColor( 0x000000, 0);
 	container.appendChild(renderer.domElement);
-	//renderer.domElement.style.position = 'absolute';
-	//renderer.domElement.style.top = '0px';
-	//renderer.domElement.style.left = '0px';
-	//renderer.domElement.style.zIndex = '-9998';
 
 	directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
 	directionalLight.position.set( 0, 0, 1 );
 	scene.add( directionalLight );
+
+	//plane
+	var plane = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshNormalMaterial());
+	scene.add(plane);
 
 	controls = new THREE.OrbitControls(camera, document.getElementById("container").getElementsByTagName("canvas")[0]);
 

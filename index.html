@@ -110,7 +110,7 @@
           </div>
 
           <div class="list-group">
-                <button id="scale-tool" class="btn list-group-item" style="width: 100%;" onclick="ScaleToolInit();">
+                <button id="scale-tool" class="btn list-group-item" style="width: 100%;">
                   Scale
                 </button>
           </div>
@@ -126,6 +126,28 @@
 
     </div><!--/.container-->
 
+    <!-- Tool HTML -->
+
+    <!-- Scale Tool -->
+    <div id="scale-tool-html" style="visibility: hidden;">
+    <!-- X Scale -->
+    <div class="input-group">
+    <span class="input-group-addon">X</span>
+    <input id="x-scale" type="text" class="form-control" placeholder="Scale"/></div>
+    <input id="x-scale-r" type="range" min="1" max="10"/>
+    <!-- Y Scale -->
+    <div class="input-group">
+    <span class="input-group-addon">Y</span>
+    <input id="y-scale" type="text" class="form-control" placeholder="Scale"></div>
+    <input type="range" min="1" max="10"/>
+    <!-- Z Scale -->
+    <div class="input-group">
+    <span class="input-group-addon">Z</span>
+    <input id="z-scale" type="text" class="form-control" placeholder="Scale"></div>
+    <input type="range" min="1" max="10"/>
+    <!-- Apply Button -->
+    <button class="btn btn-defualt" onclick="scale(parseInt(document.getElementById('x-scale').value), parseInt(document.getElementById('y-scale').value), parseInt(document.getElementById('z-scale').value));" style="width: 100%;">Apply</button>
+    </div>
 
 
     <!-- Bootstrap core JavaScript
@@ -156,7 +178,9 @@
           placement: 'left',
           title: 'Scale',
           html: true,
-          content: '<div class="input-group"><span class="input-group-addon">X</span><input id="x-scale" type="text" class="form-control" placeholder="Scale"></div><input id="x-scale-r" type="range" min="1" max="10"/><div class="input-group"><span class="input-group-addon">Y</span><input type="text" class="form-control" placeholder="Scale"></div><input type="range" min="1" max="10"/><div class="input-group"><span class="input-group-addon">Z</span><input type="text" class="form-control" placeholder="Scale"></div><input type="range" min="1" max="10"/><button class="btn btn-defualt" style="width: 100%;">Apply</button>'
+          content: function () {
+            return $('#scale-tool-html').html();
+          }
          });
       });
 
@@ -164,7 +188,7 @@
     
     $('#scale-tool').on('shown.bs.popover', function() { 
       $('#x-scale-r').rangeslider({
-        onSlide: function(position, value) {alert(position+":"+value)},
+        onSlideEnd: function(position, value) {alert(position+":"+value)},
       });
     });
 
