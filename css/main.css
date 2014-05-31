@@ -1,3 +1,7 @@
+*:focus{
+	outline: 0;
+}
+
 #drop_zone{
 	border: 2px dashed #BBB;
 	padding: 10px 5px;
