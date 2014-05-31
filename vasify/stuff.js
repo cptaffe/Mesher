@@ -28,7 +28,7 @@ function init(){
 
 	minY = 100;
 
-	renderer = new THREE.WebGLRenderer({ alpha: true});
+	renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 	renderer.setSize(window.innerWidth, 400);
 	renderer.setClearColor( 0x000000, 0);
 	container.appendChild(renderer.domElement);
