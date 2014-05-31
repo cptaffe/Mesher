@@ -25,6 +25,7 @@ function init(){
 	currentObj = new Array();
 	scene = new THREE.Scene();
 	camera = new THREE.PerspectiveCamera(75, window.innerWidth/400, 0.1, 1000);
+	controls = new THREE.OrbitControls(camera, document.getElementByID("container").getElementsByTagName("canvas")[0]);
 
 	minY = 100;
 
