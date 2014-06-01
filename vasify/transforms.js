@@ -7,6 +7,12 @@ var scaleSet;
 // set defaults on inclusion
 clearTransforms();
 
+// Reset function
+function Reset(){
+	clearTransforms();
+	reloadFile();
+}
+
 // set defaults
 function clearTransforms(){
 	scalar= [1.0, 1.0, 1.0];
