@@ -58,7 +58,6 @@ function readText(that){
 	var reader = new FileReader();
 	reader.onload = function (e) {
 		var output=e.target.result;
-		clearTransforms();
 		addModel(output);
 	};//end onload()
 	reader.readAsBinaryString(that[0]);
@@ -121,11 +120,6 @@ function addModel(data){
 	{
 		geometry.vertices[i].x-=(b.min.x+b.max.x)/2;
 		geometry.vertices[i].y-=(b.min.y+b.max.y)/2;
-	}
-
-	//Apply transformations to the STL
-	if (setScale){
-		Scale();
 	}
 
 	cube.geometry.computeFaceNormals();

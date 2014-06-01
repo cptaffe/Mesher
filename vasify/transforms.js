@@ -1,47 +1,32 @@
 //Default Transforms
-
-// global states
-var scalar;
-var scaleSet;
-
-// set defaults on inclusion
-clearTransforms();
-
-// Reset function
-function Reset(){
-	clearTransforms();
-	reloadFile();
-}
+var originalGeometry = geometry.clone();
 
 // set defaults
 function clearTransforms(){
-	scalar= [1.0, 1.0, 1.0];
-	scaleSet = false;
+	geometry = originalGeometry;
+	geometry.verticesNeedUpdate = true;
 }
 
 function setScale(x, y, z){
-	if (!isNaN(px = parseFloat(x))) {
-		scalar[0] = px;
-	} else { scalar[0] = 1.0; }
-	if (!isNaN(py = parseFloat(y))) {
-		scalar[1] = py;
-	} else { scalar[1] = 1.0; }
-	if (!isNaN(pz = parseFloat(z))) {
-		scalar[2] = pz;
-	} else { scalar[2] = 1.0; }
-	if (scalar[0] == 1.0 && scalar[1] == 1.0 && scalar[2] == 1.0) {
-		scaleSet = false;
-	} else{
-		scaleSet = true;
-		reloadFile();
+	if (isNaN(px = parseFloat(x))) {
+		px = 1.0;
 	}
-	//alert('('+px+', '+py+', '+pz+'): '+scaleSet);
+	if (isNaN(py = parseFloat(y))) {
+		py = 1.0;
+	}
+	if (isNaN(pz = parseFloat(z))) {
+		pz = 1.0
+	}
+	if (!(px == 1.0 && py == 1.0 && pz == 1.0)) {
+		Scale(px, py, pz);
+		geometry.verticesNeedUpdate = true;
+	}
 }
 
-function Scale(){
+function Scale(x, y, z){
 	for (var i = 0; i < geometry.vertices.length; i++) {
-		geometry.vertices[i].x *= scalar[0];
-		geometry.vertices[i].y *= scalar[1];
-		geometry.vertices[i].z *= scalar[2];
+		geometry.vertices[i].x *= x;
+		geometry.vertices[i].y *= y;
+		geometry.vertices[i].z *= z;
 	}
 }
