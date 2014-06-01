@@ -62,21 +62,24 @@
     <div id="scale-tool-html" style="display: none;">
     <!-- X Scale -->
     <div class="input-group">
-    <span class="input-group-addon">X</span>
-    <input id="x-scale" type="text" class="form-control" placeholder="Scale"/></div>
-    <input id="x-scale-r" type="range" min="1" max="10"/>
+      <span class="input-group-addon">X</span>
+      <input id="x-scale" type="text" class="form-control" placeholder="Scale"/>
+    </div>
+    <!--input id="x-scale-r" type="range" min="1" max="10"/-->
     <!-- Y Scale -->
     <div class="input-group">
-    <span class="input-group-addon">Y</span>
-    <input id="y-scale" type="text" class="form-control" placeholder="Scale"></div>
-    <input type="range" min="1" max="10"/>
+      <span class="input-group-addon">Y</span>
+      <input id="y-scale" type="text" class="form-control" placeholder="Scale">
+    </div>
+    <!--input type="range" min="1" max="10"/-->
     <!-- Z Scale -->
     <div class="input-group">
-    <span class="input-group-addon">Z</span>
-    <input id="z-scale" type="text" class="form-control" placeholder="Scale"></div>
-    <input type="range" min="1" max="10"/>
+      <span class="input-group-addon">Z</span>
+      <input id="z-scale" type="text" class="form-control" placeholder="Scale">
+    </div>
+    <!--input type="range" min="1" max="10"/-->
     <!-- Apply Button -->
-    <button class="btn btn-defualt" onclick="scale(parseInt(document.getElementById('x-scale').value), parseInt(document.getElementById('y-scale').value), parseInt(document.getElementById('z-scale').value));" style="width: 100%;">Apply</button>
+    <button class="btn btn-defualt" onclick="setScale(document.getElementById('x-scale').value, document.getElementById('y-scale').value, document.getElementById('z-scale').value);" style="width: 100%;">Apply</button>
     </div>
 
 

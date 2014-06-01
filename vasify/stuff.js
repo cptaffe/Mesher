@@ -5,9 +5,9 @@
 
 // globabls
 var geometry;
+var cube;
 var currentObj;
 var scene;
-var minY;
 var renderer;
 var render;
 var controls;
@@ -18,34 +18,35 @@ var directionalLight;
 var fileFile
 
 function init(){
-	// sized container
+	// main parts
 	container = document.getElementById( 'container' );
-
 	scene = new THREE.Scene();
-	//camera = new THREE.PerspectiveCamera(75, (($('.container').width() * 0.75) - 7)/400, 0.1, 1000);
 	camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-
 	renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-	//renderer.setSize((($('.container').width() * 0.75) - 7), 400);
+	
+	// add renderer
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor( 0x000000, 0);
 	container.appendChild(renderer.domElement);
 
+	// add directional light
 	directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
 	directionalLight.position.set( 0, 0, 1 );
 	scene.add( directionalLight );
 
+	// set controls to container
 	controls = new THREE.OrbitControls(camera, document.getElementById("container").getElementsByTagName("canvas")[0]);
-
-	render = function () {
-		requestAnimationFrame(render);
-		directionalLight.position.set( camera.position.x,camera.position.y,camera.position.z );
-		renderer.render(scene,camera);
-		controls.update();
-	};
 
 	// automatically resize on window resize.
 	THREEx.WindowResize(renderer, camera);
+
+	render = function() {
+		requestAnimationFrame(render);
+		// model always lit from front
+		directionalLight.position.set( camera.position.x,camera.position.y,camera.position.z );
+		renderer.render(scene, camera);
+		controls.update();
+	};
 
 	reader = new FileReader();
 }
@@ -108,7 +109,6 @@ function addModel(data){
 	
 	var material = new THREE.MeshLambertMaterial({color: 0xAAAAB9, opacity : 1, transparent: true, side: THREE.DoubleSide});
 	var loader = new THREE.STLLoader();
-	var cube;
 	
 	geometry = loader.parse(data);
 
@@ -123,26 +123,24 @@ function addModel(data){
 	}
 
 	//Apply transformations to the STL
-	/*if (editor.getValue() != "Transformations") eval(editor.getValue());*/
+	if (setScale){
+		Scale();
+	}
 
 	cube.geometry.computeFaceNormals();
-	//cube.geometry.computeVertexNormals();
 	for (var i = 0; i < geometry.faces.length; i++)
 	{
 		cube.geometry.faces[i].normal=cube.geometry.faces[i].normal.multiplyScalar(1);
 	}
 	
 	cube.geometry.applyMatrix(new THREE.Matrix4().makeTranslation( -(b.max.x+b.min.x)/2, -(b.max.y+b.min.y)/2, -(b.max.z+b.min.z)/2 ) );
-	cube.rotation.x=-3.14159/2;
+	cube.rotation.x = -Math.PI/2;
 	var l=(b.max.x-b.min.x)*(b.max.x-b.min.x)+(b.max.y-b.min.y)*(b.max.y-b.min.y)+(b.max.z-b.min.z)*(b.max.z-b.min.z);
 	l=Math.sqrt(l);
 	camera.position.z = l*.75;
 	scene.add( cube );
-
-	//addGrid();
 	
 	render();
-	
 }
 
 function removeAll(sce) {
