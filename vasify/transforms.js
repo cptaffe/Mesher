@@ -3,21 +3,9 @@ var lastScale = [1.0,1.0,1.0]; // for reverting after scale
 var lastRotate = [0.0,0.0,0.0];
 var lastShift = [0.0, 0.0, 0.0];
 
-function setScale(x, y, z){
-	if (isNaN(px = parseFloat(x))) {
-		px = 1.0;
-	}
-	if (isNaN(py = parseFloat(y))) {
-		py = 1.0;
-	}
-	if (isNaN(pz = parseFloat(z))) {
-		pz = 1.0
-	}
-	Scale(px, py, pz);
-	geometry.verticesNeedUpdate = true;
-}
 
-function setRotate(x, y, z){
+// Set functions parse the 
+function setTrans(x, y, z, trans){
 	if (isNaN(px = parseFloat(x))) {
 		px = 1.0;
 	}
@@ -27,21 +15,7 @@ function setRotate(x, y, z){
 	if (isNaN(pz = parseFloat(z))) {
 		pz = 1.0
 	}
-	Rotate(px, py, pz);
-	geometry.verticesNeedUpdate = true;
-}
-
-function setShift(x, y, z){
-	if (isNaN(px = parseFloat(x))) {
-		px = 1.0;
-	}
-	if (isNaN(py = parseFloat(y))) {
-		py = 1.0;
-	}
-	if (isNaN(pz = parseFloat(z))) {
-		pz = 1.0
-	}
-	Shift(px, py, pz);
+	trans(px, py, pz);
 	geometry.verticesNeedUpdate = true;
 }
 

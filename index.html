@@ -83,26 +83,26 @@
     <!-- X Scale -->
     <div class="input-group">
       <span class="input-group-addon">X</span>
-      <input id="x-scale" type="text" class="form-control" placeholder="Scale"/>
+      <input id="x-scale" type="text" class="form-control" placeholder="Scale" oninput="document.getElementById('x-scale-r').value = parseFloat(this.value) * 100" onchange="document.getElementById('x-scale-r').value = parseFloat(this.value) * 100"/>
       <span class="input-group-addon">&times;</span>
     </div>
     <input id="x-scale-r" type="range" value="100" min="1" max="300" oninput="document.getElementById('x-scale').value = this.value / 100;" onchange="document.getElementById('x-scale').value = this.value / 100;" />
     <!-- Y Scale -->
     <div class="input-group">
       <span class="input-group-addon">Y</span>
-      <input id="y-scale" type="text" class="form-control" placeholder="Scale">
+      <input id="y-scale" type="text" class="form-control" placeholder="Scale" oninput="document.getElementById('y-scale-r').value = parseFloat(this.value) * 100" onchange="document.getElementById('y-scale-r').value = parseFloat(this.value) * 100">
       <span class="input-group-addon">&times;</span>
     </div>
-    <input id="x-scale-r" type="range" value="100" min="1" max="300" oninput="document.getElementById('y-scale').value = this.value / 100;" onchange="document.getElementById('y-scale').value = this.value / 100;" />
+    <input id="y-scale-r" type="range" value="100" min="1" max="300" oninput="document.getElementById('y-scale').value = this.value / 100;" onchange="document.getElementById('y-scale').value = this.value / 100;" />
     <!-- Z Scale -->
     <div class="input-group">
       <span class="input-group-addon">Z</span>
-      <input id="z-scale" type="text" class="form-control" placeholder="Scale">
+      <input id="z-scale" type="text" class="form-control" placeholder="Scale" oninput="document.getElementById('z-scale-r').value = parseFloat(this.value) * 100" onchange="document.getElementById('z-scale-r').value = parseFloat(this.value) * 100">
       <span class="input-group-addon">&times;</span>
     </div>
-    <input id="x-scale-r" type="range" value="100" min="1" max="300" oninput="document.getElementById('z-scale').value = this.value / 100;" onchange="document.getElementById('z-scale').value = this.value / 100;" />
+    <input id="z-scale-r" type="range" value="100" min="1" max="300" oninput="document.getElementById('z-scale').value = this.value / 100;" onchange="document.getElementById('z-scale').value = this.value / 100;" />
     <!-- Apply Button -->
-    <button class="btn btn-defualt" onclick="setScale(document.getElementById('x-scale').value, document.getElementById('y-scale').value, document.getElementById('z-scale').value);" style="width: 100%;">Apply</button>
+    <button class="btn btn-defualt" onclick="setTrans(document.getElementById('x-scale').value, document.getElementById('y-scale').value, document.getElementById('z-scale').value, Scale);" style="width: 100%;">Apply</button>
     </div>
 
     <!-- Rotate Tool -->
@@ -110,26 +110,26 @@
     <!-- X Rotate -->
     <div class="input-group">
       <span class="input-group-addon">X</span>
-      <input id="x-rotate" type="text" class="form-control" placeholder="Rotate"/>
+      <input id="x-rotate" type="text" class="form-control" placeholder="Rotate" oninput="document.getElementById('x-rotate-r').value = (parseInt(this.value) + 180) * 100" onchange="document.getElementById('x-rotate-r').value = (parseInt(this.value) + 180) * 100"/>
       <span class="input-group-addon">deg.</span>
     </div>
     <input id="x-rotate-r" type="range" value="18000" min="0" max="36000" oninput="document.getElementById('x-rotate').value = (this.value / 100) - 180;" onchange="document.getElementById('x-rotate').value = (this.value / 100) - 180;" />
     <!-- Y Rotate -->
     <div class="input-group">
       <span class="input-group-addon">Y</span>
-      <input id="y-rotate" type="text" class="form-control" placeholder="Rotate">
+      <input id="y-rotate" type="text" class="form-control" placeholder="Rotate" oninput="document.getElementById('y-rotate-r').value = (parseInt(this.value) + 180) * 100" onchange="document.getElementById('y-rotate-r').value = (parseInt(this.value) + 180) * 100">
       <span class="input-group-addon">deg.</span>
     </div>
-    <input id="x-rotate-r" type="range" value="18000" min="0" max="36000" oninput="document.getElementById('y-rotate').value = (this.value / 100) - 180;" onchange="document.getElementById('y-rotate').value = (this.value / 100) - 180;" />
+    <input id="y-rotate-r" type="range" value="18000" min="0" max="36000" oninput="document.getElementById('y-rotate').value = (this.value / 100) - 180;" onchange="document.getElementById('y-rotate').value = (this.value / 100) - 180;" />
     <!-- Z Rotate -->
     <div class="input-group">
       <span class="input-group-addon">Z</span>
-      <input id="z-rotate" type="text" class="form-control" placeholder="Rotate">
+      <input id="z-rotate" type="text" class="form-control" placeholder="Rotate" oninput="document.getElementById('z-rotate-r').value = (parseInt(this.value) + 180) * 100" onchange="document.getElementById('z-rotate-r').value = (parseInt(this.value) + 180) * 100">
       <span class="input-group-addon">deg.</span>
     </div>
-    <input id="x-rotate-r" type="range" value="18000" min="0" max="36000" oninput="document.getElementById('z-rotate').value = (this.value / 100) - 180;" onchange="document.getElementById('z-rotate').value = (this.value / 100) - 180;" />
+    <input id="z-rotate-r" type="range" value="18000" min="0" max="36000" oninput="document.getElementById('z-rotate').value = (this.value / 100) - 180;" onchange="document.getElementById('z-rotate').value = (this.value / 100) - 180;" />
     <!-- Apply Button -->
-    <button class="btn btn-defualt" onclick="setRotate(document.getElementById('x-rotate').value, document.getElementById('y-rotate').value, document.getElementById('z-rotate').value);" style="width: 100%;">Apply</button>
+    <button class="btn btn-defualt" onclick="setTrans(document.getElementById('x-rotate').value, document.getElementById('y-rotate').value, document.getElementById('z-rotate').value, Rotate);" style="width: 100%;">Apply</button>
     </div>
 
     <!-- Shift Tool -->
@@ -137,26 +137,26 @@
     <!-- X Shift -->
     <div class="input-group">
       <span class="input-group-addon">X</span>
-      <input id="x-shift" type="text" class="form-control" placeholder="Shift"/>
-      <span class="input-group-addon">&times;</span>
+      <input id="x-shift" type="text" class="form-control" placeholder="Shift" oninput="document.getElementById('x-shift-r').value = (parseInt(this.value) + 20) * 10" onchange="document.getElementById('x-shift-r').value = (parseInt(this.value) + 20) * 10"/>
+      <span class="input-group-addon">pt.</span>
     </div>
-    <input id="x-shift-r" type="range" value="200" min="1" max="400" oninput="document.getElementById('z-shift').value = (this.value / 100) - 200;" onchange="document.getElementById('x-shift').value = (this.value / 100) - 200;" />
+    <input id="x-shift-r" type="range" value="200" min="0" max="400" oninput="document.getElementById('x-shift').value = (this.value / 10) - 20;" onchange="document.getElementById('x-shift').value = (this.value / 10) - 20;" />
     <!-- Y Shift -->
     <div class="input-group">
       <span class="input-group-addon">Y</span>
-      <input id="y-shift" type="text" class="form-control" placeholder="Shift">
-      <span class="input-group-addon">&times;</span>
+      <input id="y-shift" type="text" class="form-control" placeholder="Shift" oninput="document.getElementById('y-shift-r').value = (parseInt(this.value) + 20) * 10" onchange="document.getElementById('y-shift-r').value = (parseInt(this.value) + 20) * 10">
+      <span class="input-group-addon">pt.</span>
     </div>
-    <input id="x-shift-r" type="range" value="200" min="1" max="400" oninput="document.getElementById('z-shift').value = (this.value / 100) - 200;" onchange="document.getElementById('y-shift').value = (this.value / 100) - 200;" />
+    <input id="y-shift-r" type="range" value="200" min="0" max="400" oninput="document.getElementById('y-shift').value = (this.value / 10) - 20;" onchange="document.getElementById('y-shift').value = (this.value / 10) - 20;" />
     <!-- Z Shift -->
     <div class="input-group">
       <span class="input-group-addon">Z</span>
-      <input id="z-shift" type="text" class="form-control" placeholder="Shift">
-      <span class="input-group-addon">&times;</span>
+      <input id="z-shift" type="text" class="form-control" placeholder="Shift" oninput="document.getElementById('z-shift-r').value = (parseInt(this.value) + 20) * 10" onchange="document.getElementById('z-shift-r').value = (parseInt(this.value) + 20) * 10">
+      <span class="input-group-addon">pt.</span>
     </div>
-    <input id="x-shift-r" type="range" value="200" min="1" max="400" oninput="document.getElementById('z-shift').value = (this.value / 100) - 200;" onchange="document.getElementById('z-shift').value = (this.value / 100) - 200;" />
+    <input id="z-shift-r" type="range" value="200" min="0" max="400" oninput="document.getElementById('z-shift').value = (this.value / 10) - 20;" onchange="document.getElementById('z-shift').value = (this.value / 10) - 20;" />
     <!-- Apply Button -->
-    <button class="btn btn-defualt" onclick="setShift(document.getElementById('x-shift').value, document.getElementById('y-shift').value, document.getElementById('z-shift').value);" style="width: 100%;">Apply</button>
+    <button class="btn btn-defualt" onclick="setTrans(document.getElementById('x-shift').value, document.getElementById('y-shift').value, document.getElementById('z-shift').value, Shift);" style="width: 100%;">Apply</button>
     </div>
 
     <!-- Bootstrap core JavaScript
