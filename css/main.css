@@ -1,5 +1,5 @@
-*:focus{
-	outline: 0;
+.btn:focus, .list-group-item:focus {
+  outline: transparent !important;
 }
 
 #drop_zone{
