@@ -69,19 +69,19 @@
       <span class="input-group-addon">X</span>
       <input id="x-scale" type="text" class="form-control" placeholder="Scale"/>
     </div>
-    <input id="x-scale-r" type="range" value="1" min="1" max="1000" oninput="document.getElementById('x-scale').value = this.value / 100;" onchange="document.getElementById('x-scale').value = this.value / 100;" />
+    <input id="x-scale-r" type="range" value="100" min="1" max="1000" oninput="document.getElementById('x-scale').value = this.value / 100;" onchange="document.getElementById('x-scale').value = this.value / 100;" />
     <!-- Y Scale -->
     <div class="input-group">
       <span class="input-group-addon">Y</span>
       <input id="y-scale" type="text" class="form-control" placeholder="Scale">
     </div>
-    <input id="x-scale-r" type="range" value="1" min="1" max="1000" oninput="document.getElementById('y-scale').value = this.value / 100;" onchange="document.getElementById('y-scale').value = this.value / 100;" />
+    <input id="x-scale-r" type="range" value="100" min="1" max="1000" oninput="document.getElementById('y-scale').value = this.value / 100;" onchange="document.getElementById('y-scale').value = this.value / 100;" />
     <!-- Z Scale -->
     <div class="input-group">
       <span class="input-group-addon">Z</span>
       <input id="z-scale" type="text" class="form-control" placeholder="Scale">
     </div>
-    <input id="x-scale-r" type="range" value="1" min="1" max="1000" oninput="document.getElementById('z-scale').value = this.value / 100;" onchange="document.getElementById('z-scale').value = this.value / 100;" />
+    <input id="x-scale-r" type="range" value="100" min="1" max="1000" oninput="document.getElementById('z-scale').value = this.value / 100;" onchange="document.getElementById('z-scale').value = this.value / 100;" />
     <!-- Apply Button -->
     <button class="btn btn-defualt" onclick="setScale(document.getElementById('x-scale').value, document.getElementById('y-scale').value, document.getElementById('z-scale').value);" style="width: 100%;">Apply</button>
     </div>
