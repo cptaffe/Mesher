@@ -99,6 +99,7 @@ function reloadFile(){
 
 function addModel(data){
 	geometry = new THREE.CubeGeometry(3,3,3);
+	geometry.dynamic = true;
 	var customMaterial = new THREE.MeshBasicMaterial( 
 	{
 		side: THREE.BackSide,

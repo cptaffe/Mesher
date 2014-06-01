@@ -1,11 +1,4 @@
-//Default Transforms
-var originalGeometry = geometry.clone();
-
-// set defaults
-function clearTransforms(){
-	geometry = originalGeometry;
-	geometry.verticesNeedUpdate = true;
-}
+// Default Transformations
 
 function setScale(x, y, z){
 	if (isNaN(px = parseFloat(x))) {
