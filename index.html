@@ -55,7 +55,7 @@
             </div>
           </div>
 
-          <div class="list-group">
+          <div id='tool-bar' class="list-group">
             <button id="scale-tool" class="list-group-item" style="width: 100%;">
               Scale
             </button>
@@ -66,7 +66,7 @@
               Shift
             </button>
             <div id="stats"></div>
-          </div>
+          
 
         </div><!--/span-->
       </div><!--/row-->
@@ -162,7 +162,12 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
+    <!-- Bootstrap -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="./bootstrap-3.1.1-dist/js/bootstrap.min.js"></script>
+    <script src="./bootstrap-3.1.1-dist/js/"></script>
+    <script src="./bootstrap-3.1.1-dist/optional-js/popover.js"></script>
+    <!--Other-->
     <script src="./js/three.js"></script>
     <script src="./js/OrbitControls.js"></script>
     <script src="./js/STLLoader.js"></script>
@@ -173,10 +178,7 @@
     <!-- Vasify libraries -->
     <script src="./vasify/transforms.js"></script>
     <script src="./vasify/stuff.js"></script>
-    <!-- Bootstrap -->
-    <script src="./bootstrap-3.1.1-dist/js/bootstrap.min.js"></script>
-    <script src="./bootstrap-3.1.1-dist/js/"></script>
-    <script src="./bootstrap-3.1.1-dist/optional-js/popover.js"></script>
+    <script src="./vasify/tools.js"></script>
     <script>
     // Initial setup
     init();
