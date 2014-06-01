@@ -140,21 +140,21 @@
       <input id="x-shift" type="text" class="form-control" placeholder="Shift"/>
       <span class="input-group-addon">&times;</span>
     </div>
-    <input id="x-shift-r" type="range" value="200" min="1" max="300" oninput="document.getElementById('x-shift').value = this.value / 100;" onchange="document.getElementById('x-shift').value = (this.value / 100) - 200;" />
+    <input id="x-shift-r" type="range" value="200" min="1" max="300" oninput="document.getElementById('z-shift').value = (this.value / 100) - 200;" onchange="document.getElementById('x-shift').value = (this.value / 100) - 200;" />
     <!-- Y Shift -->
     <div class="input-group">
       <span class="input-group-addon">Y</span>
       <input id="y-shift" type="text" class="form-control" placeholder="Shift">
       <span class="input-group-addon">&times;</span>
     </div>
-    <input id="x-shift-r" type="range" value="200" min="1" max="300" oninput="document.getElementById('y-shift').value = this.value / 100;" onchange="document.getElementById('y-shift').value = (this.value / 100) - 200;" />
+    <input id="x-shift-r" type="range" value="200" min="1" max="300" oninput="document.getElementById('z-shift').value = (this.value / 100) - 200;" onchange="document.getElementById('y-shift').value = (this.value / 100) - 200;" />
     <!-- Z Shift -->
     <div class="input-group">
       <span class="input-group-addon">Z</span>
       <input id="z-shift" type="text" class="form-control" placeholder="Shift">
       <span class="input-group-addon">&times;</span>
     </div>
-    <input id="x-shift-r" type="range" value="200" min="1" max="400" oninput="document.getElementById('z-shift').value = this.value / 100;" onchange="document.getElementById('z-shift').value = (this.value / 100) - 200;" />
+    <input id="x-shift-r" type="range" value="200" min="1" max="400" oninput="document.getElementById('z-shift').value = (this.value / 100) - 200;" onchange="document.getElementById('z-shift').value = (this.value / 100) - 200;" />
     <!-- Apply Button -->
     <button class="btn btn-defualt" onclick="setShift(document.getElementById('x-shift').value, document.getElementById('y-shift').value, document.getElementById('z-shift').value);" style="width: 100%;">Apply</button>
     </div>
