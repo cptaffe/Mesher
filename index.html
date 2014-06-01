@@ -42,14 +42,20 @@
             <div class="panel-body">
               <div id="drop_zone">Drop files here</div>
                 <output id="list"></output>
-              <div class="btn btn-default" style="width: 100%;" onclick="saveSTL();">Save</div>
+              <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="width: 100%;">
+                  File <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                  <li><a style="cursor:pointer;" id='openFile'>Open</a></li>
+                  <li><a style="cursor:pointer;" onclick="reloadFile();">Reload</a></li>
+                  <li><a style="cursor:pointer;" onclick="saveSTL();">Save</a></li>
+                </ul>
+              </div>
             </div>
           </div>
 
           <div class="list-group">
-            <button class="btn list-group-item" style="width: 100%;" onclick="reloadFile();">
-              Reset
-            </button>
             <button id="scale-tool" class="btn list-group-item" style="width: 100%;">
               Scale
             </button>
@@ -59,6 +65,9 @@
       </div><!--/row-->
 
     </div><!--/.container-->
+
+    <!-- Hidden file selector -->
+    <input id='fileSelector' name="files[]" multiple type='file' style="display: none;"/>
 
     <!-- Tool HTML -->
 
@@ -110,6 +119,12 @@
     // Initial setup
     init();
 
+    $(function () {
+      $("#openFile").click(function () {
+         $('#fileSelector').click();
+      });
+    });
+
     $(function (){
          $("#scale-tool").popover({
           placement: 'left',
@@ -145,6 +160,18 @@
             readText(files);
         }
 
+        function handleOtherSelect(evt) {
+          var files = evt.target.files; // FileList object
+
+          // files is a FileList of File objects. List some properties.
+          var output = [];
+            for (var i = 0, f; f = files[i]; i++) {
+                output.push('<div class="alert alert-success">', '<strong>Loaded: </strong>', escape(f.name), '</div>');
+            }
+            document.getElementById('list').innerHTML = output.join('');
+            readText(files);
+        }
+
         function handleDragOver(evt) {
             evt.stopPropagation();
             evt.preventDefault();
@@ -155,5 +182,6 @@
         var dropZone = document.getElementById('drop_zone');
         dropZone.addEventListener('dragover', handleDragOver, false);
         dropZone.addEventListener('drop', handleFileSelect, false);
+        document.getElementById('fileSelector').addEventListener('change', handleOtherSelect, false);
     </script>
     </body>

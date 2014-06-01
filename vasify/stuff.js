@@ -40,6 +40,7 @@ function init(){
 	// automatically resize on window resize.
 	THREEx.WindowResize(renderer, camera);
 
+	// set render function
 	render = function() {
 		requestAnimationFrame(render);
 		// model always lit from front
@@ -75,31 +76,15 @@ function reloadFile(){
 	reader.readAsBinaryString(fileFile[0]);
 }
 
-/*function addGrid() {
-	var mygeom = new THREE.Geometry();
-	//Who knows if this'll work
-	var ne = new THREE.Vector3(this.WIDTH/2, 0, 0);
-	var nw = new THREE.Vector3(this.WIDTH/2*-1, 0, 0);
-
-	mygeom.vertices.push(ne);
-	mygeom.vertices.push(nw);
-
-	var material = new THREE.LineBasicMaterial({
-		color: 0x000000,
-		opacity: 0.2
-	});
-
-	for (var i = 0; i < 20; i++) {
-		var line = new THREE.Line(mygeom, material);
-		line.position.z = this.HEIGHT/2 - (i*(this.HEIGHT/20));
-		line.position.y = minY;
-		scene.add(line);
-	}
-}*/
-
 function addModel(data){
+
+	// create geometry
 	geometry = new THREE.CubeGeometry(3,3,3);
+
+	// updatable via transforms
 	geometry.dynamic = true;
+
+	// meshy mesh
 	var customMaterial = new THREE.MeshBasicMaterial( 
 	{
 		side: THREE.BackSide,
@@ -108,12 +93,23 @@ function addModel(data){
 		//transparent: true
 	}   );
 	
+	// specify material
 	var material = new THREE.MeshLambertMaterial({color: 0xAAAAB9, opacity : 1, transparent: true, side: THREE.DoubleSide});
+
+	// specify loader
 	var loader = new THREE.STLLoader();
-	
+
+	// create geometry from parsed data
 	geometry = loader.parse(data);
 
-	
+	// load plane geometry
+    /*var plane = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshLambertMaterial({color: 0xAAAAB9, opacity : 1, transparent: true, side: THREE.DoubleSide}));
+    //plane.overdraw = true;
+    plane.rotation.x = -Math.PI/2; //-90 degrees around the xaxis
+    plane.position.y = -0.5;
+    scene.add(plane);*/
+
+    // load object geometry
 	cube=new THREE.Mesh( geometry,material )
 	cube.geometry.computeBoundingBox ();
 	var b = cube.geometry.boundingBox;
@@ -128,14 +124,14 @@ function addModel(data){
 	{
 		cube.geometry.faces[i].normal=cube.geometry.faces[i].normal.multiplyScalar(1);
 	}
-	
+
 	cube.geometry.applyMatrix(new THREE.Matrix4().makeTranslation( -(b.max.x+b.min.x)/2, -(b.max.y+b.min.y)/2, -(b.max.z+b.min.z)/2 ) );
 	cube.rotation.x = -Math.PI/2;
 	var l=(b.max.x-b.min.x)*(b.max.x-b.min.x)+(b.max.y-b.min.y)*(b.max.y-b.min.y)+(b.max.z-b.min.z)*(b.max.z-b.min.z);
 	l=Math.sqrt(l);
 	camera.position.z = l*.75;
 	scene.add( cube );
-	
+
 	render();
 }
 
