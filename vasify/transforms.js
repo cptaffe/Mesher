@@ -1,5 +1,7 @@
 // Default Transformations
-var lastScale = [1.0,1.0,1.0] // for reverting after scale
+var lastScale = [1.0,1.0,1.0]; // for reverting after scale
+var lastRotate = [0.0,0.0,0.0];
+var lastShift = [0.0, 0.0, 0.0];
 
 function setScale(x, y, z){
 	if (isNaN(px = parseFloat(x))) {
@@ -15,6 +17,34 @@ function setScale(x, y, z){
 	geometry.verticesNeedUpdate = true;
 }
 
+function setRotate(x, y, z){
+	if (isNaN(px = parseFloat(x))) {
+		px = 1.0;
+	}
+	if (isNaN(py = parseFloat(y))) {
+		py = 1.0;
+	}
+	if (isNaN(pz = parseFloat(z))) {
+		pz = 1.0
+	}
+	Rotate(px, py, pz);
+	geometry.verticesNeedUpdate = true;
+}
+
+function setShift(x, y, z){
+	if (isNaN(px = parseFloat(x))) {
+		px = 1.0;
+	}
+	if (isNaN(py = parseFloat(y))) {
+		py = 1.0;
+	}
+	if (isNaN(pz = parseFloat(z))) {
+		pz = 1.0
+	}
+	Shift(px, py, pz);
+	geometry.verticesNeedUpdate = true;
+}
+
 function Scale(x, y, z){
 	for (var i = 0; i < geometry.vertices.length; i++) {
 		geometry.vertices[i].x *= (x/lastScale[0]);
@@ -25,6 +55,30 @@ function Scale(x, y, z){
 	lastScale[0] = x;
 	lastScale[1] = y;
 	lastScale[2] = z;
+}
+
+function Shift(x, y, z){
+	for (var i = 0; i < geometry.vertices.length; i++) {
+		geometry.vertices[i].x += (x - lastRotate[0]);
+		geometry.vertices[i].y += (y - lastRotate[1]);
+		geometry.vertices[i].z += (z - lastRotate[2]);
+	}
+	// set lastRotate
+	lastRotate[0] = x;
+	lastRotate[1] = y;
+	lastRotate[2] = z;
+}
+
+function Rotate(x, y, z){
+	for (var i = 0; i < geometry.vertices.length; i++) {
+		geometry.vertices[i].x += (x - lastRotate[0]);
+		geometry.vertices[i].y += (y - lastRotate[1]);
+		geometry.vertices[i].z += (z - lastRotate[2]);
+	}
+	// set lastRotate
+	lastRotate[0] = x;
+	lastRotate[1] = y;
+	lastRotate[2] = z;
 }
 
 function Stats(){

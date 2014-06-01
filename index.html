@@ -59,9 +59,12 @@
             <button id="scale-tool" class="list-group-item" style="width: 100%;">
               Scale
             </button>
-            <!--button id="scale-tool" class="list-group-item" style="width: 100%;">
+            <button id="rotate-tool" class="list-group-item" style="width: 100%;">
               Rotate
-            </button-->
+            </button>
+            <button id="shift-tool" class="list-group-item" style="width: 100%;">
+              Shift
+            </button>
             <div id="stats"></div>
           </div>
 
@@ -81,24 +84,80 @@
     <div class="input-group">
       <span class="input-group-addon">X</span>
       <input id="x-scale" type="text" class="form-control" placeholder="Scale"/>
+      <span class="input-group-addon">&times;</span>
     </div>
     <input id="x-scale-r" type="range" value="100" min="1" max="300" oninput="document.getElementById('x-scale').value = this.value / 100;" onchange="document.getElementById('x-scale').value = this.value / 100;" />
     <!-- Y Scale -->
     <div class="input-group">
       <span class="input-group-addon">Y</span>
       <input id="y-scale" type="text" class="form-control" placeholder="Scale">
+      <span class="input-group-addon">&times;</span>
     </div>
     <input id="x-scale-r" type="range" value="100" min="1" max="300" oninput="document.getElementById('y-scale').value = this.value / 100;" onchange="document.getElementById('y-scale').value = this.value / 100;" />
     <!-- Z Scale -->
     <div class="input-group">
       <span class="input-group-addon">Z</span>
       <input id="z-scale" type="text" class="form-control" placeholder="Scale">
+      <span class="input-group-addon">&times;</span>
     </div>
     <input id="x-scale-r" type="range" value="100" min="1" max="300" oninput="document.getElementById('z-scale').value = this.value / 100;" onchange="document.getElementById('z-scale').value = this.value / 100;" />
     <!-- Apply Button -->
     <button class="btn btn-defualt" onclick="setScale(document.getElementById('x-scale').value, document.getElementById('y-scale').value, document.getElementById('z-scale').value);" style="width: 100%;">Apply</button>
     </div>
 
+    <!-- Rotate Tool -->
+    <div id="rotate-tool-html" style="display: none;">
+    <!-- X Rotate -->
+    <div class="input-group">
+      <span class="input-group-addon">X</span>
+      <input id="x-rotate" type="text" class="form-control" placeholder="Rotate"/>
+      <span class="input-group-addon">deg.</span>
+    </div>
+    <input id="x-rotate-r" type="range" value="18000" min="0" max="36000" oninput="document.getElementById('x-rotate').value = (this.value / 100) - 180;" onchange="document.getElementById('x-rotate').value = (this.value / 100) - 180;" />
+    <!-- Y Rotate -->
+    <div class="input-group">
+      <span class="input-group-addon">Y</span>
+      <input id="y-rotate" type="text" class="form-control" placeholder="Rotate">
+      <span class="input-group-addon">deg.</span>
+    </div>
+    <input id="x-rotate-r" type="range" value="18000" min="0" max="36000" oninput="document.getElementById('y-rotate').value = (this.value / 100) - 180;" onchange="document.getElementById('y-rotate').value = (this.value / 100) - 180;" />
+    <!-- Z Rotate -->
+    <div class="input-group">
+      <span class="input-group-addon">Z</span>
+      <input id="z-rotate" type="text" class="form-control" placeholder="Rotate">
+      <span class="input-group-addon">deg.</span>
+    </div>
+    <input id="x-rotate-r" type="range" value="18000" min="0" max="36000" oninput="document.getElementById('z-rotate').value = (this.value / 100) - 180;" onchange="document.getElementById('z-rotate').value = (this.value / 100) - 180;" />
+    <!-- Apply Button -->
+    <button class="btn btn-defualt" onclick="setRotate(document.getElementById('x-rotate').value, document.getElementById('y-rotate').value, document.getElementById('z-rotate').value);" style="width: 100%;">Apply</button>
+    </div>
+
+    <!-- Shift Tool -->
+    <div id="shift-tool-html" style="display: none;">
+    <!-- X Shift -->
+    <div class="input-group">
+      <span class="input-group-addon">X</span>
+      <input id="x-shift" type="text" class="form-control" placeholder="Shift"/>
+      <span class="input-group-addon">&times;</span>
+    </div>
+    <input id="x-shift-r" type="range" value="200" min="1" max="300" oninput="document.getElementById('x-shift').value = this.value / 100;" onchange="document.getElementById('x-shift').value = (this.value / 100) - 200;" />
+    <!-- Y Shift -->
+    <div class="input-group">
+      <span class="input-group-addon">Y</span>
+      <input id="y-shift" type="text" class="form-control" placeholder="Shift">
+      <span class="input-group-addon">&times;</span>
+    </div>
+    <input id="x-shift-r" type="range" value="200" min="1" max="300" oninput="document.getElementById('y-shift').value = this.value / 100;" onchange="document.getElementById('y-shift').value = (this.value / 100) - 200;" />
+    <!-- Z Shift -->
+    <div class="input-group">
+      <span class="input-group-addon">Z</span>
+      <input id="z-shift" type="text" class="form-control" placeholder="Shift">
+      <span class="input-group-addon">&times;</span>
+    </div>
+    <input id="x-shift-r" type="range" value="200" min="1" max="400" oninput="document.getElementById('z-shift').value = this.value / 100;" onchange="document.getElementById('z-shift').value = (this.value / 100) - 200;" />
+    <!-- Apply Button -->
+    <button class="btn btn-defualt" onclick="setShift(document.getElementById('x-shift').value, document.getElementById('y-shift').value, document.getElementById('z-shift').value);" style="width: 100%;">Apply</button>
+    </div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -129,15 +188,37 @@
     });
 
     $(function (){
-         $("#scale-tool").popover({
+      $("#scale-tool").popover({
+        placement: 'left',
+        title: 'Scale',
+        html: true,
+        content: function () {
+          return $('#scale-tool-html').html();
+        }
+      });
+    });
+
+    $(function (){
+        $("#rotate-tool").popover({
           placement: 'left',
-          title: 'Scale',
+          title: 'Rotate',
           html: true,
           content: function () {
-            return $('#scale-tool-html').html();
+            return $('#rotate-tool-html').html();
           }
-         });
       });
+    });
+
+    $(function (){
+        $("#shift-tool").popover({
+          placement: 'left',
+          title: 'Shift',
+          html: true,
+          content: function () {
+            return $('#shift-tool-html').html();
+          }
+      });
+    });
 
     // File Upload
         function handleFileSelect(evt) {
