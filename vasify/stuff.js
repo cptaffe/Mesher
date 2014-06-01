@@ -58,6 +58,7 @@ function readText(that){
 	var reader = new FileReader();
 	reader.onload = function (e) {
 		var output=e.target.result;
+		clearTransforms();
 		addModel(output);
 	};//end onload()
 	reader.readAsBinaryString(that[0]);
