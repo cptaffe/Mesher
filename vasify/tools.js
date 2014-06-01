@@ -29,7 +29,7 @@ Tool.prototype.Popover = function(){
     for (var i = 0; i < axes.length; i++){
     	popover.push('document.getElementById("', axes[0], '-', this.name, '").value, ');
     }
-    popover.push(this.name, ');" style="width: 100%;">Apply</button>); </div>');
+    popover.push(this.name, ');" style="width: 100%;">Apply</button> </div>');
 
     this.popover = popover.join('');
 };
@@ -39,14 +39,12 @@ Tool.prototype.Set = function(){
 	// add button to layout
 	appendStringAsNodes(document.getElementById('tool-bar'), this.button);
 	// set button as popover
-	$(function (){
       $("#"+this.name+"-tool").popover({
         placement: 'left',
         title: this.name,
         html: true,
         content: this.popover,
       });
-    });
 };
 
 // Utilitarian functions
