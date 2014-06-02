@@ -1,11 +1,24 @@
 // Tool adding framework
 
-function Tool(name, units){
-	this.name = name;
-	this.units = units;
-	this.Button();
-	this.Popover();
-	this.Set();
+// tool catalog
+var toolCat = new Array();
+
+// Tool accepts a map
+function Tool(name, units, axes, range, fn){
+    this.name = name || "Default"; // Name of tool
+    this.units = units || "pt."; // unit value
+    this.range = range || {min: -5, max: 5, step: 0.01, val: 0}; // map of range configs
+    this.axes = axes || ['x', 'y', 'z']; // array of axes
+    this.func = fn;
+    // add to catalog
+    this.index = toolCat.length;
+    toolCat.push(this);
+    // create it!
+	this.go = function(){
+        this.Button();
+        this.Popover();
+        this.Set();
+    }
 }
 
 Tool.prototype.Button = function(){
@@ -16,20 +29,28 @@ Tool.prototype.Button = function(){
 Tool.prototype.Popover = function(){
 	var popover = ['<!-- ', this.name, ' Tool -->'];
 
-	var axes = ['x', 'y', 'z']
+    // range config
+    var rMax = (parseInt(this.range['max']) + parseInt(Math.abs(this.range['min']))) / parseFloat(this.range['step']);
+    var rStep = 1/parseFloat(this.range['step']);
+    var rMin = 0;
+    var rOffset = parseInt(this.range['min']);
+    var rVal = (parseInt(this.range['val']) - rOffset) * rStep;
+    var rPrec = (String(this.range['step']).split('.')[1] || []).length
+
 
 	// Axis independent addition of fields
-	for (var i = 0; i < axes.length; i++){
-		var axis = axes[i];
-		popover.push('<!-- ', axis, ' ',this.name, ' --> <div class="input-group"> <span class="input-group-addon">', axis, '</span> <input id="', axis, '-', this.name, '" type="text" class="form-control" placeholder="', this.name, '" oninput="document.getElementById(\"', axis, '-', this.name, '-r\").value = parseFloat(this.value) * 100" onchange="document.getElementById(\"', axis, '-', this.name, '-r\").value = parseFloat(this.value) * 100"/> <span class="input-group-addon">', this.units, '</span> </div> <input id="', axis, '-', this.name, '-r" type="range" value="100" min="1" max="300" oninput="document.getElementById(\"', axis, '-', this.name, '\").value = this.value / 100;" onchange="document.getElementById(\"', axis, '-', this.name, '\").value = this.value / 100;" />');
+	for (var i = 0; i < this.axes.length; i++){
+		var axis = this.axes[i];
+		popover.push('<!-- ', axis, ' ',this.name, ' --> <div class="input-group"> <span class="input-group-addon">', axis.toUpperCase(), '</span> <input id="', axis, '-', this.name, '" type="text" class="form-control" placeholder="', this.name, '" oninput="document.getElementById(\'', axis, '-', this.name, '-r\').value = (parseFloat(this.value).toFixed(', rPrec, ') - ', rOffset, ') * ', rStep, '" onchange="document.getElementById(\'', axis, '-', this.name, '-r\').value = (parseFloat(this.value).toFixed(', rPrec, ') - ', rOffset, ' ) * ', rStep, '"/> <span class="input-group-addon">', this.units, '</span> </div> <input id="', axis, '-', this.name, '-r" type="range" value="', rVal, '" min="', rMin, '" max="', rMax, '" oninput="document.getElementById(\'', axis, '-', this.name, '\').value = ((this.value / ', rStep, ') + ', rOffset, ').toFixed(', rPrec, ');" onchange="document.getElementById(\'', axis, '-', this.name, '\').value = ((this.value / ', rStep, ') + ', rOffset, ').toFixed(', rPrec, ');" />');
 	}
     
     // Apply button
-    popover.push('<!-- Apply Button --> <button class="btn btn-defualt" onclick="setTrans(');
-    for (var i = 0; i < axes.length; i++){
-    	popover.push('document.getElementById("', axes[0], '-', this.name, '").value, ');
+    popover.push('<!-- Apply Button --> <button class="btn btn-defualt" onclick="');
+    var funcCall = new Array();
+    for (var i = 0; i < this.axes.length; i++){
+    	funcCall.push(['document.getElementById(\'', this.axes[i], '-', this.name, '\').value'].join(''));
     }
-    popover.push(this.name, ');" style="width: 100%;">Apply</button> </div>');
+    popover.push('setTrans(', funcCall.join(', '), ', toolCat[', this.index, '].func);" style="width: 100%;">Apply</button> </div>');
 
     this.popover = popover.join('');
 };

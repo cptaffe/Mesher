@@ -46,7 +46,7 @@ function init(){
 		// model always lit from front
 		directionalLight.position.set( camera.position.x,camera.position.y,camera.position.z );
 		renderer.render(scene, camera);
-		Stats();
+		//Stats();
 		controls.update();
 	};
 

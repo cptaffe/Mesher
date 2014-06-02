@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="./favicon.ico">
+
+    <title>Vasify</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="./bootstrap-3.1.1-dist/css/bootstrap.min.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="./css/main.css">
+
+    <!-- Font Awesome -->
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+  </head>
+    <body>
+
+    <div class="container">
+
+      <div class="row row-offcanvas row-offcanvas-right">
+
+      <!-- Model Display -->
+      <div id="container"></div>
+
+        <div id="sidebar">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">File Upload</h3>
+            </div>
+            <div class="panel-body">
+              <div id="drop_zone">Drop files here</div>
+                <output id="list"></output>
+              <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="width: 100%;"><i class="fa fa-file-o fa-fw"></i> File <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                  <li><a style="cursor:pointer;" id='openFile'><i class="fa fa-file-code-o fa-fw"></i> Open</a></li>
+                  <li><a style="cursor:pointer;" onclick="reloadFile();"><i class="fa fa-refresh fa-fw"></i> Reload</a></li>
+                  <li><a style="cursor:pointer;" onclick="saveSTL();"><i class="fa fa-floppy-o fa-fw"></i> Save</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div id='tool-bar' class="list-group">
+            <button id="scale-tool" class="list-group-item" style="width: 100%;">
+              Scale
+            </button>
+            <button id="rotate-tool" class="list-group-item" style="width: 100%;">
+              Rotate
+            </button>
+            <button id="shift-tool" class="list-group-item" style="width: 100%;">
+              Shift
+            </button>
+            <div id="stats"></div>
+            
+          </div>
+        </div><!--/span-->
+      </div><!--/row-->
+
+    </div><!--/.container-->
+
+    <!-- Hidden file selector -->
+    <input id='fileSelector' name="files[]" multiple type='file' style="display: none;"/>
+
+    <!-- Tool HTML -->
+
+    <!-- Scale Tool -->
+    <div id="scale-tool-html" style="display: none;">
+    <!-- X Scale -->
+    <div class="input-group">
+      <span class="input-group-addon">X</span>
+      <input id="x-scale" type="text" class="form-control" placeholder="Scale" oninput="document.getElementById('x-scale-r').value = parseFloat(this.value) * 100" onchange="document.getElementById('x-scale-r').value = parseFloat(this.value) * 100"/>
+      <span class="input-group-addon">&times;</span>
+    </div>
+    <input id="x-scale-r" type="range" value="100" min="1" max="300" oninput="document.getElementById('x-scale').value = this.value / 100;" onchange="document.getElementById('x-scale').value = this.value / 100;" />
+    <!-- Y Scale -->
+    <div class="input-group">
+      <span class="input-group-addon">Y</span>
+      <input id="y-scale" type="text" class="form-control" placeholder="Scale" oninput="document.getElementById('y-scale-r').value = parseFloat(this.value) * 100" onchange="document.getElementById('y-scale-r').value = parseFloat(this.value) * 100">
+      <span class="input-group-addon">&times;</span>
+    </div>
+    <input id="y-scale-r" type="range" value="100" min="1" max="300" oninput="document.getElementById('y-scale').value = this.value / 100;" onchange="document.getElementById('y-scale').value = this.value / 100;" />
+    <!-- Z Scale -->
+    <div class="input-group">
+      <span class="input-group-addon">Z</span>
+      <input id="z-scale" type="text" class="form-control" placeholder="Scale" oninput="document.getElementById('z-scale-r').value = parseFloat(this.value) * 100" onchange="document.getElementById('z-scale-r').value = parseFloat(this.value) * 100">
+      <span class="input-group-addon">&times;</span>
+    </div>
+    <input id="z-scale-r" type="range" value="100" min="1" max="300" oninput="document.getElementById('z-scale').value = this.value / 100;" onchange="document.getElementById('z-scale').value = this.value / 100;" />
+    <!-- Apply Button -->
+    <button class="btn btn-defualt" onclick="setTrans(document.getElementById('x-scale').value, document.getElementById('y-scale').value, document.getElementById('z-scale').value, Scale);" style="width: 100%;">Apply</button>
+    </div>
+
+    <!-- Rotate Tool -->
+    <div id="rotate-tool-html" style="display: none;">
+    <!-- X Rotate -->
+    <div class="input-group">
+      <span class="input-group-addon">X</span>
+      <input id="x-rotate" type="text" class="form-control" placeholder="Rotate" oninput="document.getElementById('x-rotate-r').value = (parseInt(this.value) + 180) * 100" onchange="document.getElementById('x-rotate-r').value = (parseInt(this.value) + 180) * 100"/>
+      <span class="input-group-addon">deg.</span>
+    </div>
+    <input id="x-rotate-r" type="range" value="18000" min="0" max="36000" oninput="document.getElementById('x-rotate').value = (this.value / 100) - 180;" onchange="document.getElementById('x-rotate').value = (this.value / 100) - 180;" />
+    <!-- Y Rotate -->
+    <div class="input-group">
+      <span class="input-group-addon">Y</span>
+      <input id="y-rotate" type="text" class="form-control" placeholder="Rotate" oninput="document.getElementById('y-rotate-r').value = (parseInt(this.value) + 180) * 100" onchange="document.getElementById('y-rotate-r').value = (parseInt(this.value) + 180) * 100">
+      <span class="input-group-addon">deg.</span>
+    </div>
+    <input id="y-rotate-r" type="range" value="18000" min="0" max="36000" oninput="document.getElementById('y-rotate').value = (this.value / 100) - 180;" onchange="document.getElementById('y-rotate').value = (this.value / 100) - 180;" />
+    <!-- Z Rotate -->
+    <div class="input-group">
+      <span class="input-group-addon">Z</span>
+      <input id="z-rotate" type="text" class="form-control" placeholder="Rotate" oninput="document.getElementById('z-rotate-r').value = (parseInt(this.value) + 180) * 100" onchange="document.getElementById('z-rotate-r').value = (parseInt(this.value) + 180) * 100">
+      <span class="input-group-addon">deg.</span>
+    </div>
+    <input id="z-rotate-r" type="range" value="18000" min="0" max="36000" oninput="document.getElementById('z-rotate').value = (this.value / 100) - 180;" onchange="document.getElementById('z-rotate').value = (this.value / 100) - 180;" />
+    <!-- Apply Button -->
+    <button class="btn btn-defualt" onclick="setTrans(document.getElementById('x-rotate').value, document.getElementById('y-rotate').value, document.getElementById('z-rotate').value, Rotate);" style="width: 100%;">Apply</button>
+    </div>
+
+    <!-- Shift Tool -->
+    <div id="shift-tool-html" style="display: none;">
+    <!-- X Shift -->
+    <div class="input-group">
+      <span class="input-group-addon">X</span>
+      <input id="x-shift" type="text" class="form-control" placeholder="Shift" oninput="document.getElementById('x-shift-r').value = (parseInt(this.value) + 20) * 10" onchange="document.getElementById('x-shift-r').value = (parseInt(this.value) + 20) * 10"/>
+      <span class="input-group-addon">pt.</span>
+    </div>
+    <input id="x-shift-r" type="range" value="200" min="0" max="400" oninput="document.getElementById('x-shift').value = (this.value / 10) - 20;" onchange="document.getElementById('x-shift').value = (this.value / 10) - 20;" />
+    <!-- Y Shift -->
+    <div class="input-group">
+      <span class="input-group-addon">Y</span>
+      <input id="y-shift" type="text" class="form-control" placeholder="Shift" oninput="document.getElementById('y-shift-r').value = (parseInt(this.value) + 20) * 10" onchange="document.getElementById('y-shift-r').value = (parseInt(this.value) + 20) * 10">
+      <span class="input-group-addon">pt.</span>
+    </div>
+    <input id="y-shift-r" type="range" value="200" min="0" max="400" oninput="document.getElementById('y-shift').value = (this.value / 10) - 20;" onchange="document.getElementById('y-shift').value = (this.value / 10) - 20;" />
+    <!-- Z Shift -->
+    <div class="input-group">
+      <span class="input-group-addon">Z</span>
+      <input id="z-shift" type="text" class="form-control" placeholder="Shift" oninput="document.getElementById('z-shift-r').value = (parseInt(this.value) + 20) * 10" onchange="document.getElementById('z-shift-r').value = (parseInt(this.value) + 20) * 10">
+      <span class="input-group-addon">pt.</span>
+    </div>
+    <input id="z-shift-r" type="range" value="200" min="0" max="400" oninput="document.getElementById('z-shift').value = (this.value / 10) - 20;" onchange="document.getElementById('z-shift').value = (this.value / 10) - 20;" />
+    <!-- Apply Button -->
+    <button class="btn btn-defualt" onclick="setTrans(document.getElementById('x-shift').value, document.getElementById('y-shift').value, document.getElementById('z-shift').value, Shift);" style="width: 100%;">Apply</button>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- Bootstrap -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="./bootstrap-3.1.1-dist/js/bootstrap.min.js"></script>
+    <script src="./bootstrap-3.1.1-dist/js/"></script>
+    <script src="./bootstrap-3.1.1-dist/optional-js/popover.js"></script>
+    <!--Other-->
+    <script src="./js/three.js"></script>
+    <script src="./js/OrbitControls.js"></script>
+    <script src="./js/STLLoader.js"></script>
+    <script src="./js/Blob.js"></script>
+    <script src="./js/FileSaver.js"></script>
+    <script src="./js/ace.js"></script>
+    <script src='./js/THREEx.WindowResize.js'></script>
+    <!-- Vasify libraries -->
+    <script src="./vasify/transforms.js"></script>
+    <script src="./vasify/stuff.js"></script>
+    <script src="./vasify/tools.js"></script>
+    <script>
+    // Initial setup
+    init();
+
+    $(function () {
+      $("#openFile").click(function () {
+         $('#fileSelector').click();
+      });
+    });
+
+    $(function (){
+      $("#scale-tool").popover({
+        placement: 'left',
+        title: 'Scale',
+        html: true,
+        content: function () {
+          return $('#scale-tool-html').html();
+        }
+      });
+    });
+
+    $(function (){
+        $("#rotate-tool").popover({
+          placement: 'left',
+          title: 'Rotate',
+          html: true,
+          content: function () {
+            return $('#rotate-tool-html').html();
+          }
+      });
+    });
+
+    $(function (){
+        $("#shift-tool").popover({
+          placement: 'left',
+          title: 'Shift',
+          html: true,
+          content: function () {
+            return $('#shift-tool-html').html();
+          }
+      });
+    });
+
+    // File Upload
+        function handleFileSelect(evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            var files = evt.dataTransfer.files; // FileList object.
+
+            // files is a FileList of File objects. List some properties.
+            var output = [];
+            for (var i = 0, f; f = files[i]; i++) {
+                output.push('<div class="alert alert-success">', '<strong>Loaded: </strong>', escape(f.name), '</div>');
+            }
+            document.getElementById('list').innerHTML = output.join('');
+            readText(files);
+        }
+
+        function handleOtherSelect(evt) {
+          var files = evt.target.files; // FileList object
+
+          // files is a FileList of File objects. List some properties.
+          var output = [];
+            for (var i = 0, f; f = files[i]; i++) {
+                output.push('<div class="alert alert-success">', '<strong>Loaded: </strong>', escape(f.name), '</div>');
+            }
+            document.getElementById('list').innerHTML = output.join('');
+            readText(files);
+        }
+
+        function handleDragOver(evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+        }
+
+        // Setup the dnd listeners.
+        var dropZone = document.getElementById('drop_zone');
+        dropZone.addEventListener('dragover', handleDragOver, false);
+        dropZone.addEventListener('drop', handleFileSelect, false);
+        document.getElementById('fileSelector').addEventListener('change', handleOtherSelect, false);
+    </script>
+    </body>
