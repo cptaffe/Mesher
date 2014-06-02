@@ -1,3 +1,7 @@
+html{
+	overflow: hidden;
+}
+
 .btn:focus, .list-group-item:focus {
   outline: transparent !important;
 }
@@ -45,4 +49,9 @@ button{
 
 #hist>p:hover{
 	color: black;
+}
+
+#hist{
+	height: 200px;
+	overflow: auto;
 }

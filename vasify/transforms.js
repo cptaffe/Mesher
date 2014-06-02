@@ -49,17 +49,18 @@ Trans.prototype.Set = function(){
 var lastScale = [1.0,1.0,1.0]; // for reverting after scale
 var lastRotate = [0.0,0.0,0.0];
 var lastShift = [0.0, 0.0, 0.0];
+var lastAutoCenter = [0.0,0.0,0.0];
 
 // Set functions parse the 
-function setTrans(x, y, z, trans){
+function setTrans(x, y, z, def, trans){
 	if (isNaN(px = parseFloat(x))) {
-		px = 1.0;
+		px = def;
 	}
 	if (isNaN(py = parseFloat(y))) {
-		py = 1.0;
+		py = def;
 	}
 	if (isNaN(pz = parseFloat(z))) {
-		pz = 1.0
+		pz = def;
 	}
 	var t = new Trans({
 		func: trans,
@@ -90,9 +91,9 @@ function Shift(par){
 		geometry.vertices[i].z += (par[2] - lastRotate[2]);
 	}
 	// save state
-	lastRotate[0] = par[0];
-	lastRotate[1] = par[1];
-	lastRotate[2] = par[2];
+	lastShift[0] = par[0];
+	lastShift[1] = par[1];
+	lastShift[2] = par[2];
 	geometry.verticesNeedUpdate = true;
 }
 
@@ -107,8 +108,34 @@ function Rotate(par){
 	geometry.verticesNeedUpdate = true;
 }
 
+function AutoCenter(){
+	var b = cube.geometry.boundingBox;
+	var lenX = (b.max.x - b.min.x)/2;
+	var x = lenX - b.max.x;
+	var lenY = (b.max.y - b.min.y)/2;
+	var y = lenY - b.max.y;
+	// do not center z, min should be 0
+	var lenZ = (b.max.z - b.min.z);
+	var z = (lenZ - b.max.z);
+
+	// use Shift invisibly
+	var last = lastShift.slice(0);
+	setTrans(x-lastAutoCenter[0], y-lastAutoCenter[1], z-lastAutoCenter[2], 0.0, Shift);
+	lastShift = last.slice(0);
+	
+	// save
+	lastAutoCenter[0] = x;
+	lastAutoCenter[1] = y;
+	lastAutoCenter[2] = z;
+}
+
 /*function Stats(){
-	var b = cube.geometry.boundingBox.clone();
-	var s = ['Min x:', b.min.x, 'Min lastScale[0]y:', b.min.y, 'Min z:', b.min.z];
-	document.getElementById('stats').value = s.join(' ');
+	var b = cube.geometry.boundingBox;
+	var s = ['Min x:', b.min.x, 'Min y:', b.min.y, 'Min z:', b.min.z];
+	s.push('Max x:', b.max.x, 'Max y:', b.max.y, 'Min z:', b.max.z);
+	var d = document.createElement('div');
+	d.appendChild(document.createTextNode(s.join(' ')));
+	var l = document.getElementById('hist');
+	l.innerHTML = '';
+	l.appendChild(d);
 }*/

@@ -50,7 +50,7 @@ Tool.prototype.Popover = function(){
     for (var i = 0; i < this.axes.length; i++){
     	funcCall.push(['document.getElementById(\'', this.axes[i], '-', this.name, '\').value'].join(''));
     }
-    popover.push('setTrans(', funcCall.join(', '), ', toolCat[', this.index, '].func);" style="width: 100%;">Apply</button> </div>');
+    popover.push('setTrans(', funcCall.join(', '), ', ', parseInt(this.range['val']), ',toolCat[', this.index, '].func);" style="width: 100%;">Apply</button> </div>');
 
     this.popover = popover.join('');
 };

@@ -45,6 +45,7 @@ function init(){
 		requestAnimationFrame(render);
 		// model always lit from front
 		directionalLight.position.set( camera.position.x,camera.position.y,camera.position.z );
+
 		renderer.render(scene, camera);
 		//Stats();
 		controls.update();
@@ -130,11 +131,11 @@ function addModel(data){
 	cube.rotation.x = -Math.PI/2;
 	var l=(b.max.x-b.min.x)*(b.max.x-b.min.x)+(b.max.y-b.min.y)*(b.max.y-b.min.y)+(b.max.z-b.min.z)*(b.max.z-b.min.z);
 	l=Math.sqrt(l);
-	camera.position.z = l*.75;
+	camera.position.z = l*0.75;
 	scene.add( cube );
 
 	// foggy fog fog
-	scene.fog=new THREE.FogExp2( 0xffffff, 0.0035 );
+	//scene.fog=new THREE.FogExp2( 0xffffff, 0.0035 );
 
 	render();
 }
