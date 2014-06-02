@@ -36,3 +36,13 @@ button{
 	left: 0;
 	bottom: 0;
 }
+
+#hist>p{
+	cursor: pointer;
+	color: gray;
+	transition: all 0.25s ease;
+}
+
+#hist>p:hover{
+	color: black;
+}

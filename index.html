@@ -55,6 +55,7 @@
           </div>
 
           <div id='tool-bar' class="list-group"></div>
+          <div id='hist'></div>
             
           </div>
         </div><!--/span-->
@@ -85,6 +86,7 @@
     <script src="./vasify/transforms.js"></script>
     <script src="./vasify/stuff.js"></script>
     <script src="./vasify/tools.js"></script>
+    <script src="./vasify/tool-init.js"></script>
     <script>
     // Initial setup
     init();
@@ -94,41 +96,6 @@
          $('#fileSelector').click();
       });
     });
-
-    (new Tool(
-      "Scale",
-      "&times;",
-      null,
-      {min: 0, max: 3, step: 0.01, val: 1},
-      Scale
-      )).go();
-
-    (new Tool(
-      "Rotate",
-      "deg.",
-      null,
-      {min: -180, max: 180, step: 0.01, val: 0},
-      Rotate
-      )).go();
-
-    (new Tool(
-      "Shift",
-      "pt.",
-      null,
-      {min: -20, max: 20, step: 0.01, val: 0},
-      Shift
-      )).go();
-
-    // example of anonymous function passing
-    /*(new Tool(
-      "Alert",
-      "pt.",
-      null,
-      {min: -20, max: 20, step: 0.01, val: 0},
-      function(x, y, z){ 
-        alert(x); 
-      }
-      )).go();*/
 
     // File Upload
         function handleFileSelect(evt) {
