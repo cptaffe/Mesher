@@ -178,19 +178,19 @@ function removeAll(sce) {
 
 //Hopefully generate and print STL
 function stringifyVector(vec) { return ""+vec.x+" "+vec.y+" "+vec.z; }
-function stringifyVertex(vec) { return "vertex "+stringifyVector(vec)+" \n"; }
+function stringifyVertex(vec) { return "\t\tvertex "+stringifyVector(vec)+" \n"; }
 function generateSTL () {
 	var vertices = geometry.vertices;
 	var faces = geometry.faces;
 
-	var stl = "solid pixel";
+	var stl = "solid pixel\n";
 	for (var i = 0; i < faces.length; i++) {
 		stl += ("facet normal "+stringifyVector( faces[i].normal )+" \n");
-		stl += ("outer loop \n");
+		stl += ("\touter loop \n");
 		stl += stringifyVertex( vertices[ faces[i].a ]);
 		stl += stringifyVertex( vertices[ faces[i].b ]);
 		stl += stringifyVertex( vertices[ faces[i].c ]);
-		stl += ("endloop \n");
+		stl += ("\tendloop \n");
 		stl += ("endfacet \n");
 	}
 

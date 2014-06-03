@@ -72,9 +72,9 @@ function setTrans(x, y, z, def, trans){
 
 function Scale(par){
 	for (var i = 0; i < geometry.vertices.length; i++) {
-		geometry.vertices[i].x *= (par[0]/lastScale[0]);
-		geometry.vertices[i].y *= (par[1]/lastScale[1]);
-		geometry.vertices[i].z *= (par[2]/lastScale[2]);
+		geometry.vertices[i].x *= par[0];
+		geometry.vertices[i].y *= par[1];
+		geometry.vertices[i].z *= par[2];
 	}
 	// save state
 	lastScale[0] = par[0];
@@ -87,9 +87,9 @@ function Scale(par){
 
 function Shift(par){
 	for (var i = 0; i < geometry.vertices.length; i++) {
-		geometry.vertices[i].x += (par[0] - lastRotate[0]);
-		geometry.vertices[i].y += (par[1] - lastRotate[1]);
-		geometry.vertices[i].z += (par[2] - lastRotate[2]);
+		geometry.vertices[i].x += par[0];
+		geometry.vertices[i].y += par[1];
+		geometry.vertices[i].z += par[2];
 	}
 	// save state
 	lastShift[0] = par[0];
@@ -110,13 +110,42 @@ function Rotate(par){
 	lastRotate[2] = par[2];
 	geometry.verticesNeedUpdate = true;
 	geometry.normalsNeedUpdate=true;
+	//geometry=cube.geometry;
+}
+
+function Slice(){
+	//experiments in slicing
+	var plane_geometry = new THREE.CubeGeometry( 1000, 1000, 1000 );
+	var plane_mesh = new THREE.Mesh( plane_geometry );
+	plane_mesh.position.x = 500;
+	plane_mesh.rotation.x=-Math.PI/2;
+	var plane_bsp = new ThreeBSP( plane_mesh );
+	//var cube_geometry = new THREE.CubeGeometry( 3, 3, 3 );
+	var cube_mesh = new THREE.Mesh( geometry );
+	var cube_bsp = new ThreeBSP( cube_mesh );
+	//var cube_bsp = new ThreeBSP( cube );
+	var result=cube_bsp.subtract(plane_bsp);
+	scene.remove(cube);
+	var material = new THREE.MeshLambertMaterial({color: 0xAAAAB9, opacity : 1, transparent: true, side: THREE.DoubleSide});
+	cube=result.toMesh(material);
+	geometry=cube.geometry;
+	cube.rotation.x=-Math.PI/2;
+	scene.add(cube);
+	
+	geometry.verticesNeedUpdate = true;
+	geometry.normalsNeedUpdate=true;
 }
 
 // TODO: Get this to show up on stack.
 function AutoCenter(){
+
+	
+	
+	
 	geometry.computeBoundingBox ();
 	var b =geometry.boundingBox;
 	var lenX = (b.max.x - b.min.x)/2;
+	//alert(b.max.x+","+b.min.x);
 	var x = lenX - b.max.x;
 	var lenY = (b.max.y - b.min.y)/2;
 	var y = lenY - b.max.y;
@@ -125,7 +154,9 @@ function AutoCenter(){
 	var z = (lenZ - b.max.z);
 	//alert([x,y,z]);
 	Shift([x,y,z]);
-	zoomFit();
+	
+		
+	//zoomFit();
 	//camera.lookAt(new THREE.Vector3( 0,0,lenZ/2));
 	
 	// use Shift invisibly
