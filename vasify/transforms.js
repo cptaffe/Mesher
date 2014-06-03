@@ -122,7 +122,6 @@ function AutoCenter(){
 	var last = lastShift.slice(0);
 	setTrans(x-lastAutoCenter[0], y-lastAutoCenter[1], z-lastAutoCenter[2], 0.0, Shift);
 	lastShift = last.slice(0);
-	
 	// save
 	lastAutoCenter[0] = x;
 	lastAutoCenter[1] = y;
