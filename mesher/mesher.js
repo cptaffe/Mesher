@@ -8,26 +8,13 @@
 if (typeof THREE === 'undefined') { throw new Error('Mesher\'s JavaScript requires THREE'); }
 if (typeof jQuery === 'undefined') { throw new Error('Mesher\'s JavaScript requires jQuery'); }
 
-
-// Mesher Library
-var Mesher = function () {
-	'use strict';
-	// Projects stack
-	this.Projects = [];
-
-	// reference to project
-	this._cProj = this.Porjects[0];
-
-	// Output object for handling printing
-	// & such
-	this.Output = new this.Output();
-};
+var Mesher = {};
 
 // Mesher Prototypes
-(function (m, $) {
+(function (m$, $) {
 	'use strict';
 
-m.prototype.import = function () {
+m$.Import = function () {
 		$.getScript("./mesher/js/transforms.js"); // transform functions
 		$.getScript("./mesher/js/tools.js"); // tools api
 		$.getScript("./mesher/init/tools.js"); // defualt tools
@@ -36,10 +23,10 @@ m.prototype.import = function () {
 })(Mesher, jQuery);
 
 // Project object
-(function (m) {
+(function (m$) {
 	'use strict';
 
-	m.Project = function () {
+	m$.Project = function () {
 		// Models stack
 		this.Models = [];
 
@@ -55,18 +42,18 @@ m.prototype.import = function () {
 		this.Fut = this.Trans[1];
 
 		// original File info
-		this.File = new m.File();
+		this.File = new m$.File();
 	};
 	
 	// Undo function
 	// undo accepts an index to undo (optional)
-	m.Project.undo = function (index) {
+	m$.Project.undo = function (index) {
 		this._do(this.Hist, this.Fut, this._cModel, index);
 	};
 
 	// Redo function
 	// redo accepts an index to redo (optional)
-	m.Project.undo = function (index) {
+	m$.Project.undo = function (index) {
 		this._do(this.Fut, this.Hist, this._cModel, index);
 	};
 
@@ -77,7 +64,7 @@ m.prototype.import = function () {
 	// preview clones the current model to a new Model
 	// indice, it also clones the history stack and provides
 	// the transform object in a new stack
-	m.Project.preview = function (t, index) {
+	m$.Project.preview = function (t, index) {
 		// Sets indice to 0 on undefined
 		// which will set the new Model on
 		// the first 'unused' indice
@@ -99,7 +86,7 @@ m.prototype.import = function () {
 	// a stack to push to,
 	// a model to apply the altered stack to,
 	// & an index to splice from (optional)
-	m.Project._do = function (Hist, Fut, Model, index) {
+	m$.Project._do = function (Hist, Fut, Model, index) {
 
 		if (typeof index == 'undefined'){
 			// pop from history and push to future
@@ -123,33 +110,35 @@ m.prototype.import = function () {
 })(Mesher);
 
 // File object
-(function (m) {
+(function (m$) {
 	'use strict';
 
-	m.File = function(){
+	m$.File = function(name){
 		// file name
-		this.Name;
+		this.Name = name;
 	};
 })(Mesher);
 
 // Trans object
-(function (m) {
+(function (m$) {
 	'use strict';
 
-	m.Trans = function () {
+	m$.Trans = function (proj, func) {
 		// transformation function
-		this.func;
+		this.func = func;
 
 		// function parameters
-		this.params = [];
+    if (typeof arguments !== 'undefined'){
+			this.params = arguments.splice(2);
+		}
 
 		// reference to project object
-		this.project;
+		this.project = proj;
 	};
 
 	// calls func(params, g)
 	// g specifies the geometry to change
-	m.Trans.prototype.call = function (g) {
+	m$.Trans.prototype.call = function (g) {
 		// .apply() sends the scope
 		// & sends parameters as an array
 		// since concat returns the merged array
@@ -162,7 +151,7 @@ m.prototype.import = function () {
 	// create takes a transformation function
 	// and an arguments as parameters, any arguments
 	// following the function are treated as params (optional)
-	m.Trans.prototype.create = function (func) {
+	m$.Trans.prototype.create = function (func) {
 		this.func = func;
 		// optional params
 		if (typeof arguments !== 'undefined'){
@@ -173,13 +162,13 @@ m.prototype.import = function () {
 	// record takes no parameters and pushes
 	// the current transform object onto the
 	// project's history stack.
-	m.Trans.prototype.record = function () {
+	m$.Trans.prototype.record = function () {
 		var i = this.project.Hist.push(this);
 		return i - 1; // returns index
 	};
 
 	// toString takes no parameters and pushes
-	m.Trans.prototype.toString = function(){
+	m$.Trans.prototype.toString = function(){
 
 		// creates stack
 		// & pushes the func name and '(' stack
@@ -203,33 +192,53 @@ m.prototype.import = function () {
 })(Mesher);
 
 // Output function
-(function (m) {
+(function (m$) {
   'use strict';
   
-	m.Output = function () {
-		this.Elements;
-		this.histPrinter;
-	};
+	m$.Output = function () {
+		this.Elements = {};
+	    this.histPrinter = {};
 
-	m.Output.prototype.PrintHistory = function () {
-		this.histPrinter(this.Elements);
+		m$.Output.prototype.PrintHistory = function () {
+			this.histPrinter(this.Elements);
+		};
 	};
 })(Mesher);
 
 // JQuery Plugins.
-(function ($, m){
+(function ($, m$){
   'use strict';
 	// Set takes a trans object and prints a history
 	// within a DOM element.
 	$.fn.meshHistory = function(){
-		m.Output.Elements.history = this;
-		m.Output.histPrinter = function (e) {
-			for (var i = 0; i < m._cProj.Hist.length; i++) {
-        var s = document.createElement('div');
-        s.appendChild(document.createTextNode(m._cProj.Hist[i].toString()));
-        s.setAttribute('onclick', 'Hist['+i+'].call()');
-        e.history.insertBefore(s, e.history.firstChild);
-      }
+		m$.output.Elements.history = this;
+		m$.output.histPrinter = function (e) {
+		for (var i = 0; i < m._cProj.Hist.length; i++) {
+			var s = document.createElement('div');
+			s.appendChild(document.createTextNode(m._cProj.Hist[i].toString()));
+			s.setAttribute('onclick', 'Hist['+i+'].call()');
+			e.history.insertBefore(s, e.history.firstChild);
+    	}
     };
-	};
+};
 })(jQuery, Mesher);
+
+// Mesher Library
+var Mesher = function (m$) {
+	'use strict';
+
+	// Projects stack
+	m$.Projects = [];
+
+	// reference to project
+	m$._cProj = m$.Projects[0];
+
+	// Output object for handling printing
+	// & such
+	m$.output = new m$.Output();
+
+	return m$;
+}(Mesher);
+
+// easy colloquial usage
+var m$ = Mesher;
