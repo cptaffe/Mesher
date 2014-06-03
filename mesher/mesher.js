@@ -28,18 +28,9 @@ var Mesher = function () {
 	'use strict';
 
 m.prototype.import = function () {
-		$.getScript("js/transform.js").fail(
-			function(){
-				console.log("js/transform.js failed");
-			}); // transform functions
-		$.getScript("js/tools.js").fail(
-			function(){
-				console.log("js/tools.js failed");
-			}); // tools api
-		$.getScript("init/tools.js").fail(
-			function(){
-				console.log("init/tools.js failed");
-			}); // defualt tools
+		$.getScript("./mesher/js/transforms.js"); // transform functions
+		$.getScript("./mesher/js/tools.js"); // tools api
+		$.getScript("./mesher/init/tools.js"); // defualt tools
 }(); // Import Scripts
   
 })(Mesher, jQuery);
@@ -139,7 +130,7 @@ m.prototype.import = function () {
 		// file name
 		this.Name;
 	};
-})(Mesher)
+})(Mesher);
 
 // Trans object
 (function (m) {
@@ -223,7 +214,7 @@ m.prototype.import = function () {
 	m.Output.prototype.PrintHistory = function () {
 		this.histPrinter(this.Elements);
 	};
-})(Mesher)
+})(Mesher);
 
 // JQuery Plugins.
 (function ($, m){
