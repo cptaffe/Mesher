@@ -22,6 +22,7 @@ function init(){
 	container = document.getElementById( 'container' );
 	scene = new THREE.Scene();
 	camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+	camera.up.set( 0, 0, 1 );
 	renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 	
 	// add renderer
@@ -35,7 +36,7 @@ function init(){
 	scene.add( directionalLight );
 
 	// set controls to container
-	controls = new THREE.OrbitControls(camera, document.getElementById("container").getElementsByTagName("canvas")[0]);
+	controls = new THREE.TrackballControls(camera, document.getElementById("container").getElementsByTagName("canvas")[0]);
 
 	// automatically resize on window resize.
 	THREEx.WindowResize(renderer, camera);
@@ -49,6 +50,7 @@ function init(){
 		renderer.render(scene, camera);
 		//Stats();
 		controls.update();
+		//camera.up.set( 0, 0, 1 );
 	};
 
 	reader = new FileReader();
@@ -82,9 +84,10 @@ function zoomFit()
 	geometry.computeBoundingBox ();
 	var b = geometry.boundingBox;
 	var l=(b.max.x-b.min.x)*(b.max.x-b.min.x)+(b.max.y-b.min.y)*(b.max.y-b.min.y)+(b.max.z-b.min.z)*(b.max.z-b.min.z);
-	l=Math.sqrt(l)*.85;
-	camera.position.set((b.max.x+b.min.x)/2,(b.max.z+b.min.z)/2,-(b.max.y+b.min.y)/2-l);
-	controls.target=new THREE.Vector3((b.max.x+b.min.x)/2,(b.max.z+b.min.z)/2,-(b.max.y+b.min.y)/2);
+	l=Math.sqrt(l)*.5;
+	camera.position.set((b.max.x+b.min.x)/2+l,(b.max.y+b.min.y)/2-l,(b.max.z+b.min.z)/2+l);
+	controls.target=new THREE.Vector3((b.max.x+b.min.x)/2,(b.max.y+b.min.y)/2,(b.max.z+b.min.z)/2);
+	camera.up.set( 0, 0, 1 );
 }
 
 function addGrid()
@@ -98,21 +101,23 @@ function addGrid()
     lineGeometry.vertices.push(new THREE.Vector3(0, 0, 200));
     var lineMaterial = new THREE.LineBasicMaterial({color: 0x000000,opacity: .8});
     var line = new THREE.Line(lineGeometry, lineMaterial);
-    line.rotation.x = -Math.PI/2;
+    //line.rotation.x = -Math.PI/2;
     scene.add(line);
     var sublineMaterial = new THREE.LineBasicMaterial({color: 0x000000,opacity: .25});
     for (var i = -200; i <=200; i+=25) 
     {
 		var geoX=new THREE.Geometry();
 		geoX.vertices.push(new THREE.Vector3(i,-200,0));
-		geoX.vertices.push(new THREE.Vector3(i,200,0));
+		if (i==0) geoX.vertices.push(new THREE.Vector3(i,0,0));
+		else geoX.vertices.push(new THREE.Vector3(i,200,0));
 		var lineX = new THREE.Line(geoX, sublineMaterial);
-		lineX.rotation.x = -Math.PI/2;
+		//lineX.rotation.x = -Math.PI/2;
 		var geoY=new THREE.Geometry();
 		geoY.vertices.push(new THREE.Vector3(-200,i,0));
-		geoY.vertices.push(new THREE.Vector3(200,i,0));
+		if (i==0) geoY.vertices.push(new THREE.Vector3(0,i,0));
+		else geoY.vertices.push(new THREE.Vector3(200,i,0));
 		var lineY = new THREE.Line(geoY, sublineMaterial);
-		lineY.rotation.x = -Math.PI/2;
+		//lineY.rotation.x = -Math.PI/2;
 		scene.add(lineX);
 		scene.add(lineY);
 	}
@@ -154,7 +159,7 @@ function addModel(data){
 
     // load object geometry
 	cube=new THREE.Mesh( geometry,material )
-	cube.rotation.x = -Math.PI/2;
+	//cube.rotation.x = -Math.PI/2;
 	zoomFit();	
 	addGrid();
 	

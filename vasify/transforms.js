@@ -118,7 +118,7 @@ function Slice(){
 	var plane_geometry = new THREE.CubeGeometry( 1000, 1000, 1000 );
 	var plane_mesh = new THREE.Mesh( plane_geometry );
 	plane_mesh.position.x = 500;
-	plane_mesh.rotation.x=-Math.PI/2;
+	//plane_mesh.rotation.x=-Math.PI/2;
 	var plane_bsp = new ThreeBSP( plane_mesh );
 	//var cube_geometry = new THREE.CubeGeometry( 3, 3, 3 );
 	var cube_mesh = new THREE.Mesh( geometry );
@@ -129,7 +129,7 @@ function Slice(){
 	var material = new THREE.MeshLambertMaterial({color: 0xAAAAB9, opacity : 1, transparent: true, side: THREE.DoubleSide});
 	cube=result.toMesh(material);
 	geometry=cube.geometry;
-	cube.rotation.x=-Math.PI/2;
+	//cube.rotation.x=-Math.PI/2;
 	scene.add(cube);
 	
 	geometry.verticesNeedUpdate = true;
