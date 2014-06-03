@@ -109,6 +109,7 @@ function Rotate(par){
 	geometry.verticesNeedUpdate = true;
 }
 
+// TODO: Get this to show up on stack.
 function AutoCenter(){
 	geometry.computeBoundingBox ();
 	var b =geometry.boundingBox;
@@ -120,11 +121,11 @@ function AutoCenter(){
 	var lenZ = (b.max.z - b.min.z);
 	var z = (lenZ - b.max.z);
 	//alert([x,y,z]);
-	//Shift([x,y,z]);
+	Shift([x,y,z]);
 	// use Shift invisibly
-	var last = lastShift.slice(0);
-	setTrans(x-lastAutoCenter[0], y-lastAutoCenter[1], z-lastAutoCenter[2], 0.0, Shift);
-	lastShift = last.slice(0);
+	//var last = lastShift.slice(0);
+	//setTrans(x-lastAutoCenter[0], y-lastAutoCenter[1], z-lastAutoCenter[2], 0.0, Shift);
+	//lastShift = last.slice(0);
 	// save
 	lastAutoCenter[0] = x;
 	lastAutoCenter[1] = y;
