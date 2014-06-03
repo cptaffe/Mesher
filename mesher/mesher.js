@@ -1,7 +1,9 @@
 /*!
+ * ============================
  * Mesher v0.1
  * Copyright 2014 Concept Forge
  * Liscensed under MIT
+ * ============================
  */
 
 // Check for Dependencies
@@ -9,15 +11,6 @@ if (typeof THREE === 'undefined') { throw new Error('Mesher\'s JavaScript requir
 if (typeof jQuery === 'undefined') { throw new Error('Mesher\'s JavaScript requires jQuery'); }
 
 var Mesher = { REVISION: '1' };
-
-// Mesher Prototypes
-
-// Import Scripts
-(function () {
-	$.getScript("./mesher/js/transforms.js"); // transform functions
-	$.getScript("./mesher/js/tools.js"); // tools api
-	$.getScript("./mesher/init/tools.js"); // defualt tools
-})();
 
 // Project object
 (function (m$, $3) {
@@ -202,24 +195,6 @@ var Mesher = { REVISION: '1' };
 	};
 })(Mesher);
 
-// JQuery Plugins.
-(function ($, m$){
-  'use strict';
-	// Set takes a trans object and prints a history
-	// within a DOM element.
-	$.fn.meshHistory = function(){
-		m$.output.Elements.history = this;
-		m$.output.histPrinter = function (e) {
-		for (var i = 0; i < m._cProj.Hist.length; i++) {
-			var s = document.createElement('div');
-			s.appendChild(document.createTextNode(m._cProj.Hist[i].toString()));
-			s.setAttribute('onclick', 'Hist['+i+'].call()');
-			e.history.insertBefore(s, e.history.firstChild);
-    	}
-    };
-};
-})(jQuery, Mesher);
-
 // Mesher Library
 var Mesher = function (m$) {
 	'use strict';
@@ -239,3 +214,46 @@ var Mesher = function (m$) {
 
 // easy colloquial usage
 var m$ = Mesher;
+
+/*!
+ * =============================
+ * Mesher v0.1
+ * jQuery API
+ * Copyright 2014 Concept Forge
+ * Liscensed under MIT
+ * =============================
+ */
+
+// jQuery plugins
+// All plugins are under the m$
+(function ($, m$){
+  'use strict';
+
+	// Container object for jquery plugin
+	var Mesher = function (elements) {
+		this.elements = elements;
+	};
+
+	// $.m$.history plugin
+	// history uses a jquery object to init the
+	// m$.output Output object and set its histPrint
+	// function.
+	Mesher.prototype.history = function () {
+		m$.output.Elements.history = this.elements;
+		m$.output.histPrinter = function (e) {
+			for (var i = 0; i < m$._cProj.Hist.length; i++) {
+				var s = document.createElement('div');
+				s.appendChild(document.createTextNode(m$._cProj.Hist[i].toString()));
+				s.setAttribute('onclick', 'Hist['+i+'].call()');
+				e.history.insertBefore(s, e.history.firstChild);
+			}
+		};
+		// still allows for chaining
+		return this.elements;
+	};
+
+	// extends jQuery
+	$.fn.mesher = function () {
+		return new Mesher(this);
+	};
+})(jQuery, Mesher);
