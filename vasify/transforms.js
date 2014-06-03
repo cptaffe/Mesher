@@ -98,10 +98,11 @@ function Shift(par){
 }
 
 function Rotate(par){
-	for (var i = 0; i < geometry.vertices.length; i++) {
-		// junk
-	}
-	// save state
+	var rotx = new THREE.Matrix4().makeRotationX(Math.PI*par[0]/180);
+	var roty = new THREE.Matrix4().makeRotationY(Math.PI*par[1]/180);
+	var rotz = new THREE.Matrix4().makeRotationZ(Math.PI*par[2]/180);
+		
+	geometry.applyMatrix(rotx.multiply(roty).multiply(rotz));
 	lastRotate[0] = par[0];
 	lastRotate[1] = par[1];
 	lastRotate[2] = par[2];
