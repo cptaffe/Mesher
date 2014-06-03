@@ -125,6 +125,7 @@ function AutoCenter(){
 	var z = (lenZ - b.max.z);
 	//alert([x,y,z]);
 	Shift([x,y,z]);
+	zoomFit();
 	//camera.lookAt(new THREE.Vector3( 0,0,lenZ/2));
 	
 	// use Shift invisibly
