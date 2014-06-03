@@ -77,6 +77,47 @@ function reloadFile(){
 	};//end onload()
 	reader.readAsBinaryString(fileFile[0]);
 }
+function zoomFit()
+{
+	geometry.computeBoundingBox ();
+	var b = geometry.boundingBox;
+	var l=(b.max.x-b.min.x)*(b.max.x-b.min.x)+(b.max.y-b.min.y)*(b.max.y-b.min.y)+(b.max.z-b.min.z)*(b.max.z-b.min.z);
+	l=Math.sqrt(l)*.85;
+	camera.position.set((b.max.x+b.min.x)/2,(b.max.z+b.min.z)/2,-(b.max.y+b.min.y)/2-l);
+	controls.target=new THREE.Vector3((b.max.x+b.min.x)/2,(b.max.z+b.min.z)/2,-(b.max.y+b.min.y)/2);
+}
+
+function addGrid()
+{
+	var lineGeometry = new THREE.Geometry();
+    lineGeometry.vertices.push(new THREE.Vector3(0,0,0));
+    lineGeometry.vertices.push(new THREE.Vector3(200,0,0));
+    lineGeometry.vertices.push(new THREE.Vector3(0, 0, 0));
+    lineGeometry.vertices.push(new THREE.Vector3(0, 200, 0));
+    lineGeometry.vertices.push(new THREE.Vector3(0,0,0));
+    lineGeometry.vertices.push(new THREE.Vector3(0, 0, 200));
+    var lineMaterial = new THREE.LineBasicMaterial({color: 0x000000,opacity: .8});
+    var line = new THREE.Line(lineGeometry, lineMaterial);
+    line.rotation.x = -Math.PI/2;
+    scene.add(line);
+    var sublineMaterial = new THREE.LineBasicMaterial({color: 0x000000,opacity: .25});
+    for (var i = -200; i <=200; i+=25) 
+    {
+		var geoX=new THREE.Geometry();
+		geoX.vertices.push(new THREE.Vector3(i,-200,0));
+		geoX.vertices.push(new THREE.Vector3(i,200,0));
+		var lineX = new THREE.Line(geoX, sublineMaterial);
+		lineX.rotation.x = -Math.PI/2;
+		var geoY=new THREE.Geometry();
+		geoY.vertices.push(new THREE.Vector3(-200,i,0));
+		geoY.vertices.push(new THREE.Vector3(200,i,0));
+		var lineY = new THREE.Line(geoY, sublineMaterial);
+		lineY.rotation.x = -Math.PI/2;
+		scene.add(lineX);
+		scene.add(lineY);
+	}
+    
+}
 
 function addModel(data){
 
@@ -113,25 +154,12 @@ function addModel(data){
 
     // load object geometry
 	cube=new THREE.Mesh( geometry,material )
-	cube.geometry.computeBoundingBox ();
-	var b = cube.geometry.boundingBox;
-	for (var i = 0; i < geometry.vertices.length; i++)
-	{
-		geometry.vertices[i].x-=(b.min.x+b.max.x)/2;
-		geometry.vertices[i].y-=(b.min.y+b.max.y)/2;
-	}
-
-	cube.geometry.computeFaceNormals();
-	for (var i = 0; i < geometry.faces.length; i++)
-	{
-		cube.geometry.faces[i].normal=cube.geometry.faces[i].normal.multiplyScalar(1);
-	}
-
-	cube.geometry.applyMatrix(new THREE.Matrix4().makeTranslation( -(b.max.x+b.min.x)/2, -(b.max.y+b.min.y)/2, -(b.max.z+b.min.z)/2 ) );
 	cube.rotation.x = -Math.PI/2;
-	var l=(b.max.x-b.min.x)*(b.max.x-b.min.x)+(b.max.y-b.min.y)*(b.max.y-b.min.y)+(b.max.z-b.min.z)*(b.max.z-b.min.z);
-	l=Math.sqrt(l);
-	camera.position.z = l*0.75;
+	zoomFit();	
+	addGrid();
+	
+	
+	//camera.position.z = l;
 	scene.add( cube );
 
 	// foggy fog fog

@@ -80,6 +80,7 @@ function Scale(par){
 	lastScale[0] = par[0];
 	lastScale[1] = par[1];
 	lastScale[2] = par[2];
+	zoomFit();
 
 	geometry.verticesNeedUpdate = true;
 }
@@ -103,10 +104,12 @@ function Rotate(par){
 	var rotz = new THREE.Matrix4().makeRotationZ(Math.PI*par[2]/180);
 		
 	geometry.applyMatrix(rotx.multiply(roty).multiply(rotz));
+	geometry.computeFaceNormals();
 	lastRotate[0] = par[0];
 	lastRotate[1] = par[1];
 	lastRotate[2] = par[2];
 	geometry.verticesNeedUpdate = true;
+	geometry.normalsNeedUpdate=true;
 }
 
 // TODO: Get this to show up on stack.
@@ -122,6 +125,8 @@ function AutoCenter(){
 	var z = (lenZ - b.max.z);
 	//alert([x,y,z]);
 	Shift([x,y,z]);
+	//camera.lookAt(new THREE.Vector3( 0,0,lenZ/2));
+	
 	// use Shift invisibly
 	//var last = lastShift.slice(0);
 	//setTrans(x-lastAutoCenter[0], y-lastAutoCenter[1], z-lastAutoCenter[2], 0.0, Shift);
