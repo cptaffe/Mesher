@@ -24,10 +24,20 @@ $(function(){
 $(function(){
     new Tool(
       "Shift",
-      "pt.",
+      "mm",
       null,
       {min: -20, max: 20, step: 0.01, val: 0},
       Shift
+    ).go()
+});
+
+$(function(){
+    new Tool(
+      "SliceX",
+      "%",
+      ['x','bogus','bogus'],
+      {min: 0, max: 100, step: 0.01, val: 0},
+      SliceX
     ).go()
 });
 

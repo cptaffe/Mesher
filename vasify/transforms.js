@@ -113,6 +113,33 @@ function Rotate(par){
 	//geometry=cube.geometry;
 }
 
+function SliceX(par){
+	geometry.computeBoundingBox ();
+	var b =geometry.boundingBox;
+	var lenX = (b.max.x - b.min.x);
+	//experiments in slicing
+	var plane_geometry = new THREE.CubeGeometry( 1000, 1000, 1000 );
+	var plane_mesh = new THREE.Mesh( plane_geometry );
+	plane_mesh.position.x = 500+b.min.x+par[0]*lenX/100;
+	//alert(lenX);
+	//plane_mesh.rotation.x=-Math.PI/2;
+	var plane_bsp = new ThreeBSP( plane_mesh );
+	//var cube_geometry = new THREE.CubeGeometry( 3, 3, 3 );
+	var cube_mesh = new THREE.Mesh( geometry );
+	var cube_bsp = new ThreeBSP( cube_mesh );
+	//var cube_bsp = new ThreeBSP( cube );
+	var result=cube_bsp.subtract(plane_bsp);
+	scene.remove(cube);
+	var material = new THREE.MeshLambertMaterial({color: 0xAAAAB9, opacity : 1, transparent: true, side: THREE.DoubleSide});
+	cube=result.toMesh(material);
+	geometry=cube.geometry;
+	//cube.rotation.x=-Math.PI/2;
+	scene.add(cube);
+	
+	geometry.verticesNeedUpdate = true;
+	geometry.normalsNeedUpdate=true;
+}
+
 function Slice(){
 	//experiments in slicing
 	var plane_geometry = new THREE.CubeGeometry( 1000, 1000, 1000 );
