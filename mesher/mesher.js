@@ -8,22 +8,19 @@
 if (typeof THREE === 'undefined') { throw new Error('Mesher\'s JavaScript requires THREE'); }
 if (typeof jQuery === 'undefined') { throw new Error('Mesher\'s JavaScript requires jQuery'); }
 
-var Mesher = {};
+var Mesher = { REVISION: '1' };
 
 // Mesher Prototypes
-(function (m$, $) {
-	'use strict';
 
-m$.Import = function () {
-		$.getScript("./mesher/js/transforms.js"); // transform functions
-		$.getScript("./mesher/js/tools.js"); // tools api
-		$.getScript("./mesher/init/tools.js"); // defualt tools
-}(); // Import Scripts
-  
-})(Mesher, jQuery);
+// Import Scripts
+(function () {
+	$.getScript("./mesher/js/transforms.js"); // transform functions
+	$.getScript("./mesher/js/tools.js"); // tools api
+	$.getScript("./mesher/init/tools.js"); // defualt tools
+})();
 
 // Project object
-(function (m$) {
+(function (m$, $3) {
 	'use strict';
 
 	m$.Project = function () {
@@ -81,7 +78,7 @@ m$.Import = function () {
 		this._do(h, [t], this.Models[0+index]);
 	};
 
-	// Internal Use _do
+	// Internal Use: _do
 	// accepts a stack to pop/splic from,
 	// a stack to push to,
 	// a model to apply the altered stack to,
@@ -98,7 +95,7 @@ m$.Import = function () {
 
 		// throw away current model,
 		// get new copy of original model
-		Model = THREE.GeometryUtils.clone(this._oModel);
+		Model = $3.GeometryUtils.clone(this._oModel);
 
 		// Execute all transforms in history
 		// with current model
@@ -107,7 +104,7 @@ m$.Import = function () {
 		}
 	};
 
-})(Mesher);
+})(Mesher, THREE);
 
 // File object
 (function (m$) {
