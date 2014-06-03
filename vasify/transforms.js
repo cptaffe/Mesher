@@ -110,7 +110,8 @@ function Rotate(par){
 }
 
 function AutoCenter(){
-	var b = cube.geometry.boundingBox;
+	geometry.computeBoundingBox ();
+	var b =geometry.boundingBox;
 	var lenX = (b.max.x - b.min.x)/2;
 	var x = lenX - b.max.x;
 	var lenY = (b.max.y - b.min.y)/2;
@@ -118,7 +119,8 @@ function AutoCenter(){
 	// do not center z, min should be 0
 	var lenZ = (b.max.z - b.min.z);
 	var z = (lenZ - b.max.z);
-
+	//alert([x,y,z]);
+	//Shift([x,y,z]);
 	// use Shift invisibly
 	var last = lastShift.slice(0);
 	setTrans(x-lastAutoCenter[0], y-lastAutoCenter[1], z-lastAutoCenter[2], 0.0, Shift);
