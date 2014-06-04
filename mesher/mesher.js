@@ -239,7 +239,10 @@ var m$ = Mesher;
 		this.Camera = new THREE.PerspectiveCamera(75, $(local).innerWidth()/$(local).innerHeight(), 0.1, 1000);
 		
 		// Create & Add Renderer as child of Parent
-		this.Renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+		this.Renderer = new THREE.WebGLRenderer({
+			alpha: true,
+			antialias: true
+		});
 		this.Renderer.setSize($(local).innerWidth(), $(local).innerHeight());
 		this.Renderer.setClearColor( 0x000000, 0);
 		//this.model.Parent
@@ -302,7 +305,7 @@ var m$ = Mesher;
 		});
 
 		// Create Geometry from Loaded Data
-		var geometry = (new THREE.STLLoader()).parse(data);
+		geometry = (new THREE.STLLoader()).parse(data);
 		geometry.dynamic = true;
     
     // Create Model
@@ -369,7 +372,7 @@ var m$ = Mesher;
 	    // Create Line (not referenced to Model)
 	    // & Add to Scene
 	    var line = new THREE.Line(geometry, material);
-	    this.Scene.add(this.Line);
+	    this.Scene.add(line);
 
 	    // Create Line Material
 	    material = new THREE.LineBasicMaterial({

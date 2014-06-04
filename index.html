@@ -35,18 +35,28 @@
       <div id="container"></div>
 
         <div id="sidebar">
-              <div class="btn-group">
+              <div id="file-tool" class="btn-group">
                 <button id="file-menu" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="width: 100%;"><i class="fa fa-file-o fa-fw"></i> File <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu">
-                  <li><a style="cursor:pointer;" id='openFile'><i class="fa fa-file-code-o fa-fw"></i> Open</a></li>
-                  <li><a style="cursor:pointer;" onclick="reloadFile();"><i class="fa fa-refresh fa-fw"></i> Reload</a></li>
-                  <li><a style="cursor:pointer;" onclick="saveSTL();"><i class="fa fa-floppy-o fa-fw"></i> Save</a></li>
+                    <li><a style="cursor:pointer;" id='openFile'><i class="fa fa-file-code-o fa-fw"></i> Open</a></li>
+                    <li><a style="cursor:pointer;" onclick="reloadFile();"><i class="fa fa-refresh fa-fw"></i> Reload</a></li>
+                    <li><a style="cursor:pointer;" onclick="saveSTL();"><i class="fa fa-floppy-o fa-fw"></i> Save</a></li>
                 </ul>
                 <div id="output"></div>
-              </div>
+            </div>
 
-          <div id='tool-bar' class="list-group"></div>
+            <!-- Tools -->
+            <div id='tool-bar' class="list-group">
+                <div color="green" data-toggle="tooltip" data-placement="top" title="code"><i class="fa fa-fw fa-code"></i></div>
+                <div color="green" data-toggle="tooltip" data-placement="top" title="fork"><i class="fa fa-fw fa-code-fork"></i></div>
+                <div color="green" data-toggle="tooltip" data-placement="top" title="cube"><i class="fa fa-fw fa-cube"></i></div>
+                <div color="green" data-toggle="tooltip" data-placement="top" title="zip"><i class="fa fa-fw fa-file-zip-o"></i></div>
+                <div color="green" data-toggle="tooltip" data-placement="top" title="coffee"><i class="fa fa-fw fa-coffee"></i></div>
+                <div color="green" data-toggle="tooltip" data-placement="top" title="cog"><i class="fa fa-fw fa-cog"></i></div>
+                <div color="green" data-toggle="tooltip" data-placement="top" title="bolt"><i class="fa fa-fw fa-bolt"></i></div>
+                <div color="green" data-toggle="tooltip" data-placement="top" title="leaf"><i class="fa fa-fw fa-leaf"></i></div>
+            </div>
           </div>
           <div id='hist'></div>
         </div><!--/span-->
@@ -94,6 +104,10 @@
     $(function () {
       $('#container').mesher().model();
     });
+
+    $(function () {
+        $("[data-toggle='tooltip']").tooltip();
+    })
 
     // File Upload
         function handleFileSelect(evt) {

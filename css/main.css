@@ -21,6 +21,35 @@ html{
 	bottom: 0;
 }
 
+#tool-bar{
+	margin: auto;
+	margin-top: 50px;
+}
+
+#tool-bar>div[data-toggle="tooltip"]{
+	display: inline-block;
+	width: 80px;
+	margin: 5px;
+	padding: 17.5px;
+	font-size: 32px;
+	text-align: center;
+	cursor: pointer;
+	transition: all 0.25s ease;
+}
+
+#tool-bar>div[color="green"]{
+	color: white;
+	background-color: #00AE68;
+}
+
+#tool-bar>div[color="green"]:hover{
+	background-color: #21825B;
+}
+
+#file-tool{
+	margin-left: 5px;
+}
+
 #hist>p{
 	cursor: pointer;
 	color: gray;
