@@ -86,6 +86,8 @@
     <script src='./js/THREEx.WindowResize.js'></script>
     <!-- Mesher libraries -->
     <script src="./mesher/mesher.js"></script>
+    <script src="./mesher/js/jquery.js"></script> <!-- JQuery Bindings -->
+    <script src="./mesher/js/jquery.js"></script> <!-- THREE Bindings -->
     <script>
 
     $(function () {
@@ -97,6 +99,12 @@
     // register history with mesher
     $(function () {
       $('#hist').mesher().history();
+    });
+
+    // register model canvas parent with mesher
+    // & use original model
+    $(function () {
+      $('#container').mesher().model();
     });
 
     // File Upload
@@ -134,7 +142,7 @@
         }
 
         // Setup the dnd listeners.
-        var dropZone = document.getElementById('drop_zone');
+        var dropZone = document.body
         dropZone.addEventListener('dragover', handleDragOver, false);
         dropZone.addEventListener('drop', handleFileSelect, false);
         document.getElementById('fileSelector').addEventListener('change', handleOtherSelect, false);
