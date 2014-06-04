@@ -1,8 +1,6 @@
-/*!
- * Mesher v0.1
- * Copyright 2014 Concept Forge
- * Liscensed under MIT
- */
+// Mesher v0.1
+// Copyright 2014 Concept Forge
+// Liscensed under MIT
 
 // Check for Dependencies
 if (typeof THREE === 'undefined') { throw new Error('Mesher\'s JavaScript requires THREE'); }
@@ -37,9 +35,6 @@ var m$ = Mesher;
 		// reference to transformations
 		this.Hist = this.Trans[0];
 		this.Fut = this.Trans[1];
-
-		// original File info
-		this.File = new m$.File();
 	};
 
 	// addModel creates a model and sets it to
@@ -134,16 +129,6 @@ var m$ = Mesher;
 	};
 
 })(Mesher, THREE, jQuery);
-
-// File object
-(function (m$) {
-	'use strict';
-
-	m$.File = function(name){
-		// file name
-		this.Name = name;
-	};
-})(Mesher);
 
 // Trans object
 (function (m$) {
@@ -244,18 +229,18 @@ var m$ = Mesher;
 		// stuff
 	};
 	
-	// TODO: get rid of THREEx.WindowResize() & put code in as Three prototype.
+	// TODO: Adjust on Window resize.
 	// init function
 	// init creates a basic scene and supporting objects
 	m$.Three.prototype.init = function (local) {
 		
 		// Create Scene, Camera, Renderer
 		this.Scene = new THREE.Scene();
-		this.Camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+		this.Camera = new THREE.PerspectiveCamera(75, $(local).innerWidth()/$(local).innerHeight(), 0.1, 1000);
 		
 		// Create & Add Renderer as child of Parent
 		this.Renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-		this.Renderer.setSize(window.innerWidth, window.innerHeight);
+		this.Renderer.setSize($(local).innerWidth(), $(local).innerHeight());
 		this.Renderer.setClearColor( 0x000000, 0);
 		//this.model.Parent
 		$(local).append(this.Renderer.domElement);
@@ -266,23 +251,33 @@ var m$ = Mesher;
 		this.Scene.add( this.DirectionalLight );
 
 		// set controls to container
-		this.Controls = new THREE.OrbitControls(this.Camera, $(local).children()[0]);
-
-		// TODO: get rid of this line
-		THREEx.WindowResize(this.Renderer, this.Camera);
+		this.Controls = new THREE.TrackballControls(this.Camera, $(local).children()[0]);
 
 		this.Reader = new FileReader();
 	};
 
+	// Globalize allows requestAnimationFrame() to reference
+	// global variables by storing object value references in
+	// the Globals object of the Mesher global object.
+	m$.Three.prototype.Globalize = function () {
+		m$.Globals = {};
+		m$.Globals.Render = this.Render;
+		m$.Globals.DirectionalLight = this.DirectionalLight;
+		m$.Globals.Camera = this.Camera;
+		m$.Globals.Renderer = this.Renderer;
+		m$.Globals.Scene = this.Scene;
+		m$.Globals.Controls = this.Controls;
+	};
+
 	// set render function
 	m$.Three.prototype.Render = function() {
-		// I don't really know...
-		//requestAnimationFrame(this.Render);
+		// Animates
+		window.requestAnimationFrame(m$.Globals.Render);
 		// Shift DirectionalLight, Render Scene with Camera,
 		// & Update Controls
-		this.DirectionalLight.position.set( this.Camera.position.x, this.Camera.position.y, this.Camera.position.z );
-		this.Renderer.render(this.Scene, this.Camera);
-		this.Controls.update();
+		m$.Globals.DirectionalLight.position.set( m$.Globals.Camera.position.x, m$.Globals.Camera.position.y, m$.Globals.Camera.position.z );
+		m$.Globals.Renderer.render(m$.Globals.Scene, m$.Globals.Camera);
+		m$.Globals.Controls.update();
 	};
 
 	// Reads file into THREE map
@@ -320,6 +315,7 @@ var m$ = Mesher;
 		// Add Model to Scene
 		this.Scene.add(this.Model);
 
+		this.Globalize();
 		this.Render();
 	};
 
@@ -349,7 +345,8 @@ var m$ = Mesher;
 		this.Controls.target = new THREE.Vector3(
 			(b.max.x + b.min.x) / 2,
 			(b.max.y + b.min.y) / 2,
-			(b.max.z + b.min.z) / 2);
+			(b.max.z + b.min.z) / 2
+		);
 	};
 
 	m$.Three.prototype.addGrid = function (){
@@ -450,10 +447,8 @@ var m$ = Mesher;
 	};
 })(Mesher);
 
-/*!
- * Mesher v0.1
- * Utilitarian functions
- */
+// Mesher v0.1
+// Utilitarian functions
 
 (function (m$) {
 	// addModel adds the a Model

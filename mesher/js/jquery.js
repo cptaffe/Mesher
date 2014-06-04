@@ -1,7 +1,5 @@
-/*!
- * Mesher v0.1
- * jQuery bindings
- */
+// Mesher v0.1
+// jQuery bindings
 
 // jQuery plugins
 // All plugins are under the m$

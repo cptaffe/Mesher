@@ -6,26 +6,6 @@ html{
   outline: transparent !important;
 }
 
-#drop_zone{
-	border: 2px dashed #BBB;
-	padding: 10px 5px;
-	border-radius: 5px;
-	color: #BBB;
-	text-align: center;
-}
-
-.input-group{
-	margin: 5px 0;
-}
-
-button{
-	margin: 5px 0;
-}
-
-.alert{
-	margin-bottom: 5px;
-}
-
 #sidebar{
 	position: absolute;
 	top: 10px;

@@ -35,31 +35,20 @@
       <div id="container"></div>
 
         <div id="sidebar">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h3 class="panel-title">File Upload</h3>
-            </div>
-            <div class="panel-body">
-              <div id="drop_zone">Drop files here</div>
-                <output id="list"></output>
               <div class="btn-group">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="width: 100%;"><i class="fa fa-file-o fa-fw"></i> File <span class="caret"></span>
+                <button id="file-menu" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="width: 100%;"><i class="fa fa-file-o fa-fw"></i> File <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu">
                   <li><a style="cursor:pointer;" id='openFile'><i class="fa fa-file-code-o fa-fw"></i> Open</a></li>
                   <li><a style="cursor:pointer;" onclick="reloadFile();"><i class="fa fa-refresh fa-fw"></i> Reload</a></li>
                   <li><a style="cursor:pointer;" onclick="saveSTL();"><i class="fa fa-floppy-o fa-fw"></i> Save</a></li>
                 </ul>
+                <div id="output"></div>
               </div>
-            </div>
-          </div>
 
-          <div id='tool-bar' class="list-group">
-            <button class="list-group-item" style="width: 100%;"onclick="AutoCenter();">Auto Center</button>
+          <div id='tool-bar' class="list-group"></div>
           </div>
           <div id='hist'></div>
-            
-          </div>
         </div><!--/span-->
       </div><!--/row-->
 
@@ -78,12 +67,12 @@
     <script src="./bootstrap-3.1.1-dist/optional-js/popover.js"></script>
     <!--Other-->
     <script src="./js/three.js"></script>
-    <script src="./js/OrbitControls.js"></script>
+    <script src="./js/csg.js"></script>
+    <script src="./js/ThreeCSG.js"></script>
+    <script src="./js/TrackballControls.js"></script>
     <script src="./js/STLLoader.js"></script>
     <script src="./js/Blob.js"></script>
     <script src="./js/FileSaver.js"></script>
-    <script src="./js/ace.js"></script>
-    <script src='./js/THREEx.WindowResize.js'></script>
     <!-- Mesher libraries -->
     <script src="./mesher/mesher.js"></script>
     <script src="./mesher/js/jquery.js"></script> <!-- JQuery Bindings -->
@@ -110,28 +99,13 @@
         function handleFileSelect(evt) {
             evt.stopPropagation();
             evt.preventDefault();
-
-            var files = evt.dataTransfer.files; // FileList object.
-
-            // files is a FileList of File objects. List some properties.
-            var output = [];
-            for (var i = 0, f; f = files[i]; i++) {
-                output.push('<div class="alert alert-success">', '<strong>Loaded: </strong>', escape(f.name), '</div>');
-            }
-            document.getElementById('list').innerHTML = output.join('');
-            m$.addModel(files);
+            $("#file-menu > i").removeClass('fa-file-o').addClass('fa-check').css('color: green;');
+            m$.addModel(evt.dataTransfer.files);
         }
 
         function handleOtherSelect(evt) {
-          var files = evt.target.files; // FileList object
-
-          // files is a FileList of File objects. List some properties.
-          var output = [];
-            for (var i = 0, f; f = files[i]; i++) {
-                output.push('<div class="alert alert-success">', '<strong>Loaded: </strong>', escape(f.name), '</div>');
-            }
-            document.getElementById('list').innerHTML = output.join('');
-            m$.addModel(files);
+            $("#file-menu > i").removeClass('fa-file-o').addClass('fa-check');
+            m$.addModel(evt.target.files);
         }
 
         function handleDragOver(evt) {
