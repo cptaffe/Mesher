@@ -1,16 +1,9 @@
-/			 		// set render function
-		this.Render = function() {
-			requestAnimationFrame(render);
-			// model always lit from front
-			directionalLight.position.set( camera.position.x,camera.position.y,camera.position.z );
-
-			renderer.render(scene, camera);
-			//Stats();
-			controls.update();
-		};*!
+/*!
  * Mesher v0.1
  * THREE bindings
  */
+
+var Mesher = { REVISION: '1' };
 
 (function (m$, THREE) {
 	'use strict';

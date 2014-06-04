@@ -10,23 +10,29 @@ if (typeof jQuery === 'undefined') { throw new Error('Mesher\'s JavaScript requi
 
 var Mesher = { REVISION: '1' };
 
+// easy colloquial usage
+var m$ = Mesher;
+
 // Project object
-(function (m$, THREE) {
+(function (m$, THREE, $) {
 	'use strict';
 
 	m$.Project = function () {
 		// Models stack
-		this.Models = [
-			new Model(),
-			new Model()
-		];
+		this.Models = [];
 
 		// references to models
-		this._oModel = this.Models[0];
-		this._cModel = this.Models[1];
+		this._oModel;
+		this._cModel;
+
+		// set as _cModel's display
+		this.Display;
 
 		// Transformations Array stack
-		this.Trans = [];
+		this.Trans = [
+			[],
+			[]
+		];
 
 		// reference to transformations
 		this.Hist = this.Trans[0];
@@ -35,16 +41,45 @@ var Mesher = { REVISION: '1' };
 		// original File info
 		this.File = new m$.File();
 	};
+
+	// addModel creates a model and sets it to
+	// _oModel, and then clones that model to _cModel
+	m$.Project.prototype.addModel = function (file) {
+
+		// Create _oModel
+		// & push to stack
+		var model = new m$.Model
+		var i = this.Models.push(model);
+
+
+		// Set Model's Parent
+		this.Models[i-1].Parent = this.Display;
+
+		// Init Model
+		this.Models[i-1].init();
+
+		// Read File to _oModel
+		this.Models[i-1].Three.readFile(file);
+
+		// Clone _oModel to _cModel
+		// using jQuery Deep Clone
+		// TODO: More efficient clone, less cloning...
+		this.Models[i] = $.extend(true, {}, this._oModel);
+
+		// Set _oModel and _cModel accordingly
+		this._oModel = this.Models[i-1];
+		this._cModel = this.Models[i];
+	};
 	
 	// Undo function
 	// undo accepts an index to undo (optional)
-	m$.Project.undo = function (index) {
+	m$.Project.prototype.undo = function (index) {
 		this._do(this.Hist, this.Fut, this._cModel, index);
 	};
 
 	// Redo function
 	// redo accepts an index to redo (optional)
-	m$.Project.undo = function (index) {
+	m$.Project.prototype.redo = function (index) {
 		this._do(this.Fut, this.Hist, this._cModel, index);
 	};
 
@@ -55,7 +90,7 @@ var Mesher = { REVISION: '1' };
 	// preview clones the current model to a new Model
 	// indice, it also clones the history stack and provides
 	// the transform object in a new stack
-	m$.Project.preview = function (t, index) {
+	m$.Project.prototype.preview = function (t, index) {
 		// Sets indice to 0 on undefined
 		// which will set the new Model on
 		// the first 'unused' indice
@@ -77,7 +112,7 @@ var Mesher = { REVISION: '1' };
 	// a stack to push to,
 	// a model to apply the altered stack to,
 	// & an index to splice from (optional)
-	m$.Project._do = function (Hist, Fut, Model, index) {
+	m$.Project.prototype._do = function (Hist, Fut, Model, index) {
 
 		if (typeof index == 'undefined'){
 			// pop from history and push to future
@@ -98,7 +133,7 @@ var Mesher = { REVISION: '1' };
 		}
 	};
 
-})(Mesher, THREE);
+})(Mesher, THREE, jQuery);
 
 // File object
 (function (m$) {
@@ -108,16 +143,6 @@ var Mesher = { REVISION: '1' };
 		// file name
 		this.Name = name;
 	};
-})(Mesher);
-
-// Model object
-(function (m$) {
-	'use strict';
-
-	m$.Model = function () {
-		// reference to Three bindings
-		this.Three = new m$.Three();
-	}
 })(Mesher);
 
 // Trans object
@@ -198,13 +223,255 @@ var Mesher = { REVISION: '1' };
   
 	m$.Output = function () {
 		this.Elements = {};
-	    this.histPrinter = {};
+    this.histPrinter = {};
 
 		m$.Output.prototype.PrintHistory = function () {
 			this.histPrinter(this.Elements);
 		};
 	};
 })(Mesher);
+
+/*!
+ * Mesher v0.1
+ * THREE bindings
+ */
+
+(function (m$, THREE) {
+	// Three Object
+	// Used to store all the information about
+	// the THREE stuff
+	m$.Three = function () {
+		// stuff
+	};
+	
+	// TODO: get rid of THREEx.WindowResize() & put code in as Three prototype.
+	// init function
+	// init creates a basic scene and supporting objects
+	m$.Three.prototype.init = function (local) {
+		
+		// Create Scene, Camera, Renderer
+		this.Scene = new THREE.Scene();
+		this.Camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+		
+		// Create & Add Renderer as child of Parent
+		this.Renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+		this.Renderer.setSize(window.innerWidth, window.innerHeight);
+		this.Renderer.setClearColor( 0x000000, 0);
+		//this.model.Parent
+		$(local).append(this.Renderer.domElement);
+
+		// Create & Add DirectionalLight to Scene 
+		this.DirectionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+		this.DirectionalLight.position.set( 0, 0, 1 );
+		this.Scene.add( this.DirectionalLight );
+
+		// set controls to container
+		this.Controls = new THREE.OrbitControls(this.Camera, $(local).children()[0]);
+
+		// TODO: get rid of this line
+		THREEx.WindowResize(this.Renderer, this.Camera);
+
+		this.Reader = new FileReader();
+	};
+
+	// set render function
+	m$.Three.prototype.Render = function() {
+		// I don't really know...
+		//requestAnimationFrame(this.Render);
+		// Shift DirectionalLight, Render Scene with Camera,
+		// & Update Controls
+		this.DirectionalLight.position.set( this.Camera.position.x, this.Camera.position.y, this.Camera.position.z );
+		this.Renderer.render(this.Scene, this.Camera);
+		this.Controls.update();
+	};
+
+	// Reads file into THREE map
+	m$.Three.prototype.readFile = function (file) {
+		this.File = file;
+		this.Reader.parent = this;
+		this.Reader.onload = function (e) {
+			this.parent.addModel(e.target.result);
+		};
+		this.Reader.readAsBinaryString(file[0]);
+	};
+
+	// Adds Model 
+	m$.Three.prototype.addModel = function (data) {
+
+		// Create Mesh
+		var material = new THREE.MeshLambertMaterial({
+			color: 0xAAAAB9,
+			opacity : 1,
+			transparent: true,
+			side: THREE.DoubleSide
+		});
+
+		// Create Geometry from Loaded Data
+		var geometry = (new THREE.STLLoader()).parse(data);
+		geometry.dynamic = true;
+    
+    // Create Model
+		this.Model = new THREE.Mesh(geometry, material)
+
+		// Modify Scene
+		this.zoomFit();
+		this.addGrid();
+
+		// Add Model to Scene
+		this.Scene.add(this.Model);
+
+		this.Render();
+	};
+
+	m$.Three.prototype.zoomFit = function () {
+
+		// Alias Model geometry
+		var geometry = this.Model.geometry;
+
+		// Calculate Bounding Box
+		// & alias to b
+		geometry.computeBoundingBox();
+		var b = geometry.boundingBox;
+
+		// Calculate Camera Position
+		var l = (b.max.x - b.min.x) * (b.max.x - b.min.x) + (b.max.y - b.min.y) * (b.max.y - b.min.y) + (b.max.z - b.min.z) * (b.max.z - b.min.z);
+		l = Math.sqrt(l) * 0.5;
+
+		// Set Camera Position
+		this.Camera.position.set(
+			(b.max.x + b.min.x) / 2 + l,
+			(b.max.y + b.min.y) / 2 - l,
+			(b.max.z + b.min.z) / 2 + l
+		);
+		this.Camera.up.set( 0, 0, 1 );
+
+		// Set Controls Target
+		this.Controls.target = new THREE.Vector3(
+			(b.max.x + b.min.x) / 2,
+			(b.max.y + b.min.y) / 2,
+			(b.max.z + b.min.z) / 2);
+	};
+
+	m$.Three.prototype.addGrid = function (){
+
+		// Create Line Geometry
+		var geometry = new THREE.Geometry();
+	    geometry.vertices.push(new THREE.Vector3(0,0,0));
+	    geometry.vertices.push(new THREE.Vector3(200,0,0));
+	    geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+	    geometry.vertices.push(new THREE.Vector3(0, 200, 0));
+	    geometry.vertices.push(new THREE.Vector3(0,0,0));
+	    geometry.vertices.push(new THREE.Vector3(0, 0, 200));
+
+	    // Create Line Material
+	    var material = new THREE.LineBasicMaterial({
+	    	color: 0x000000,
+	    	opacity: 0.8
+	    });
+
+	    // Create Line (not referenced to Model)
+	    // & Add to Scene
+	    var line = new THREE.Line(geometry, material);
+	    this.Scene.add(this.Line);
+
+	    // Create Line Material
+	    material = new THREE.LineBasicMaterial({
+	    	color: 0x000000,
+	    	opacity: 0.25
+	    });
+
+	    // Loop to Create Grid Lines
+	    for (var i = -200; i <= 200; i+=25) {
+
+	    	// Create X Line Geometry & Material
+	    	// Add to Scene
+			var geoX = new THREE.Geometry();
+			geoX.vertices.push(new THREE.Vector3(i,-200,0));
+			if (i === 0) {
+				geoX.vertices.push(new THREE.Vector3(i,0,0));
+			} else {
+				geoX.vertices.push(new THREE.Vector3(i,200,0));
+			}
+			var lineX = new THREE.Line(geoX, material);
+			this.Scene.add(lineX);
+
+			// Create Y Line Geometry & Material
+	    	// Add to Scene
+			var geoY=new THREE.Geometry();
+			geoY.vertices.push(new THREE.Vector3(-200,i,0));
+			if (i === 0) {
+				geoY.vertices.push(new THREE.Vector3(0,i,0));
+			} else {
+				geoY.vertices.push(new THREE.Vector3(200,i,0));
+			}
+			var lineY = new THREE.Line(geoY, material);
+			this.Scene.add(lineY);
+		}  
+	};
+})(Mesher, THREE);
+
+(function (m$) {
+	'use strict';
+	
+	// Model object
+	// Model is used interface the THREE.js package
+	// & 'globals' are stored in the main object
+	m$.Model = function () {
+		// Canvas is child of node
+		// Set through jQuery binding
+		this.Parent = {};
+
+		// map of references to THREE objects
+		/*
+		 * List of mapped objects for conveniece:
+		 * Scene,
+		 * Camera,
+		 * Renderer,
+		 * DirectionalLight,
+		 * Controls,
+		 * Render,
+		 * Reader,
+		 * File
+		 */
+		this.Three = new m$.Three(this);
+	};
+
+	// init function
+	m$.Model.prototype.init = function () {
+		this.Three.init(this.Parent);
+	};
+
+	// Takes a value and assigns it to this.Parent
+	m$.Model.prototype.setParent = function (value) {
+		// set _oModel, so that
+		// all future models are computed with that
+		// as the parent of the canvas.
+		this.Parent = this.elements;
+	};
+})(Mesher);
+
+/*!
+ * Mesher v0.1
+ * Utilitarian functions
+ */
+
+(function (m$) {
+	// addModel adds the a Model
+	// to the current Project
+	m$.addModel = function (file) {
+		var l = this.Projects.push(new this.Project());
+		this._cProj = m$.Projects[l-1];
+		this._cProj.Display = this.Display || document.body;
+		this._cProj.addModel(file);
+	};
+
+	m$.setDisplay = function (display) {
+		this.Display = display;
+	};
+
+})(Mesher);
+
+
 
 // Mesher Library
 var Mesher = function (m$) {
@@ -214,7 +481,10 @@ var Mesher = function (m$) {
 	m$.Projects = [];
 
 	// reference to project
-	m$._cProj = m$.Projects[0];
+	m$._cProj;
+
+	// Sets for display of Projects
+	m$.Display;
 
 	// Output object for handling printing
 	// & such
@@ -222,6 +492,3 @@ var Mesher = function (m$) {
 
 	return m$;
 }(Mesher);
-
-// easy colloquial usage
-var m$ = Mesher;

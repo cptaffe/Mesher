@@ -34,12 +34,8 @@
 	// TODO: Update one _oModel -> _cModel is speced
 	// Sets the model's parent node
 	// model can accept a model to give set the parent with
-	Mesher.prototype.model = function (model) {
-		if (typeof model == 'undefined'){
-			m$._cProj._cModel.Three.setParent(this.elements);
-		} else {
-			model.Three.setParent(this.elements);
-		}
+	Mesher.prototype.model = function () {
+		m$.setDisplay(this.elements);
 		return this.elements;
 	};
 
