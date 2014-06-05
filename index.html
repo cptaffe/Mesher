@@ -113,12 +113,12 @@
         function handleFileSelect(evt) {
             evt.stopPropagation();
             evt.preventDefault();
-            $("#file-menu > i").removeClass('fa-file-o').addClass('fa-check').css('color: green;');
+            $("#file-menu > i").removeClass('fa-file-o').addClass('fa-check').css('color', '#00AE68');
             m$.addModel(evt.dataTransfer.files);
         }
 
         function handleOtherSelect(evt) {
-            $("#file-menu > i").removeClass('fa-file-o').addClass('fa-check');
+            $("#file-menu > i").removeClass('fa-file-o').addClass('fa-check').css('color', '#00AE68');;
             m$.addModel(evt.target.files);
         }
 

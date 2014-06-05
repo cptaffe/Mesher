@@ -21,12 +21,18 @@ html{
 	bottom: 0;
 }
 
+.btn{
+	border-radius: 0;
+}
+
 #tool-bar{
 	margin: auto;
 	margin-top: 50px;
 }
 
 #tool-bar>div[data-toggle="tooltip"]{
+	position: relative;
+	bottom: 0;
 	display: inline-block;
 	width: 80px;
 	margin: 5px;
@@ -37,13 +43,18 @@ html{
 	transition: all 0.25s ease;
 }
 
+#tool-bar>div[data-toggle="tooltip"]:hover{
+	bottom: 5px;
+}
+
 #tool-bar>div[color="green"]{
 	color: white;
 	background-color: #00AE68;
 }
 
 #tool-bar>div[color="green"]:hover{
-	background-color: #21825B;
+	/*background-color: #21825B;*/
+	background-color: #26C686;
 }
 
 #file-tool{
