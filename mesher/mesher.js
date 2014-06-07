@@ -35,6 +35,14 @@ var m$ = Mesher;
 		// reference to transformations
 		this.Hist = this.Trans[0];
 		this.Fut = this.Trans[1];
+
+		// One Three object per Project
+		this.Three;
+	};
+
+	// init function
+	m$.Project.prototype.init = function () {
+		this.Three.init(this.Display);
 	};
 
 	// addModel creates a model and sets it to
@@ -43,18 +51,21 @@ var m$ = Mesher;
 
 		// Create _oModel
 		// & push to stack
-		var model = new m$.Model
+		var model = new m$.Model(file);
 		var i = this.Models.push(model);
 
-
-		// Set Model's Parent
-		this.Models[i-1].Parent = this.Display;
+		// Create Three with new Model
+		if (typeof this.Three == 'undefined'){
+			this.Three = new m$.Three(this.Models[i-1]);
+		} else {
+			this.Three.newModel(this.Models[i-1]);
+		}
 
 		// Init Model
-		this.Models[i-1].init();
+		this.init();
 
 		// Read File to _oModel
-		this.Models[i-1].Three.readFile(file);
+		this.Three.readFile(file);
 
 		// Clone _oModel to _cModel
 		// using jQuery Deep Clone
@@ -208,7 +219,17 @@ var m$ = Mesher;
   
 	m$.Output = function () {
 		this.Elements = {};
-    this.histPrinter = {};
+
+		// Function to print history,
+		// this is the defualt
+	    this.histPrinter = function (e) {
+				for (var i = 0; i < m$._cProj.Hist.length; i++) {
+					var s = document.createElement('div');
+					s.appendChild(document.createTextNode(m$._cProj.Hist[i].toString()));
+					s.setAttribute('onclick', 'Hist['+i+'].call()');
+					e.history.insertBefore(s, e.history.firstChild);
+				}
+			};
 
 		m$.Output.prototype.PrintHistory = function () {
 			this.histPrinter(this.Elements);
@@ -226,6 +247,7 @@ var m$ = Mesher;
 	// Used to store all the information about
 	// the THREE stuff
 	m$.Three = function () {
+		this.Models = [];
 		// stuff
 	};
 	
@@ -259,6 +281,12 @@ var m$ = Mesher;
 		this.Reader = new FileReader();
 	};
 
+	// adds a Model object to the scene
+	m$.Three.prototype.newModel = function (model) {
+		var l = this.Models.push(model);
+		this.readFile(this.Models[l-1].File)
+	};
+
 	// Globalize allows requestAnimationFrame() to reference
 	// global variables by storing object value references in
 	// the Globals object of the Mesher global object.
@@ -278,7 +306,11 @@ var m$ = Mesher;
 		window.requestAnimationFrame(m$.Globals.Render);
 		// Shift DirectionalLight, Render Scene with Camera,
 		// & Update Controls
-		m$.Globals.DirectionalLight.position.set( m$.Globals.Camera.position.x, m$.Globals.Camera.position.y, m$.Globals.Camera.position.z );
+		m$.Globals.DirectionalLight.position.set( 
+			m$.Globals.Camera.position.x,
+			m$.Globals.Camera.position.y,
+			m$.Globals.Camera.position.z 
+		);
 		m$.Globals.Renderer.render(m$.Globals.Scene, m$.Globals.Camera);
 		m$.Globals.Controls.update();
 	};
@@ -295,7 +327,6 @@ var m$ = Mesher;
 
 	// Adds Model 
 	m$.Three.prototype.addModel = function (data) {
-
 		// Create Mesh
 		var material = new THREE.MeshLambertMaterial({
 			color: 0xAAAAB9,
@@ -305,27 +336,34 @@ var m$ = Mesher;
 		});
 
 		// Create Geometry from Loaded Data
-		geometry = (new THREE.STLLoader()).parse(data);
+		var geometry = (new THREE.STLLoader()).parse(data);
 		geometry.dynamic = true;
     
     // Create Model
-		this.Model = new THREE.Mesh(geometry, material)
+		var l = this.Models.push(new THREE.Mesh(geometry, material))
 
 		// Modify Scene
-		this.zoomFit();
-		this.addGrid();
+		if (l < 2){
+			this.zoomFit();
+			this.addGrid();
+		}
 
 		// Add Model to Scene
-		this.Scene.add(this.Model);
+		if (l < 2){
+			this.Scene.add(this.Models[l-1]);
+			this.Globalize();
+		} else {
+			m$.Globals.Scene.add(this.Models[l-1]);
+		}
 
-		this.Globalize();
 		this.Render();
 	};
 
 	m$.Three.prototype.zoomFit = function () {
 
 		// Alias Model geometry
-		var geometry = this.Model.geometry;
+		var l = this.Models.length;
+		var geometry = this.Models[l-1].geometry;
 
 		// Calculate Bounding Box
 		// & alias to b
@@ -416,37 +454,8 @@ var m$ = Mesher;
 	// Model object
 	// Model is used interface the THREE.js package
 	// & 'globals' are stored in the main object
-	m$.Model = function () {
-		// Canvas is child of node
-		// Set through jQuery binding
-		this.Parent = {};
-
-		// map of references to THREE objects
-		/*
-		 * List of mapped objects for conveniece:
-		 * Scene,
-		 * Camera,
-		 * Renderer,
-		 * DirectionalLight,
-		 * Controls,
-		 * Render,
-		 * Reader,
-		 * File
-		 */
-		this.Three = new m$.Three(this);
-	};
-
-	// init function
-	m$.Model.prototype.init = function () {
-		this.Three.init(this.Parent);
-	};
-
-	// Takes a value and assigns it to this.Parent
-	m$.Model.prototype.setParent = function (value) {
-		// set _oModel, so that
-		// all future models are computed with that
-		// as the parent of the canvas.
-		this.Parent = this.elements;
+	m$.Model = function (file) {
+		this.File = file;
 	};
 })(Mesher);
 
@@ -457,19 +466,23 @@ var m$ = Mesher;
 	// addModel adds the a Model
 	// to the current Project
 	m$.addModel = function (file) {
-		var l = this.Projects.push(new this.Project());
+		var l  = this.Projects.length;
+		if (l < 1){
+			l = this.Projects.push(new this.Project());
+		}
 		this._cProj = m$.Projects[l-1];
-		this._cProj.Display = this.Display || document.body;
+		this._cProj.Display = this.Settings.Display || document.body;
 		this._cProj.addModel(file);
 	};
 
-	m$.setDisplay = function (display) {
-		this.Display = display;
+	// Sets up m$ with appropriate settings
+	// takes settings, a map of jQuery selectors
+	m$.init = function (settings) {
+		this.Settings.Display = settings.Display;
+		this.output.Elements.history = settings.History;
 	};
 
 })(Mesher);
-
-
 
 // Mesher Library
 var Mesher = function (m$) {
@@ -481,8 +494,8 @@ var Mesher = function (m$) {
 	// reference to project
 	m$._cProj;
 
-	// Sets for display of Projects
-	m$.Display;
+	// Settings, map of jQuery selectors for things
+	m$.Settings = {};
 
 	// Output object for handling printing
 	// & such
