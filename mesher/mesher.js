@@ -51,21 +51,20 @@ var m$ = Mesher;
 
 		// Create _oModel
 		// & push to stack
-		var model = new m$.Model(file);
-		var i = this.Models.push(model);
+		var i = this.Models.push(new m$.Model(file));
 
 		// Create Three with new Model
 		if (typeof this.Three == 'undefined'){
 			this.Three = new m$.Three(this.Models[i-1]);
+
+			// Init Model
+			this.init();
+
+			// Read File to _oModel
+			this.Three.readFile(file);
 		} else {
 			this.Three.newModel(this.Models[i-1]);
 		}
-
-		// Init Model
-		this.init();
-
-		// Read File to _oModel
-		this.Three.readFile(file);
 
 		// Clone _oModel to _cModel
 		// using jQuery Deep Clone
@@ -283,8 +282,7 @@ var m$ = Mesher;
 
 	// adds a Model object to the scene
 	m$.Three.prototype.newModel = function (model) {
-		var l = this.Models.push(model);
-		this.readFile(this.Models[l-1].File)
+		this.readFile(model.File)
 	};
 
 	// Globalize allows requestAnimationFrame() to reference
@@ -298,6 +296,7 @@ var m$ = Mesher;
 		m$.Globals.Renderer = this.Renderer;
 		m$.Globals.Scene = this.Scene;
 		m$.Globals.Controls = this.Controls;
+		m$.Globals.Models = this.Models;
 	};
 
 	// set render function
@@ -317,7 +316,6 @@ var m$ = Mesher;
 
 	// Reads file into THREE map
 	m$.Three.prototype.readFile = function (file) {
-		this.File = file;
 		this.Reader.parent = this;
 		this.Reader.onload = function (e) {
 			this.parent.addModel(e.target.result);
