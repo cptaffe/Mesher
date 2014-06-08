@@ -32,6 +32,9 @@ var m$ = Mesher;
 			[]
 		];
 
+		// Selected Models
+		this.SelectedModels = [];
+
 		// reference to transformations
 		this.Hist = this.Trans[0];
 		this.Fut = this.Trans[1];
@@ -486,8 +489,6 @@ var m$ = Mesher;
 
 		// model is added, get stuff working
 		$(this.Settings.Display).click(this.click);
-		// Too resource intensive
-		//$(this.Settings.Display).mousemove(this.hover);
 		$(window).resize(this.resize);
 	};
 
@@ -498,42 +499,6 @@ var m$ = Mesher;
 
 		this.Globals.Renderer.setSize( this.Settings.Display.innerWidth, this.Settings.Display.innerHeight );
 	}
-
-	/*
-	// Hover function, sorta slow
-	m$.hover = function () {
-
-		event.preventDefault();
-
-		var projector = new THREE.Projector();
-
-		var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
-		projector.unprojectVector( vector, m$.Globals.Camera );
-
-		var raycaster = new THREE.Raycaster( m$.Globals.Camera.position, vector.sub( m$.Globals.Camera.position ).normalize() );
-
-		var intersects = raycaster.intersectObjects( m$.Globals.Models );
-		
-		// select or unselect
-		if ( intersects.length > 0 ) {
-			//
-			if (m$.RolledModel == intersects[0].object){
-				// still selected
-			} else {
-				// is now selected
-				m$.RolledModel = intersects[0].object;
-				m$.OldColor = intersects[0].object.material.color.getHex();
-				intersects[0].object.material.color.setHex(m$.shade(m$.OldColor, 15));
-			}
-		} else {
-			// is not selected anymore
-			if (typeof m$.RolledModel != 'undefined'){
-				m$.RolledModel.material.color.setHex(m$.OldColor);
-				m$.RolledModel = undefined;
-			}
-		}
-	};
-	*/
 
 	m$.click = function () {
 
@@ -550,15 +515,13 @@ var m$ = Mesher;
 		
 		// select or unselect
 		if ( intersects.length > 0 ) {
-			var i = m$.SelectedModels.indexOf(intersects[0].object);
+			var i = m$._cProj.SelectedModels.indexOf(intersects[0].object);
 			if (i == -1){
-				m$.SelectedModels.push(intersects[0].object);
+				m$._cProj.SelectedModels.push(intersects[0].object);
 				intersects[0].object.material.color.setHex(m$.shade(m$.MESHCOLOR, 20));
-				//m$.OldColor = 0xAAAA00; // for hover
 			} else {
-				m$.SelectedModels.splice(i, 1);
+				m$._cProj.SelectedModels.splice(i, 1);
 				intersects[0].object.material.color.setHex(m$.MESHCOLOR);
-				//m$.OldColor = m$.MESHCOLOR; // for hover
 			}
 		}
 	};
@@ -588,11 +551,6 @@ var Mesher = function (m$) {
 
 	// reference to project
 	m$._cProj;
-
-	// Selected Models
-	m$.SelectedModels = [];
-	m$.RolledModel;
-	m$.OldColor;
 
 	// Settings, map of jQuery selectors for things
 	m$.Settings = {};
