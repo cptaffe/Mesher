@@ -499,7 +499,7 @@ var m$ = Mesher;
 			var i = m$.SelectedModels.indexOf(intersects[0].object);
 			if (i == -1){
 				m$.SelectedModels.push(intersects[0].object);
-				intersects[0].object.material.color.setHex( Math.random() * 0xffffff );
+				intersects[0].object.material.color.setHex(0xAAAA68);
 			} else {
 				m$.SelectedModels.splice(i, 1);
 				intersects[0].object.material.color.setHex(m$.MESHCOLOR);
