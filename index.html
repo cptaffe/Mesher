@@ -52,7 +52,7 @@
                 <div color="green" data-toggle="tooltip" data-placement="top" title="fork"><i class="fa fa-fw fa-code-fork"></i></div>
                 <div color="green" data-toggle="tooltip" data-placement="top" title="cube"><i class="fa fa-fw fa-cube"></i></div>
                 <div color="green" data-toggle="tooltip" data-placement="top" title="zip"><i class="fa fa-fw fa-file-zip-o"></i></div>
-                <div color="green" data-toggle="tooltip" data-placement="top" title="coffee"><i class="fa fa-fw fa-coffee"></i></div>
+                <div color="gray" data-toggle="tooltip" data-placement="top" title="coffee"><i class="fa fa-fw fa-coffee"></i></div>
                 <div color="green" data-toggle="tooltip" data-placement="top" title="cog"><i class="fa fa-fw fa-cog"></i></div>
                 <div color="green" data-toggle="tooltip" data-placement="top" title="bolt"><i class="fa fa-fw fa-bolt"></i></div>
                 <div color="green" data-toggle="tooltip" data-placement="top" title="leaf"><i class="fa fa-fw fa-leaf"></i></div>
@@ -94,20 +94,15 @@
       });
     });
 
-    // register history with mesher
-    $(function () {
-      $('#hist').mesher().history();
-    });
+    $(m$.init({
+        History: $('#hist'),
+        Display: $('#container')
+    }));
 
-    // register model canvas parent with mesher
-    // & use original model
-    $(function () {
-      $('#container').mesher().model();
-    });
-
+    // register tool parent with Tool API
     $(function () {
         $("[data-toggle='tooltip']").tooltip();
-    })
+    });
 
     // File Upload
         function handleFileSelect(evt) {

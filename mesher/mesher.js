@@ -478,6 +478,26 @@ var m$ = Mesher;
 	m$.init = function (settings) {
 		this.Settings.Display = settings.Display;
 		this.output.Elements.history = settings.History;
+		$(this.Settings.Display).click(this.click);
+	};
+
+	m$.click = function () {
+
+		event.preventDefault();
+
+		var projector = new THREE.Projector();
+
+		var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
+		projector.unprojectVector( vector, m$.Globals.Camera );
+
+		var raycaster = new THREE.Raycaster( m$.Globals.Camera.position, vector.sub( m$.Globals.Camera.position ).normalize() );
+
+		var intersects = raycaster.intersectObjects( m$.Globals.Models );
+
+		if ( intersects.length > 0 ) {
+			intersects[0].object.material.color.setHex( Math.random() * 0xffffff );
+		}
+		m$.Globals.Intersects = intersects;
 	};
 
 })(Mesher);
