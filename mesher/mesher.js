@@ -47,7 +47,11 @@ var m$ = Mesher;
 
 	// addModel creates a model and sets it to
 	// _oModel, and then clones that model to _cModel
-	m$.Project.prototype.addModel = function (file) {
+	m$.Project.prototype.addModel = function (files) {
+		this._addModel(files[0]); // add each file in array
+	};
+
+	m$.Project.prototype._addModel = function (file) {
 
 		// Create _oModel
 		// & push to stack
@@ -316,11 +320,13 @@ var m$ = Mesher;
 
 	// Reads file into THREE map
 	m$.Three.prototype.readFile = function (file) {
+		m$.ReadyToRead = false;
 		this.Reader.parent = this;
 		this.Reader.onload = function (e) {
 			this.parent.addModel(e.target.result);
+			m$.ReadyToRead = true;
 		};
-		this.Reader.readAsBinaryString(file[0]);
+		this.Reader.readAsBinaryString(file);
 	};
 
 	// Adds Model 
@@ -471,6 +477,12 @@ var m$ = Mesher;
 		this._cProj = m$.Projects[l-1];
 		this._cProj.Display = this.Settings.Display || document.body;
 		this._cProj.addModel(file);
+
+		// model is added, get stuff working
+		$(this.Settings.Display).click(this.click);
+		// Too resource intensive
+		//$(this.Settings.Display).mousemove(this.hover);
+		$(window).resize(this.resize);
 	};
 
 	// Sets up m$ with appropriate settings
@@ -478,7 +490,47 @@ var m$ = Mesher;
 	m$.init = function (settings) {
 		this.Settings.Display = settings.Display;
 		this.output.Elements.history = settings.History;
-		$(this.Settings.Display).click(this.click);
+	};
+
+	// NOT WORKING
+	m$.resize = function () {
+		this.Globals.Camera.aspect = this.Settings.Display.innerWidth / this.Settings.Display.innerHeight;
+		this.Globals.Camera.updateProjectionMatrix();
+
+		this.Globals.Renderer.setSize( this.Settings.Display.innerWidth, this.Settings.Display.innerHeight );
+	}
+
+	m$.hover = function () {
+
+		event.preventDefault();
+
+		var projector = new THREE.Projector();
+
+		var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
+		projector.unprojectVector( vector, m$.Globals.Camera );
+
+		var raycaster = new THREE.Raycaster( m$.Globals.Camera.position, vector.sub( m$.Globals.Camera.position ).normalize() );
+
+		var intersects = raycaster.intersectObjects( m$.Globals.Models );
+		
+		// select or unselect
+		if ( intersects.length > 0 ) {
+			//
+			if (m$.RolledModel == intersects[0].object){
+				// still selected
+			} else {
+				// is now selected
+				m$.RolledModel = intersects[0].object;
+				m$.OldColor = intersects[0].object.material.color.getHex();
+				intersects[0].object.material.color.setHex(m$.shade(m$.OldColor, 15));
+			}
+		} else {
+			// is not selected anymore
+			if (typeof m$.RolledModel != 'undefined'){
+				m$.RolledModel.material.color.setHex(m$.OldColor);
+				m$.RolledModel = undefined;
+			}
+		}
 	};
 
 	m$.click = function () {
@@ -499,13 +551,26 @@ var m$ = Mesher;
 			var i = m$.SelectedModels.indexOf(intersects[0].object);
 			if (i == -1){
 				m$.SelectedModels.push(intersects[0].object);
-				intersects[0].object.material.color.setHex(0xAAAA68);
+				intersects[0].object.material.color.setHex(0xAAAA00);
+				//m$.OldColor = 0xAAAA00; // for hover
 			} else {
 				m$.SelectedModels.splice(i, 1);
 				intersects[0].object.material.color.setHex(m$.MESHCOLOR);
+				//m$.OldColor = m$.MESHCOLOR; // for hover
 			}
 		}
 	};
+
+	// Freaking boss shading
+	// & blending
+	// http://stackoverflow.com/a/13542669
+	m$.shade = function (num, percent) {  
+	    amt = Math.round(2.55 * percent),
+	    R = (num >> 16) + amt,
+	    G = (num >> 8 & 0x00FF) + amt,
+	    B = (num & 0x0000FF) + amt;
+	    return (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)-0x1000000);
+	}
 
 })(Mesher);
 
@@ -524,6 +589,8 @@ var Mesher = function (m$) {
 
 	// Selected Models
 	m$.SelectedModels = [];
+	m$.RolledModel;
+	m$.OldColor;
 
 	// Settings, map of jQuery selectors for things
 	m$.Settings = {};
