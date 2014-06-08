@@ -320,17 +320,15 @@ var m$ = Mesher;
 
 	// Reads file into THREE map
 	m$.Three.prototype.readFile = function (file) {
-		m$.ReadyToRead = false;
 		this.Reader.parent = this;
 		this.Reader.onload = function (e) {
-			this.parent.addModel(e.target.result);
-			m$.ReadyToRead = true;
+			this.parent.addModel(e.target.result, file.name);
 		};
 		this.Reader.readAsBinaryString(file);
 	};
 
 	// Adds Model 
-	m$.Three.prototype.addModel = function (data) {
+	m$.Three.prototype.addModel = function (data, name) {
 		// Create Mesh
 		var material = new THREE.MeshLambertMaterial({
 			color: m$.MESHCOLOR,
@@ -345,6 +343,7 @@ var m$ = Mesher;
     
     // Create Model
 		var l = this.Models.push(new THREE.Mesh(geometry, material))
+		this.Models[l-1].name = name;
 
 		// Modify Scene
 		if (l < 2){
