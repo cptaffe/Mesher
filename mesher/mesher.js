@@ -551,7 +551,7 @@ var m$ = Mesher;
 			var i = m$.SelectedModels.indexOf(intersects[0].object);
 			if (i == -1){
 				m$.SelectedModels.push(intersects[0].object);
-				intersects[0].object.material.color.setHex(0xAAAA00);
+				intersects[0].object.material.color.setHex(m$.shade(m$.MESHCOLOR, 20));
 				//m$.OldColor = 0xAAAA00; // for hover
 			} else {
 				m$.SelectedModels.splice(i, 1);
