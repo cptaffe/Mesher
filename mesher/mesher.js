@@ -327,7 +327,7 @@ var m$ = Mesher;
 	m$.Three.prototype.addModel = function (data) {
 		// Create Mesh
 		var material = new THREE.MeshLambertMaterial({
-			color: 0xAAAAB9,
+			color: m$.MESHCOLOR,
 			opacity : 1,
 			transparent: true,
 			side: THREE.DoubleSide
@@ -493,11 +493,18 @@ var m$ = Mesher;
 		var raycaster = new THREE.Raycaster( m$.Globals.Camera.position, vector.sub( m$.Globals.Camera.position ).normalize() );
 
 		var intersects = raycaster.intersectObjects( m$.Globals.Models );
-
+		
+		// select or unselect
 		if ( intersects.length > 0 ) {
-			intersects[0].object.material.color.setHex( Math.random() * 0xffffff );
+			var i = m$.SelectedModels.indexOf(intersects[0].object);
+			if (i == -1){
+				m$.SelectedModels.push(intersects[0].object);
+				intersects[0].object.material.color.setHex( Math.random() * 0xffffff );
+			} else {
+				m$.SelectedModels.splice(i, 1);
+				intersects[0].object.material.color.setHex(m$.MESHCOLOR);
+			}
 		}
-		m$.Globals.Intersects = intersects;
 	};
 
 })(Mesher);
@@ -506,11 +513,17 @@ var m$ = Mesher;
 var Mesher = function (m$) {
 	'use strict';
 
+	// Defualt mesh color
+	m$.MESHCOLOR = 0xAAAAB9;
+
 	// Projects stack
 	m$.Projects = [];
 
 	// reference to project
 	m$._cProj;
+
+	// Selected Models
+	m$.SelectedModels = [];
 
 	// Settings, map of jQuery selectors for things
 	m$.Settings = {};
