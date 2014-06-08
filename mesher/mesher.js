@@ -477,12 +477,6 @@ var m$ = Mesher;
 		this._cProj = m$.Projects[l-1];
 		this._cProj.Display = this.Settings.Display || document.body;
 		this._cProj.addModel(file);
-
-		// model is added, get stuff working
-		$(this.Settings.Display).click(this.click);
-		// Too resource intensive
-		//$(this.Settings.Display).mousemove(this.hover);
-		$(window).resize(this.resize);
 	};
 
 	// Sets up m$ with appropriate settings
@@ -490,6 +484,12 @@ var m$ = Mesher;
 	m$.init = function (settings) {
 		this.Settings.Display = settings.Display;
 		this.output.Elements.history = settings.History;
+
+		// model is added, get stuff working
+		$(this.Settings.Display).click(this.click);
+		// Too resource intensive
+		//$(this.Settings.Display).mousemove(this.hover);
+		$(window).resize(this.resize);
 	};
 
 	// NOT WORKING
@@ -500,6 +500,8 @@ var m$ = Mesher;
 		this.Globals.Renderer.setSize( this.Settings.Display.innerWidth, this.Settings.Display.innerHeight );
 	}
 
+	/*
+	// Hover function, sorta slow
 	m$.hover = function () {
 
 		event.preventDefault();
@@ -532,6 +534,7 @@ var m$ = Mesher;
 			}
 		}
 	};
+	*/
 
 	m$.click = function () {
 
