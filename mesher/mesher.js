@@ -19,6 +19,8 @@ var m$ = Mesher;
 		// Models stack
 		this.Models = [];
 
+		this.Index // how to get via top-down
+
 		// references to models
 		this._oModel;
 		this._cModel;
@@ -48,10 +50,20 @@ var m$ = Mesher;
 		this.Three.init(this.Display);
 	};
 
+	// Callback function that calls _addModel if the File
+	// object contains any more files to add.
+	m$.Project.prototype.NextFile = function () {
+		var f = m$._cProj.File.Next();
+		if (f != false) {
+			m$._cProj._addModel(f);
+		}
+	}
+
 	// addModel creates a model and sets it to
 	// _oModel, and then clones that model to _cModel
 	m$.Project.prototype.addModel = function (files) {
-		this._addModel(files[0]); // add each file in array
+			this.File = new m$.File(files);
+			this._addModel(this.File.Next());
 	};
 
 	m$.Project.prototype._addModel = function (file) {
@@ -68,9 +80,9 @@ var m$ = Mesher;
 			this.init();
 
 			// Read File to _oModel
-			this.Three.readFile(file);
+			this.Three.readFile(file, this.NextFile);
 		} else {
-			this.Three.newModel(this.Models[i-1]);
+			this.Three.newModel(this.Models[i-1], this.NextFile());
 		}
 
 		// Clone _oModel to _cModel
@@ -147,76 +159,26 @@ var m$ = Mesher;
 
 })(Mesher, THREE, jQuery);
 
-// Trans object
+
+// File object
 (function (m$) {
-	'use strict';
 
-	m$.Trans = function (proj, func) {
-		// transformation function
-		this.func = func;
+	m$.File = function (files) {
+		this.Files = files;
+		this.Index = 0;
+	};
 
-		// function parameters
-    if (typeof arguments !== 'undefined'){
-			this.params = arguments.splice(2);
+	// Next File in array
+	m$.File.prototype.Next = function () {
+		if (this.Index < this.Files.length) {
+			var f = this.Files[this.Index];
+			this.Index++;
+			return f;
+		} else {
+			return false;
 		}
+	}
 
-		// reference to project object
-		this.project = proj;
-	};
-
-	// calls func(params, g)
-	// g specifies the geometry to change
-	m$.Trans.prototype.call = function (g) {
-		// .apply() sends the scope
-		// & sends parameters as an array
-		// since concat returns the merged array
-		// params is merged with g, the goemetry,
-		// resulting in (g, params...) in the called
-		// function.
-		this.func.apply(this, [g].concat(this.params));
-	};
-
-	// create takes a transformation function
-	// and an arguments as parameters, any arguments
-	// following the function are treated as params (optional)
-	m$.Trans.prototype.create = function (func) {
-		this.func = func;
-		// optional params
-		if (typeof arguments !== 'undefined'){
-			this.params = arguments.splice(1);
-		}
-	};
-
-	// record takes no parameters and pushes
-	// the current transform object onto the
-	// project's history stack.
-	m$.Trans.prototype.record = function () {
-		var i = this.project.Hist.push(this);
-		return i - 1; // returns index
-	};
-
-	// toString takes no parameters and pushes
-	m$.Trans.prototype.toString = function(){
-
-		// creates stack
-		// & pushes the func name and '(' stack
-		var s = [];
-		s.push(this.func.name, '(');
-
-		// stack declared and params looped over
-		// & pushed, then pushed to the main
-		// stack when conjoined with ', ' and 
-		// the stack is topped with ')'
-		var p = [];
-		for (var i = 0; i < this.params.length; i++){
-			p.push(this.params[i]);
-		}
-		s.push(p.join(', '));
-		s.push(')');
-
-		// return joined stack.
-		return s.join('');
-	};
 })(Mesher);
 
 // Output function
@@ -288,8 +250,8 @@ var m$ = Mesher;
 	};
 
 	// adds a Model object to the scene
-	m$.Three.prototype.newModel = function (model) {
-		this.readFile(model.File)
+	m$.Three.prototype.newModel = function (model, callback) {
+		this.readFile(model.File, callback)
 	};
 
 	// Globalize allows requestAnimationFrame() to reference
@@ -322,10 +284,13 @@ var m$ = Mesher;
 	};
 
 	// Reads file into THREE map
-	m$.Three.prototype.readFile = function (file) {
+	m$.Three.prototype.readFile = function (file, callback) {
 		this.Reader.parent = this;
 		this.Reader.onload = function (e) {
 			this.parent.addModel(e.target.result, file.name);
+			if (typeof callback != 'undefined') {
+				callback();
+			}
 		};
 		this.Reader.readAsBinaryString(file);
 	};
@@ -344,7 +309,7 @@ var m$ = Mesher;
 		var geometry = (new THREE.STLLoader()).parse(data);
 		geometry.dynamic = true;
     
-    // Create Model
+    	// Create Model
 		var l = this.Models.push(new THREE.Mesh(geometry, material))
 		this.Models[l-1].name = name;
 
@@ -494,13 +459,13 @@ var m$ = Mesher;
 
 	// NOT WORKING
 	m$.resize = function () {
-		this.Globals.Camera.aspect = this.Settings.Display.innerWidth / this.Settings.Display.innerHeight;
-		this.Globals.Camera.updateProjectionMatrix();
+		m$.Globals.Camera.aspect = m$.Settings.Display.innerWidth / m$.Settings.Display.innerHeight;
+		m$.Globals.Camera.updateProjectionMatrix();
 
-		this.Globals.Renderer.setSize( this.Settings.Display.innerWidth, this.Settings.Display.innerHeight );
+		m$.Globals.Renderer.setSize( m$.Settings.Display.innerWidth, m$.Settings.Display.innerHeight );
 	}
 
-	m$.click = function () {
+	m$.click = function (event) {
 
 		event.preventDefault();
 
@@ -539,6 +504,131 @@ var m$ = Mesher;
 
 })(Mesher);
 
+// Mesher Tool API
+
+// Used for declaring tools,
+// Interfacing with tools,
+// & parsing tool declarations.
+
+(function (m$) {
+
+	// Array of Tool types (tools)
+	m$.Tool = function () {
+		this.Tools = [];
+	};
+
+	m$.Tool.prototype.New = function (name, does, undo, toString, check, prepare) {
+
+		var tool = function (project) {
+			this.Params = arguments;
+			this.Project = project;
+		}
+
+		// sets name
+		tool.Name = name;
+
+		// set undo function
+		if (undo === false){
+			tool.prototype.undo = function () { return false; };
+		} else {
+			tool.prototype.undo = undo;
+		}
+
+		// Does the transformation
+		tool.prototype.do = does;
+
+		// Returns a string like "Transform(12, 2)"
+		tool.prototype.toString = toString;
+
+		tool.prototype.check = check;
+		tool.prototype.prepare = prepare;
+
+		this.Tools.push(tool);
+	};
+
+	m$.Tool.prototype.Get = function (string) {
+		for (var i = 0; i < this.Tools.length; i++) {
+			if (this.Tools[i].Name == string) {
+				return this.Tools[i];
+			}
+		}
+	};
+
+})(Mesher);
+
+(function (m$) {
+
+	// button for a tool
+	// accepts name, fa-icon, and popover
+	m$.Button = function (name, icon, popover) {
+		this.Name = name;
+		this.Icon = icon;
+		this.Popover = popover;
+	}
+
+	// returns html for a button
+	m$.Button.prototype.Html = function () {
+
+	}
+})(Mesher);
+
+(function (m$) {
+
+	// Popover for a tool
+	m$.Popover = function () {
+		this.UI = [];
+		this.Apply = [];
+	}
+
+	// returns html for a popover
+	// by calling Html() on all objects in the UI stack.
+	m$.Popover.prototype.Html = function () {
+		var html = "";
+		for (x in this.UI) {
+			html += x;
+		}
+		return html;
+	}
+
+	// adds a slider {val: , step: , min: , max: , axis: , units: }
+	m$.Popover.prototype.addSlider = function (name, range) {
+		// range config
+	    var rMax = (parseInt(range['max']) + parseInt(Math.abs(range['min']))) / parseFloat(range['step']);
+	    var rStep = 1/parseFloat(range['step']);
+	    var rMin = 0;
+	    var rOffset = parseInt(range['min']);
+	    var rVal = (parseInt(range['val']) - rOffset) * rStep;
+	    var rPrec = (String(range['step']).split('.')[1] || []).length;
+	    var axis = range['axis'];
+	    var units = range['units'];
+
+		this.UI.push([
+			'<!-- ', axis, ' ', name, ' -->',
+			'<div class="input-group">',
+			'<span class="input-group-addon">',axis.toUpperCase(), '</span>',
+			// input bit
+			'<input',
+				' id="', axis, '-', name, '"',
+				' type="text"',
+				' class="form-control"',
+				' placeholder="', name, '"',
+				' oninput="document.getElementById(\'', axis, '-', name, '-r\').value = (parseFloat(this.value).toFixed(', rPrec, ') - ', rOffset, ') * ', rStep, '"',
+				'onchange="document.getElementById(\'', axis, '-', name, '-r\').value = (parseFloat(this.value).toFixed(', rPrec, ') - ', rOffset, ' ) * ', rStep, '"',
+			' />',
+			'<span class="input-group-addon">', units, '</span>',
+			'</div>',
+			'<input',
+				' id="', axis, '-', name, '-r"',
+				' type="range"',
+				' value="', rVal, '"',
+				' min="', rMin, '"',
+				' max="', rMax, '"',
+				' oninput="document.getElementById(\'', axis, '-', name, '\').value = ((this.value / ', rStep, ') + ', rOffset, ').toFixed(', rPrec, ');"',
+				' onchange="document.getElementById(\'', axis, '-', name, '\').value = ((this.value / ', rStep, ') + ', rOffset, ').toFixed(', rPrec, ');"',
+			' />'].join(''));
+	};
+})(Mesher);
+
 // Mesher Library
 var Mesher = function (m$) {
 	'use strict';
@@ -554,6 +644,9 @@ var Mesher = function (m$) {
 
 	// Settings, map of jQuery selectors for things
 	m$.Settings = {};
+
+	// Tools
+	m$.tool = new m$.Tool();
 
 	// Output object for handling printing
 	// & such

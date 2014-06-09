@@ -63,6 +63,14 @@ html{
 	bottom: 0;
 }
 
+#tool-bar>div[data-toggle="tooltip"]>div{
+	position: absolute;
+	bottom: 5px;
+	left: 5px;
+	font-size: 10px;
+	color: rgba(255, 255, 255, 0.7);
+}
+
 #file-tool{
 	margin-left: 5px;
 }
