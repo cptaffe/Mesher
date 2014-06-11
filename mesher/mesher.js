@@ -430,80 +430,6 @@ var m$ = Mesher;
 	};
 })(Mesher);
 
-// Mesher v0.1
-// Utilitarian functions
-
-(function (m$) {
-	// addModel adds the a Model
-	// to the current Project
-	m$.addModel = function (file) {
-		var l  = this.Projects.length;
-		if (l < 1){
-			l = this.Projects.push(new this.Project());
-		}
-		this._cProj = m$.Projects[l-1];
-		this._cProj.Display = this.Settings.Display || document.body;
-		this._cProj.addModel(file);
-	};
-
-	// Sets up m$ with appropriate settings
-	// takes settings, a map of jQuery selectors
-	m$.init = function (settings) {
-		this.Settings.Display = settings.Display;
-		this.output.Elements.history = settings.History;
-
-		// model is added, get stuff working
-		$(this.Settings.Display).click(this.click);
-		$(window).resize(this.resize);
-	};
-
-	// NOT WORKING
-	m$.resize = function () {
-		m$.Globals.Camera.aspect = m$.Settings.Display.innerWidth / m$.Settings.Display.innerHeight;
-		m$.Globals.Camera.updateProjectionMatrix();
-
-		m$.Globals.Renderer.setSize( m$.Settings.Display.innerWidth, m$.Settings.Display.innerHeight );
-	}
-
-	m$.click = function (event) {
-
-		event.preventDefault();
-
-		var projector = new THREE.Projector();
-
-		var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
-		projector.unprojectVector( vector, m$.Globals.Camera );
-
-		var raycaster = new THREE.Raycaster( m$.Globals.Camera.position, vector.sub( m$.Globals.Camera.position ).normalize() );
-
-		var intersects = raycaster.intersectObjects( m$.Globals.Models );
-		
-		// select or unselect
-		if ( intersects.length > 0 ) {
-			var i = m$._cProj.SelectedModels.indexOf(intersects[0].object);
-			if (i == -1){
-				m$._cProj.SelectedModels.push(intersects[0].object);
-				intersects[0].object.material.color.setHex(m$.shade(m$.MESHCOLOR, 20));
-			} else {
-				m$._cProj.SelectedModels.splice(i, 1);
-				intersects[0].object.material.color.setHex(m$.MESHCOLOR);
-			}
-		}
-	};
-
-	// Freaking boss shading
-	// & blending
-	// http://stackoverflow.com/a/13542669
-	m$.shade = function (num, percent) {  
-	    amt = Math.round(2.55 * percent),
-	    R = (num >> 16) + amt,
-	    G = (num >> 8 & 0x00FF) + amt,
-	    B = (num & 0x0000FF) + amt;
-	    return (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)-0x1000000);
-	}
-
-})(Mesher);
-
 // Mesher Tool API
 
 // Used for declaring tools,
@@ -627,6 +553,87 @@ var m$ = Mesher;
 				' onchange="document.getElementById(\'', axis, '-', name, '\').value = ((this.value / ', rStep, ') + ', rOffset, ').toFixed(', rPrec, ');"',
 			' />'].join(''));
 	};
+})(Mesher);
+
+// Mesher v0.1
+// Utilitarian functions
+
+(function (m$) {
+	// addModel adds the a Model
+	// to the current Project
+	m$.addModel = function (file) {
+		var l  = this.Projects.length;
+		if (l < 1){
+			l = this.Projects.push(new this.Project());
+		}
+		this._cProj = m$.Projects[l-1];
+		this._cProj.Display = this.Settings.Display || document.body;
+		this._cProj.addModel(file);
+	};
+
+	// Sets up m$ with appropriate settings
+	// takes settings, a map of jQuery selectors
+	m$.init = function (settings) {
+		this.Settings.Display = settings.Display;
+		this.Settings.Selected = settings.Selected;
+		this.output.Elements.history = settings.History;
+
+		// model is added, get stuff working
+		$(this.Settings.Display).click(this.click);
+		$(window).resize(this.resize);
+	};
+
+	// NOT WORKING
+	m$.resize = function () {
+		m$.Globals.Camera.aspect = m$.Settings.Display.innerWidth / m$.Settings.Display.innerHeight;
+		m$.Globals.Camera.updateProjectionMatrix();
+
+		m$.Globals.Renderer.setSize( m$.Settings.Display.innerWidth, m$.Settings.Display.innerHeight );
+	}
+
+	m$.click = function (event) {
+
+		event.preventDefault();
+
+		var projector = new THREE.Projector();
+
+		var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
+		projector.unprojectVector( vector, m$.Globals.Camera );
+
+		var raycaster = new THREE.Raycaster( m$.Globals.Camera.position, vector.sub( m$.Globals.Camera.position ).normalize() );
+
+		var intersects = raycaster.intersectObjects( m$.Globals.Models );
+		
+		// select or unselect
+		if ( intersects.length > 0 ) {
+			var i = m$._cProj.SelectedModels.indexOf(intersects[0].object);
+			if (i == -1){ // selecting
+				m$._cProj.SelectedModels.push(intersects[0].object);
+				intersects[0].object.material.color.setHex(m$.shade(m$.MESHCOLOR, 20));
+				// add to Selected DOM object
+				var selected = document.createElement('div')
+				selected.appendChild = document.newTextNode(intersects[0].object.name)
+				$(this.Settings.Selected).appendChild(slected);
+			} else {
+				m$._cProj.SelectedModels.splice(i, 1);
+				intersects[0].object.material.color.setHex(m$.MESHCOLOR);
+				// remove from Selected DOM object
+				$(this.Settings.Selected).appendChild(slected);
+			}
+		}
+	};
+
+	// Freaking boss shading
+	// & blending
+	// http://stackoverflow.com/a/13542669
+	m$.shade = function (num, percent) {  
+	    amt = Math.round(2.55 * percent),
+	    R = (num >> 16) + amt,
+	    G = (num >> 8 & 0x00FF) + amt,
+	    B = (num & 0x0000FF) + amt;
+	    return (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)-0x1000000);
+	}
+
 })(Mesher);
 
 // Mesher Library
