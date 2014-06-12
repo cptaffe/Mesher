@@ -16,18 +16,15 @@ var m$ = Mesher;
 	'use strict';
 
 	m$.Project = function () {
-		// Models stack
-		this.Models = [];
 
 		this.Index // how to get via top-down
-
-		// references to models
-		this._oModel;
-		this._cModel;
 
 		// set as _cModel's display
 		this.Display;
 
+		// reference to this.Three model stack
+		// just shorter from top-down :)
+		this.Models;
 		// Transformations Array stack
 		this.Trans = [
 			[],
@@ -50,49 +47,18 @@ var m$ = Mesher;
 		this.Three.init(this.Display);
 	};
 
-	// Callback function that calls _addModel if the File
-	// object contains any more files to add.
-	m$.Project.prototype.NextFile = function () {
-		var f = m$._cProj.File.Next();
-		if (f != false) {
-			m$._cProj._addModel(f);
-		}
-	}
-
-	// addModel creates a model and sets it to
-	// _oModel, and then clones that model to _cModel
-	m$.Project.prototype.addModel = function (files) {
-			this.File = new m$.File(files);
-			this._addModel(this.File.Next());
-	};
-
 	m$.Project.prototype._addModel = function (file) {
-
-		// Create _oModel
-		// & push to stack
-		var i = this.Models.push(new m$.Model(file));
-
 		// Create Three with new Model
 		if (typeof this.Three == 'undefined'){
-			this.Three = new m$.Three(this.Models[i-1]);
+			this.Three = new m$.Three();
 
 			// Init Model
 			this.init();
 
-			// Read File to _oModel
-			this.Three.readFile(file, this.NextFile);
-		} else {
-			this.Three.newModel(this.Models[i-1], this.NextFile());
+			// set Models to reference
+			this.Models = this.Three.Models;
 		}
-
-		// Clone _oModel to _cModel
-		// using jQuery Deep Clone
-		// TODO: More efficient clone, less cloning...
-		this.Models[i] = $.extend(true, {}, this._oModel);
-
-		// Set _oModel and _cModel accordingly
-		this._oModel = this.Models[i-1];
-		this._cModel = this.Models[i];
+		this.Three.newModel(file, m$.File.NextFile);
 	};
 	
 	// Undo function
@@ -166,6 +132,7 @@ var m$ = Mesher;
 	m$.File = function (files) {
 		this.Files = files;
 		this.Index = 0;
+		this.Project = m$._cProj; // saves current project
 	};
 
 	// Next File in array
@@ -178,6 +145,21 @@ var m$ = Mesher;
 			return false;
 		}
 	}
+
+
+	// Callback function that calls _addModel if the File
+	// object contains any more files to add.
+	// must reference everything from top-down.
+	m$.File.NextFile = function () {
+		self = m$.Files; // reference from top-down
+		var f = self.Next();
+		// check in case project was deleted
+		if (f != false && typeof self.Project != 'undefined') {
+			self.Project._addModel(f);
+		} else {
+			return;
+		}
+	};
 
 })(Mesher);
 
@@ -250,8 +232,8 @@ var m$ = Mesher;
 	};
 
 	// adds a Model object to the scene
-	m$.Three.prototype.newModel = function (model, callback) {
-		this.readFile(model.File, callback)
+	m$.Three.prototype.newModel = function (file, callback) {
+		this.readFile(file, callback);
 	};
 
 	// Globalize allows requestAnimationFrame() to reference
@@ -326,6 +308,8 @@ var m$ = Mesher;
 		} else {
 			m$.Globals.Scene.add(this.Models[l-1]);
 		}
+
+		(new m$.ModelTag(this.Models[l-1])).Display();
 
 		this.Render();
 	};
@@ -429,6 +413,127 @@ var m$ = Mesher;
 		this.File = file;
 	};
 })(Mesher);
+
+// Select Object
+(function (m$, $) {
+	m$.Select = function (event) {
+		this.click = event;
+		this.Project = m$._cProj; // saves current project
+		this.model = this.GetModel();
+		if (this.model != false){
+			this.Tag = new m$.ModelTag(this.model);
+			this.Index = this.Selected();
+			if (this.Index === false){ // not selected, select
+				this.Select();
+				this.Tag.Highlight();
+			} else { // is selected, deselect
+				this.Deselect();
+				this.Tag.UnHighlight();
+			}
+		}
+	};
+
+	// selects clicked model
+	m$.Select.prototype.GetModel = function () {
+		var vector = new THREE.Vector3( 
+			( this.click.clientX / window.innerWidth ) * 2 - 1,
+			- ( this.click.clientY / window.innerHeight ) * 2 + 1,
+			0.5
+		);
+
+		var projector = new THREE.Projector()
+		projector.unprojectVector(
+			vector,
+			m$.Globals.Camera
+		);
+
+		var raycaster = new THREE.Raycaster(
+			m$.Globals.Camera.position,
+			vector.sub( m$.Globals.Camera.position ).normalize()
+		);
+
+		var intersects = raycaster.intersectObjects( m$.Globals.Models );
+		
+		// select models if there are intersects
+		if ( intersects.length > 0 ) {
+			return intersects[0].object
+		} else {
+			return false;
+		}
+	};
+
+	m$.Select.prototype.Selected = function () {
+		var i = this.Project.SelectedModels.indexOf(this.model);
+		if (i == -1){
+			return false;
+		} else {
+			return i;
+		}
+	};
+
+	// select model
+	m$.Select.prototype.Select = function () {
+		// select
+		this.Project.SelectedModels.push(this.model);
+		this.model.material.color.setHex(m$.shade(m$.MESHCOLOR, 20));
+	};
+
+	// deselect model
+	m$.Select.prototype.Deselect = function () {
+			this.Project.SelectedModels.splice(this.Index, 1);
+			this.model.material.color.setHex(m$.MESHCOLOR);
+	};
+})(Mesher, jQuery);
+
+// Select Object
+(function (m$, $) {
+	m$.ModelTag = function (model) {
+		this.model = model;
+	};
+
+	m$.ModelTag.prototype.Display = function () {
+		// add to Selected DOM object
+		var selected = document.createElement('div');
+		selected.appendChild(document.createTextNode(this.model.name));
+		selected.setAttribute('id', this.model.uuid);
+		selected.setAttribute('contenteditable', 'true');
+		$(selected).on('input', m$.ModelTag.RenameHandler)
+		$(m$.Settings.Selected).append(selected);
+	};
+
+	m$.ModelTag.prototype.UnDisplay = function () {
+		var c = $(m$.Settings.Selected).children("#"+this.model.uuid).remove();
+	};
+
+	m$.ModelTag.prototype.Highlight = function () {
+		var c = $(m$.Settings.Selected).children("#"+this.model.uuid).css('color', 'rgba(0,0,0,1)');
+	};
+
+	m$.ModelTag.prototype.UnHighlight = function () {
+		var c = $(m$.Settings.Selected).children("#"+this.model.uuid).css('color', '');
+	};
+
+	// Method usable via m$.ModelTag.Rename()
+	m$.ModelTag.Rename = function (uuid, name) {
+		// find model with uuid
+		var m = m$._cProj.Models;
+		for (var i = 0; i < m.length; i++) {
+			if (m[i].uuid == uuid) {
+				m[i].name = name;
+				return;
+			}
+		}
+		console.log("Model not found.");
+	}
+
+	// Handles event to get appropriate info for Rename.
+	m$.ModelTag.RenameHandler = function (event) {
+		m$.ModelTag.Rename(
+			$(event.target).attr('id'),
+			$(event.target).html()
+		);
+	}
+})(Mesher, jQuery);
 
 // Mesher Tool API
 
@@ -561,14 +666,15 @@ var m$ = Mesher;
 (function (m$) {
 	// addModel adds the a Model
 	// to the current Project
-	m$.addModel = function (file) {
+	m$.addModel = function (files) {
 		var l  = this.Projects.length;
 		if (l < 1){
 			l = this.Projects.push(new this.Project());
 		}
 		this._cProj = m$.Projects[l-1];
-		this._cProj.Display = this.Settings.Display || document.body;
-		this._cProj.addModel(file);
+		this.Files = new m$.File(files);
+		this.Files.Project.Display = this.Settings.Display || document.body;
+		this.Files.Project._addModel(m$.Files.Next());
 	};
 
 	// Sets up m$ with appropriate settings
@@ -589,38 +695,11 @@ var m$ = Mesher;
 		m$.Globals.Camera.updateProjectionMatrix();
 
 		m$.Globals.Renderer.setSize( m$.Settings.Display.innerWidth, m$.Settings.Display.innerHeight );
-	}
+	};
 
 	m$.click = function (event) {
-
 		event.preventDefault();
-
-		var projector = new THREE.Projector();
-
-		var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
-		projector.unprojectVector( vector, m$.Globals.Camera );
-
-		var raycaster = new THREE.Raycaster( m$.Globals.Camera.position, vector.sub( m$.Globals.Camera.position ).normalize() );
-
-		var intersects = raycaster.intersectObjects( m$.Globals.Models );
-		
-		// select or unselect
-		if ( intersects.length > 0 ) {
-			var i = m$._cProj.SelectedModels.indexOf(intersects[0].object);
-			if (i == -1){ // selecting
-				m$._cProj.SelectedModels.push(intersects[0].object);
-				intersects[0].object.material.color.setHex(m$.shade(m$.MESHCOLOR, 20));
-				// add to Selected DOM object
-				var selected = document.createElement('div')
-				selected.appendChild = document.newTextNode(intersects[0].object.name)
-				$(this.Settings.Selected).appendChild(slected);
-			} else {
-				m$._cProj.SelectedModels.splice(i, 1);
-				intersects[0].object.material.color.setHex(m$.MESHCOLOR);
-				// remove from Selected DOM object
-				$(this.Settings.Selected).appendChild(slected);
-			}
-		}
+		m$.Clicks.push(new m$.Select(event));
 	};
 
 	// Freaking boss shading
@@ -632,7 +711,7 @@ var m$ = Mesher;
 	    G = (num >> 8 & 0x00FF) + amt,
 	    B = (num & 0x0000FF) + amt;
 	    return (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)-0x1000000);
-	}
+	};
 
 })(Mesher);
 
@@ -640,14 +719,12 @@ var m$ = Mesher;
 var Mesher = function (m$) {
 	'use strict';
 
-	// Defualt mesh color
-	m$.MESHCOLOR = 0xAAAAB9;
+	m$.MESHCOLOR = 0xAAAAB9; // Defualt mesh color
 
-	// Projects stack
-	m$.Projects = [];
+	m$.Projects = []; // Projects stack
+	m$._cProj; // reference to project
 
-	// reference to project
-	m$._cProj;
+	m$.Clicks = []; // click stack...
 
 	// Settings, map of jQuery selectors for things
 	m$.Settings = {};

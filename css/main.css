@@ -21,9 +21,29 @@ html{
 	bottom: 0;
 }
 
+#selected{
+	height: 68px;
+	overflow: auto;
+	margin-top: 10px;
+}
+
+#selected>div{
+	color: rgba(0,0,0,0.5);
+	margin: 5px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-right: 7px;
+	padding-left: 7px;
+	background-color: rgba(100,100,100,0.2);
+	transition: all 0.25s ease;
+	cursor: pointer;
+	border-radius: 5px;
+	outline: none;
+}
+
 #tool-bar{
 	margin: auto;
-	margin-top: 50px;
+	margin-top: 10px;
 }
 
 #tool-bar>div[data-toggle="tooltip"]{
