@@ -293,6 +293,10 @@ var m$ = Mesher;
     
     	// Create Model
 		var l = this.Models.push(new THREE.Mesh(geometry, material))
+
+		// name modification to remove extension
+		// this is where we lose the extension (!)
+		name = name.substring(0, name.lastIndexOf('.'));
 		this.Models[l-1].name = name;
 
 		// Modify Scene
@@ -497,6 +501,7 @@ var m$ = Mesher;
 		selected.appendChild(document.createTextNode(this.model.name));
 		selected.setAttribute('id', this.model.uuid);
 		selected.setAttribute('contenteditable', 'true');
+		selected.setAttribute('spellcheck', 'false'); // turn off spell check
 		$(selected).on('input', m$.ModelTag.RenameHandler)
 		$(m$.Settings.Selected).append(selected);
 	};
@@ -573,7 +578,7 @@ var m$ = Mesher;
 		// Returns a string like "Transform(12, 2)"
 		tool.prototype.toString = toString;
 
-		tool.prototype.check = check;
+		tool.check = check; // accessible globally
 		tool.prototype.prepare = prepare;
 
 		this.Tools.push(tool);
