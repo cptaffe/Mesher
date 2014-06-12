@@ -506,11 +506,13 @@ var m$ = Mesher;
 	};
 
 	m$.ModelTag.prototype.Highlight = function () {
-		var c = $(m$.Settings.Selected).children("#"+this.model.uuid).css('color', 'rgba(0,0,0,1)');
+		var c = $(m$.Settings.Selected).children("#"+this.model.uuid)
+		.css('color', 'rgba(0,0,0,1)');
 	};
 
 	m$.ModelTag.prototype.UnHighlight = function () {
-		var c = $(m$.Settings.Selected).children("#"+this.model.uuid).css('color', '');
+		var c = $(m$.Settings.Selected).children("#"+this.model.uuid)
+		.css('color', '');
 	};
 
 	// Method usable via m$.ModelTag.Rename()
