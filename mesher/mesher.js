@@ -240,14 +240,7 @@ var m$ = Mesher;
 	// global variables by storing object value references in
 	// the Globals object of the Mesher global object.
 	m$.Three.prototype.Globalize = function () {
-		m$.Globals = {};
-		m$.Globals.Render = this.Render;
-		m$.Globals.DirectionalLight = this.DirectionalLight;
-		m$.Globals.Camera = this.Camera;
-		m$.Globals.Renderer = this.Renderer;
-		m$.Globals.Scene = this.Scene;
-		m$.Globals.Controls = this.Controls;
-		m$.Globals.Models = this.Models;
+		m$.Globals = this;
 	};
 
 	// set render function
