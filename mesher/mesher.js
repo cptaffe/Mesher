@@ -481,9 +481,6 @@ var Mesher = { REVISION: '1' };
 		var selected = document.createElement('div');
 		selected.appendChild(document.createTextNode(this.model.name));
 		selected.setAttribute('id', this.model.uuid);
-		selected.setAttribute('contenteditable', 'true');
-		selected.setAttribute('spellcheck', 'false'); // turn off spell check
-		$(selected).on('input', m$.ModelTag.RenameHandler)
 		$(m$.Settings.Selected).append(selected);
 	};
 
@@ -501,6 +498,7 @@ var Mesher = { REVISION: '1' };
 		.css('color', '');
 	};
 
+	// TODO: Make a Tool for this to allow undo-age.
 	// Method usable via m$.ModelTag.Rename()
 	m$.ModelTag.Rename = function (uuid, name) {
 		// find model with uuid
@@ -512,7 +510,7 @@ var Mesher = { REVISION: '1' };
 			}
 		}
 		console.log("Model not found.");
-	}
+	};
 
 	// Handles event to get appropriate info for Rename.
 	m$.ModelTag.RenameHandler = function (event) {
@@ -520,10 +518,13 @@ var Mesher = { REVISION: '1' };
 			$(event.target).attr('id'),
 			$(event.target).html()
 		);
-	}
+	};
+
 })(Mesher, jQuery);
 
 // Mesher Tool API
+
+// TODO: move management of Hist/Fut stack to Tool API.
 
 // Used for declaring tools,
 // Interfacing with tools,
@@ -538,33 +539,43 @@ var Mesher = { REVISION: '1' };
 
 	m$.Tool.prototype.New = function (name, does, undo, toString, check, prepare) {
 
-		var tool = function (project) {
-			this.Params = arguments;
+		var tool = function (project, args) {
+			this.Params = args;
 			this.Project = project;
 		}
 
 		// sets name
 		tool.Name = name;
 
-		// set undo function
+		// set undo function, should return true on success
 		if (undo === false){
 			tool.prototype.undo = function () { return false; };
 		} else {
 			tool.prototype.undo = undo;
 		}
 
-		// Does the transformation
+		// Does the transformation, should return true on success
 		tool.prototype.do = does;
 
 		// Returns a string like "Transform(12, 2)"
-		tool.prototype.toString = toString;
+		if (tool.prototype.toString == false) {
+			tool.prototype.toString = function () {
+				return (this.Name + "(" + this.Params + ")");
+			};
+		} else {
+			tool.prototype.toString = toString;
+		}
 
-		tool.check = check; // accessible globally
+		// accessible globally
+		// takes project pointer, returns bool
+		tool.check = check;
 		tool.prototype.prepare = prepare;
 
 		this.Tools.push(tool);
 	};
 
+	// Get a tool by its name,
+	// return reference
 	m$.Tool.prototype.Get = function (string) {
 		for (var i = 0; i < this.Tools.length; i++) {
 			if (this.Tools[i].Name == string) {
@@ -572,6 +583,80 @@ var Mesher = { REVISION: '1' };
 			}
 		}
 	};
+
+	// Get a tool by its name,
+	// return index
+	m$.Tool.prototype.GetIndex = function (string) {
+		for (var i = 0; i < this.Tools.length; i++) {
+			if (this.Tools[i].Name == string) {
+				return i;
+			}
+		}
+	}
+
+	// Create a new tool instance,
+	// push it to the hist stack,
+	// and execute its do function
+	m$.Tool.prototype.Do = function (index, args) {
+		var proj = m$._cProj; // record current project
+		if (index >= 0 && index < this.Tools.length) {
+			var toolType = this.Tools[index];
+			// check if can be done
+			if (toolType.check(proj)){
+				// create new tool of type in index
+				var tool = new toolType(proj, args);
+				// if successful push to Hist
+				if (tool.do()){
+					return proj.Hist.push(tool); // success
+				} else {
+					console.log("Tool do failed.");
+					return false; // fail
+				}
+			} else {
+				console.log("Tool check returned false.");
+				return false; // fail
+			}
+		} else {
+			console.log("Index out of bounds.");
+			return false; // fail
+		}
+	}
+
+	// pop from Hist to Fut,
+	// execute its undo function
+	m$.Tool.prototype.Undo = function () {
+		var proj = m$._cProj; // record current project
+		var tool = proj.Hist.pop();
+		// try undo, it fail
+		if (!tool.undo()) {
+			// reload original models
+			// TODO: reload original models
+			// do all operations from the ground up
+			for (var i = 0; i < proj.Hist.length; i++){
+				if (!proj.Hist[i].do()) { // if no work
+					// basically ignore it and move on.
+					// this should not ever happen
+					console.log(proj.Hist[i].toString() + ", it no work.");
+				}
+			}
+		}
+		// at this point, undo has 'worked' somehow.
+		proj.Fut.push(tool);
+	}
+
+	// pop from Fut to Hist
+	// execute do.
+	m$.Tool.prototype.Redo = function () {
+		var proj = m$._cProj; // record current project
+		var tool = proj.Fut.pop();
+		// try do, it fail
+		if (!tool.do()) {
+			console.log(tool.toString + ", it no work.");
+			// essentially throws away
+			return false; // fail
+		}
+		proj.Hist.push(tool);
+	}
 
 })(Mesher);
 
@@ -729,3 +814,35 @@ var Mesher = function (m$) {
 
 	return m$;
 }(Mesher);
+
+(function (m$) {
+// Rename Tool Definition
+	// TODO: Relocate
+	//(name, does, undo, toString, check, prepare)
+	m$.tool.New(
+		// name
+		"Rename",
+		// do function: does rename
+		function () {
+			var name = this.Params.name;
+			this.OldName = this.Project.SelectedModels[0].name;
+			this.Project.SelectedModels[0].name = name;
+			return true;
+		},
+		// undo function: undoes rename
+		function () {
+			this.Project.SelectedModels[0].name = this.OldName;
+			return true;
+		},
+		// toString function (idk what this does...)
+		false,
+		// check function: checks if can be performed
+		function (proj) {
+			return (proj.SelectedModels.length == 1);
+		},
+		// prepare function
+		function () {
+			// prepares and shit...
+		}
+	);
+})(Mesher);
