@@ -1,4 +1,4 @@
-Vasify
+Mesher
 ======
 
 STL viewer and editor
