@@ -235,6 +235,7 @@ var Mesher = { REVISION: '1' };
 		// Backup original copy of model :)
 		// TODO: Make this better
 		m$._cProj.OriginalModels.push(this.Models[l-1].clone());
+		m$.registerChange(); // register change
 
 		// name modification to remove extension
 		// this is where we lose the extension (!)
@@ -417,12 +418,14 @@ var Mesher = { REVISION: '1' };
 		// select
 		this.Project.SelectedModels.push(this.model);
 		this.model.material.color.setHex(m$.shade(m$.MESHCOLOR, 20));
+		m$.registerChange(); // register change
 	};
 
 	// deselect model
 	m$.Select.prototype.Deselect = function () {
 			this.Project.SelectedModels.splice(this.Index, 1);
 			this.model.material.color.setHex(m$.MESHCOLOR);
+			m$.registerChange(); // register change
 	};
 })(Mesher, jQuery);
 
@@ -642,6 +645,7 @@ var Mesher = { REVISION: '1' };
 		this.Index = 0;
 		this.Tools = [];
 		this.SetSize = 8;
+		this.Proj = m$._cProj;
 	};
 
 	// Get 8 tools from the set of all tools (per call)
@@ -666,14 +670,17 @@ var Mesher = { REVISION: '1' };
 			var icon = document.createElement('i');
 			icon.setAttribute('class', 'fa fa-fw ' + this.Tools[i].Icon);
 			control.appendChild(icon);
+			$(control).tooltip(); // tooltip implemented
 			$(m$.Settings.Controls).append(control);
 		}
 	};
 
 	m$.Controls.prototype.CheckTools = function () {
 		for (var i = 0; i < this.Tools.length; i++){
-			if (!this.Tools[i].check()){
+			if (!this.Tools[i].check(m$._cProj)){
 				$(m$.Settings.Controls).children('#'+i).attr('color', 'gray');
+			} else {
+				$(m$.Settings.Controls).children('#'+i).attr('color', 'green');
 			}
 		}
 	};
@@ -737,6 +744,22 @@ var Mesher = { REVISION: '1' };
 	};
 })(Mesher);
 
+(function (m$) {
+	m$.FileIO = function () {};
+
+	m$.FileIO.Drag = function (evt) {
+        evt.stopPropagation();
+        evt.preventDefault();
+        evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    }
+
+    m$.FileIO.Drop = function (evt) {
+        evt.stopPropagation();
+        evt.preventDefault();
+        Mesher.addModel(evt.dataTransfer.files);
+    }
+})(Mesher);
+
 // Mesher v0.1
 // Utilitarian functions
 
@@ -764,10 +787,20 @@ var Mesher = { REVISION: '1' };
 		// model is added, get stuff working
 		$(this.Settings.Display).click(this.click);
 		$(window).resize(this.resize);
-		// init controls
+
+		// Controls Setup
 		this.controls.GetTools();
 		this.controls.WriteTools();
+
+		// File interface setup
+        settings.Drop.addEventListener('dragover', m$.FileIO.Drag, false);
+        settings.Drop.addEventListener('drop', m$.FileIO.Drop, false);
 	};
+
+	// things that run on environmental changes
+	m$.registerChange = function () {
+		this.controls.CheckTools();
+	}
 
 	// NOT WORKING
 	m$.resize = function () {
