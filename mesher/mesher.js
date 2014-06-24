@@ -487,11 +487,11 @@ var Mesher = { REVISION: '1' };
 		var selected = document.createElement('div');
 		selected.appendChild(document.createTextNode(this.model.name));
 		selected.setAttribute('id', this.model.uuid);
-		selected.setAttribute('onclick', 'Mesher.ModelTag.SelectModelUUID.call(this,event)')
+		selected.setAttribute('onclick', 'Mesher.ModelTag.SelectModelByUUID.call(this,event)')
 		$(m$.Settings.Selected).append(selected);
 	};
 
-	m$.ModelTag.SelectModelUUID = function (event) {
+	m$.ModelTag.SelectModelByUUID = function (event) {
 		event.preventDefault();
 		var uuid = this.id;
 		for (var i = 0; i < m$._cProj.Models.length; i++){
@@ -501,6 +501,10 @@ var Mesher = { REVISION: '1' };
 				s.Init();
 			}
 		}
+	};
+
+	m$.ModelTag.SelectTagByUUID = function (uuid) {
+		return $(m$.Settings.Selected).children('#'+uuid);
 	};
 
 	m$.ModelTag.prototype.UnDisplay = function () {
@@ -534,7 +538,7 @@ var Mesher = { REVISION: '1' };
 		this.Tools = [];
 	};
 
-	m$.Tool.prototype.New = function (name, does, undo, toString, check, prepare) {
+	m$.Tool.prototype.New = function (name, does, undo, redo, toString, check, prepare) {
 
 		var tool = function (project, args) {
 			this.Params = args;
@@ -549,6 +553,13 @@ var Mesher = { REVISION: '1' };
 			tool.prototype.undo = function () { return false; };
 		} else {
 			tool.prototype.undo = undo;
+		}
+
+		// set redo function, should return true on success
+		if (undo === false){
+			tool.prototype.redo = function () { return false; };
+		} else {
+			tool.prototype.redo = redo;
 		}
 
 		// Does the transformation, should return true on success
@@ -647,7 +658,7 @@ var Mesher = { REVISION: '1' };
 		var proj = m$._cProj; // record current project
 		var tool = proj.Fut.pop();
 		// try do, it fail
-		if (!tool.do()) {
+		if (!tool.redo()) {
 			console.log(tool.toString + ", it no work.");
 			// essentially throws away
 			return false; // fail
@@ -826,11 +837,20 @@ var Mesher = function (m$) {
 			this.model = this.Project.SelectedModels[0];
 			this.OldName = this.Project.SelectedModels[0].name;
 			this.model.name = name;
+			m$.ModelTag.SelectTagByUUID(this.model.uuid).html(document.createTextNode(name));
 			return true;
 		},
 		// undo function: undoes rename
 		function () {
 			this.model.name = this.OldName;
+			m$.ModelTag.SelectTagByUUID(this.model.uuid).html(document.createTextNode(this.OldName));
+			return true;
+		},
+		// redo function
+		function () {
+			var name = this.Params.name;
+			this.model.name = name;
+			m$.ModelTag.SelectTagByUUID(this.model.uuid).html(document.createTextNode(name));
 			return true;
 		},
 		// toString function (idk what this does...)
