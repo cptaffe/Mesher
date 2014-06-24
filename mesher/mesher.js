@@ -402,9 +402,15 @@ var Mesher = { REVISION: '1' };
 // Select Object
 (function (m$, $) {
 	m$.Select = function (event) {
-		this.click = event;
+		if (typeof event != 'undefined'){
+			this.click = event;
+			this.model = this.GetModel();
+			this.Init(); // init rest of stuff
+		}
+	};
+
+	m$.Select.prototype.Init = function () {
 		this.Project = m$._cProj; // saves current project
-		this.model = this.GetModel();
 		if (this.model != false){
 			this.Tag = new m$.ModelTag(this.model);
 			this.Index = this.Selected();
@@ -481,7 +487,20 @@ var Mesher = { REVISION: '1' };
 		var selected = document.createElement('div');
 		selected.appendChild(document.createTextNode(this.model.name));
 		selected.setAttribute('id', this.model.uuid);
+		selected.setAttribute('onclick', 'Mesher.ModelTag.SelectModelUUID.call(this,event)')
 		$(m$.Settings.Selected).append(selected);
+	};
+
+	m$.ModelTag.SelectModelUUID = function (event) {
+		event.preventDefault();
+		var uuid = this.id;
+		for (var i = 0; i < m$._cProj.Models.length; i++){
+			if (m$._cProj.Models[i].uuid == uuid){
+				var s = new m$.Select();
+				s.model = m$._cProj.Models[i];
+				s.Init();
+			}
+		}
 	};
 
 	m$.ModelTag.prototype.UnDisplay = function () {
@@ -496,28 +515,6 @@ var Mesher = { REVISION: '1' };
 	m$.ModelTag.prototype.UnHighlight = function () {
 		var c = $(m$.Settings.Selected).children("#"+this.model.uuid)
 		.css('color', '');
-	};
-
-	// TODO: Make a Tool for this to allow undo-age.
-	// Method usable via m$.ModelTag.Rename()
-	m$.ModelTag.Rename = function (uuid, name) {
-		// find model with uuid
-		var m = m$._cProj.Models;
-		for (var i = 0; i < m.length; i++) {
-			if (m[i].uuid == uuid) {
-				m[i].name = name;
-				return;
-			}
-		}
-		console.log("Model not found.");
-	};
-
-	// Handles event to get appropriate info for Rename.
-	m$.ModelTag.RenameHandler = function (event) {
-		m$.ModelTag.Rename(
-			$(event.target).attr('id'),
-			$(event.target).html()
-		);
 	};
 
 })(Mesher, jQuery);
@@ -825,13 +822,15 @@ var Mesher = function (m$) {
 		// do function: does rename
 		function () {
 			var name = this.Params.name;
+			// stores model by ref.
+			this.model = this.Project.SelectedModels[0];
 			this.OldName = this.Project.SelectedModels[0].name;
-			this.Project.SelectedModels[0].name = name;
+			this.model.name = name;
 			return true;
 		},
 		// undo function: undoes rename
 		function () {
-			this.Project.SelectedModels[0].name = this.OldName;
+			this.model.name = this.OldName;
 			return true;
 		},
 		// toString function (idk what this does...)
