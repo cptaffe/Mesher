@@ -40,6 +40,6 @@
 		function () {
 			// prepares and shit...
 		},
-		"fa-expand" // Font-Awesome Icon
+		"fa-quote-right" // Font-Awesome Icon
 	);
 })(Mesher);
