@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="./css/main.css">
 
     <!-- Font Awesome (Update) -->
-    <link href="./font-awesome-4.0.3/css/font-awesome.min.css" rel="stylesheet">
+    <link href="./font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <!-- FontAwesome CDN -->
     <!--link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"-->
 
@@ -78,50 +78,63 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <!-- Bootstrap -->
     <script src="./js/jquery-1.7.2.min.js"></script>
-    <script src="./bootstrap-3.1.1-dist/js/bootstrap.min.js"></script>
+    <!--script src="./bootstrap-3.1.1-dist/js/bootstrap.min.js"></script>
     <script src="./bootstrap-3.1.1-dist/js/"></script>
-    <script src="./bootstrap-3.1.1-dist/optional-js/popover.js"></script>
-    <!--Other-->
+    <script src="./bootstrap-3.1.1-dist/optional-js/popover.js"></script-->
+    <!--Three Library-->
     <script src="./js/three.js"></script>
-    <script src="./js/csg.js"></script>
-    <script src="./js/ThreeCSG.js"></script>
+    <!--Other 3D Libraries-->
     <script src="./js/TrackballControls.js"></script>
+    <!--Utility Libraries-->
     <script src="./js/STLLoader.js"></script>
     <script src="./js/Blob.js"></script>
     <script src="./js/FileSaver.js"></script>
+    <!--Tool Libraries (for tools to use)-->
+    <script src="./js/csg.js"></script>
+    <script src="./js/ThreeCSG.js"></script>
     <!-- Mesher libraries -->
     <script src="./mesher/mesher.js"></script>
-    <script src="./mesher/js/jquery.js"></script> <!-- JQuery Bindings -->
     <script>
 
+    /*
+    TODO: Build into jquery.js bindings
     $(function () {
       $("#openFile").click(function () {
          $('#fileSelector').click();
       });
     });
-
-    $(m$.init({
-        History: $('#hist'),
-        Display: $('#container'),
-        Selected: $('#selected')
+    */
+   
+   // Mesher Init function
+   // TODO: should be only remianing thing here!
+    $(Mesher.init({
+        Selector: 'm$', // custom Mesher selector for future use
+        Display: $('#container'), // container for model
+        Drop: document.body, // drag 'n drop selector
+        Selected: $('#selected'), // selected pane
+        History: $('#hist') // history pane
     }));
 
     // register tool parent with Tool API
+    /*
     $(function () {
         $("[data-toggle='tooltip']").tooltip();
     });
+    */
+   
+   // TODO: move to jquery.js!
 
     // File Upload
         function handleFileSelect(evt) {
             evt.stopPropagation();
             evt.preventDefault();
             $("#file-menu > i").removeClass('fa-file-o').addClass('fa-check').css('color', '#00AE68');
-            m$.addModel(evt.dataTransfer.files);
+            Mesher.addModel(evt.dataTransfer.files);
         }
 
         function handleOtherSelect(evt) {
             $("#file-menu > i").removeClass('fa-file-o').addClass('fa-check').css('color', '#00AE68');;
-            m$.addModel(evt.target.files);
+            Mesher.addModel(evt.target.files);
         }
 
         function handleDragOver(evt) {

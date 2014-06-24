@@ -8,9 +8,6 @@ if (typeof jQuery === 'undefined') { throw new Error('Mesher\'s JavaScript requi
 
 var Mesher = { REVISION: '1' };
 
-// easy colloquial usage
-var m$ = Mesher;
-
 // Project object
 (function (m$, THREE, $) {
 	'use strict';
@@ -164,6 +161,8 @@ var m$ = Mesher;
 })(Mesher);
 
 // Output function
+// DEPRECIATED.
+// TODO: Move this functionality to something else. 
 (function (m$) {
   'use strict';
   
@@ -399,17 +398,6 @@ var m$ = Mesher;
 		}  
 	};
 })(Mesher, THREE);
-
-(function (m$) {
-	'use strict';
-	
-	// Model object
-	// Model is used interface the THREE.js package
-	// & 'globals' are stored in the main object
-	m$.Model = function (file) {
-		this.File = file;
-	};
-})(Mesher);
 
 // Select Object
 (function (m$, $) {
@@ -703,9 +691,12 @@ var m$ = Mesher;
 	};
 
 	// Freaking boss shading
-	// & blending
 	// http://stackoverflow.com/a/13542669
-	m$.shade = function (num, percent) {  
+	m$.shade = function (num, percent) {
+		// inverts percent depending on number (so always changes)
+		if (num > (255/2)) {
+			percent = -percent;
+		}
 	    amt = Math.round(2.55 * percent),
 	    R = (num >> 16) + amt,
 	    G = (num >> 8 & 0x00FF) + amt,
@@ -719,7 +710,7 @@ var m$ = Mesher;
 var Mesher = function (m$) {
 	'use strict';
 
-	m$.MESHCOLOR = 0xAAAAB9; // Defualt mesh color
+	m$.MESHCOLOR = 0x0000B9; // Defualt mesh color
 
 	m$.Projects = []; // Projects stack
 	m$._cProj; // reference to project
