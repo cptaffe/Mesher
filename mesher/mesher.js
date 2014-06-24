@@ -22,6 +22,7 @@ var Mesher = { REVISION: '1' };
 		// reference to this.Three model stack
 		// just shorter from top-down :)
 		this.Models;
+		this.OriginalModels = [];
 		// Transformations Array stack
 		this.Trans = [
 			[],
@@ -56,6 +57,14 @@ var Mesher = { REVISION: '1' };
 			this.Models = this.Three.Models;
 		}
 		this.Three.newModel(file, m$.File.NextFile);
+	};
+
+	m$.Project.prototype.Originalize = function () {
+		for (var i = 0; i < this.Models.length; i++){
+			this.Three.Scene.remove(this.Models[i]);
+			this.Models[i] = this.OriginalModels[i].clone();
+			this.Three.Scene.add(this.Models[i]);
+		}
 	};
 
 })(Mesher, THREE, jQuery);
@@ -223,6 +232,9 @@ var Mesher = { REVISION: '1' };
     
     	// Create Model
 		var l = this.Models.push(new THREE.Mesh(geometry, material))
+		// Backup original copy of model :)
+		// TODO: Make this better
+		m$._cProj.OriginalModels.push(this.Models[l-1].clone());
 
 		// name modification to remove extension
 		// this is where we lose the extension (!)
@@ -577,7 +589,7 @@ var Mesher = { REVISION: '1' };
 		// try undo, it fail
 		if (!tool.undo()) {
 			// reload original models
-			// TODO: reload original models
+			proj.Originalize();
 			// do all operations from the ground up
 			for (var i = 0; i < proj.Hist.length; i++){
 				if (!proj.Hist[i].do()) { // if no work
