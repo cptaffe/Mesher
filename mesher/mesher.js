@@ -57,68 +57,6 @@ var Mesher = { REVISION: '1' };
 		}
 		this.Three.newModel(file, m$.File.NextFile);
 	};
-	
-	// Undo function
-	// undo accepts an index to undo (optional)
-	m$.Project.prototype.undo = function (index) {
-		this._do(this.Hist, this.Fut, this._cModel, index);
-	};
-
-	// Redo function
-	// redo accepts an index to redo (optional)
-	m$.Project.prototype.redo = function (index) {
-		this._do(this.Fut, this.Hist, this._cModel, index);
-	};
-
-	// Preview function
-	// preview accepts a transformation object to preview,
-	// & the nth preview this is; this enables the treatment
-	// of the indice like a preview array.
-	// preview clones the current model to a new Model
-	// indice, it also clones the history stack and provides
-	// the transform object in a new stack
-	m$.Project.prototype.preview = function (t, index) {
-		// Sets indice to 0 on undefined
-		// which will set the new Model on
-		// the first 'unused' indice
-		if (typeof index == 'undefined'){ index = 0; }
-
-		// h is a clone of the Hist stack
-		var h = this.Hist.clone();
-
-		// _do is sent h (a clone of Hist),
-		// a literal stack with one item, t,
-		// a yet to be defined Models indice,
-		// & the last operand is left off
-		// which should defualt it to an undefined.
-		this._do(h, [t], this.Models[0+index]);
-	};
-
-	// Internal Use: _do
-	// accepts a stack to pop/splic from,
-	// a stack to push to,
-	// a model to apply the altered stack to,
-	// & an index to splice from (optional)
-	m$.Project.prototype._do = function (Hist, Fut, Model, index) {
-
-		if (typeof index == 'undefined'){
-			// pop from history and push to future
-			Fut.push(Hist.pop());
-		} else {
-			// clip from history and push to future
-			Fut.push(Hist.splice(index, 1));
-		}
-
-		// throw away current model,
-		// get new copy of original model
-		Model = THREE.GeometryUtils.clone(this._oModel);
-
-		// Execute all transforms in history
-		// with current model
-		for (var i = 0; i < Hist.length; i++){
-			Hist[i].call(Model);
-		}
-	};
 
 })(Mesher, THREE, jQuery);
 
@@ -538,7 +476,7 @@ var Mesher = { REVISION: '1' };
 		this.Tools = [];
 	};
 
-	m$.Tool.prototype.New = function (name, does, undo, redo, toString, check, prepare) {
+	m$.Tool.prototype.New = function (name, does, undo, redo, toString, check, prepare, icon) {
 
 		var tool = function (project, args) {
 			this.Params = args;
@@ -547,6 +485,7 @@ var Mesher = { REVISION: '1' };
 
 		// sets name
 		tool.Name = name;
+		tool.Icon = icon;
 
 		// set undo function, should return true on success
 		if (undo === false){
@@ -650,6 +589,7 @@ var Mesher = { REVISION: '1' };
 		}
 		// at this point, undo has 'worked' somehow.
 		proj.Fut.push(tool);
+		return true;
 	}
 
 	// pop from Fut to Hist
@@ -664,6 +604,7 @@ var Mesher = { REVISION: '1' };
 			return false; // fail
 		}
 		proj.Hist.push(tool);
+		return true;
 	}
 
 })(Mesher);
@@ -682,6 +623,49 @@ var Mesher = { REVISION: '1' };
 	m$.Button.prototype.Html = function () {
 
 	}
+})(Mesher);
+
+(function (m$) {
+	m$.Controls = function () {
+		this.Index = 0;
+		this.Tools = [];
+		this.SetSize = 8;
+	};
+
+	// Get 8 tools from the set of all tools (per call)
+	m$.Controls.prototype.GetTools = function () {
+		if (this.Index == m$.tool.Tools.length){
+			this.Index = 0;
+		}
+		for (var i = this.Index; i < m$.tool.Tools.length && i-this.Index < this.SetSize; i++) {
+			this.Tools.push(m$.tool.Tools[i]);
+		}
+	};
+
+	// write control elements to page
+	m$.Controls.prototype.WriteTools = function () {
+		for (var i = 0; i < this.Tools.length; i++){
+			var control = document.createElement('div');
+			control.setAttribute('color', 'green');
+			control.setAttribute('data-toggle', 'tooltip');
+			control.setAttribute('data-placement', 'top');
+			control.setAttribute('title', this.Tools[i].Name);
+			control.setAttribute('id', i);
+			var icon = document.createElement('i');
+			icon.setAttribute('class', 'fa fa-fw ' + this.Tools[i].Icon);
+			control.appendChild(icon);
+			$(m$.Settings.Controls).append(control);
+		}
+	};
+
+	m$.Controls.prototype.CheckTools = function () {
+		for (var i = 0; i < this.Tools.length; i++){
+			if (!this.Tools[i].check()){
+				$(m$.Settings.Controls).children('#'+i).attr('color', 'gray');
+			}
+		}
+	};
+
 })(Mesher);
 
 (function (m$) {
@@ -764,10 +748,13 @@ var Mesher = { REVISION: '1' };
 		this.Settings.Display = settings.Display;
 		this.Settings.Selected = settings.Selected;
 		this.output.Elements.history = settings.History;
-
+		this.Settings.Controls = settings.Controls;
 		// model is added, get stuff working
 		$(this.Settings.Display).click(this.click);
 		$(window).resize(this.resize);
+		// init controls
+		this.controls.GetTools();
+		this.controls.WriteTools();
 	};
 
 	// NOT WORKING
@@ -809,6 +796,8 @@ var Mesher = function (m$) {
 	m$._cProj; // reference to project
 
 	m$.Clicks = []; // click stack...
+
+	m$.controls = new m$.Controls();
 
 	// Settings, map of jQuery selectors for things
 	m$.Settings = {};
@@ -862,6 +851,7 @@ var Mesher = function (m$) {
 		// prepare function
 		function () {
 			// prepares and shit...
-		}
+		},
+		"fa-expand" // Font-Awesome Icon
 	);
 })(Mesher);

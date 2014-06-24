@@ -53,15 +53,15 @@
             <div id="selected"></div>
 
             <!-- Tools -->
-            <div id='tool-bar' class="list-group">
-                <div color="green" data-toggle="tooltip" data-placement="top" title="code"><i class="fa fa-fw fa-code"></i></div>
+            <div id='tool-bar'>
+                <!--div color="green" data-toggle="tooltip" data-placement="top" title="code"><i class="fa fa-fw fa-code"></i></div>
                 <div color="green" data-toggle="tooltip" data-placement="top" title="fork"><i class="fa fa-fw fa-code-fork"></i></div>
                 <div color="green" data-toggle="tooltip" data-placement="top" title="cube"><i class="fa fa-fw fa-cube"></i></div>
                 <div color="green" data-toggle="tooltip" data-placement="top" title="zip"><i class="fa fa-fw fa-file-zip-o"></i></div>
                 <div color="gray" data-toggle="tooltip" data-placement="top" title="coffee"><i class="fa fa-fw fa-coffee"></i></div>
                 <div color="green" data-toggle="tooltip" data-placement="top" title="cog"><i class="fa fa-fw fa-cog"></i></div>
                 <div color="green" data-toggle="tooltip" data-placement="top" title="bolt"><i class="fa fa-fw fa-bolt"></i></div>
-                <div color="green" data-toggle="tooltip" data-placement="top" title="leaf"><i class="fa fa-fw fa-leaf"></i></div>
+                <div color="green" data-toggle="tooltip" data-placement="top" title="leaf"><i class="fa fa-fw fa-leaf"></i></div-->
             </div>
           </div>
           <div id='hist'></div>
@@ -108,6 +108,7 @@
    // TODO: should be only remianing thing here!
     $(Mesher.init({
         Selector: 'm$', // custom Mesher selector for future use
+        Controls: $('#tool-bar'), // controls
         Display: $('#container'), // container for model
         Drop: document.body, // drag 'n drop selector
         Selected: $('#selected'), // selected pane
@@ -115,11 +116,9 @@
     }));
 
     // register tool parent with Tool API
-    /*
     $(function () {
         $("[data-toggle='tooltip']").tooltip();
     });
-    */
    
    // TODO: move to jquery.js!
 
