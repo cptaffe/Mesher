@@ -710,7 +710,7 @@ var Mesher = { REVISION: '1' };
 var Mesher = function (m$) {
 	'use strict';
 
-	m$.MESHCOLOR = 0x0000B9; // Defualt mesh color
+	m$.MESHCOLOR = 0xAAAAAA; // Defualt mesh color
 
 	m$.Projects = []; // Projects stack
 	m$._cProj; // reference to project
