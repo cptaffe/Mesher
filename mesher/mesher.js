@@ -491,7 +491,7 @@ var Mesher = { REVISION: '1' };
 		this.Tools = [];
 	};
 
-	m$.Tool.prototype.New = function (name, does, undo, redo, toString, check, prepare, icon) {
+	m$.Tool.prototype.New = function (name, does, undo, redo, toString, check, prep, icon) {
 
 		var tool = function (project, args) {
 			this.Params = args;
@@ -520,7 +520,7 @@ var Mesher = { REVISION: '1' };
 		tool.prototype.do = does;
 
 		// Returns a string like "Transform(12, 2)"
-		if (tool.prototype.toString == false) {
+		if (toString == 'false') {
 			tool.prototype.toString = function () {
 				return (this.Name + "(" + this.Params + ")");
 			};
@@ -531,7 +531,7 @@ var Mesher = { REVISION: '1' };
 		// accessible globally
 		// takes project pointer, returns bool
 		tool.check = check;
-		tool.prototype.prepare = prepare;
+		tool.Prep = prep;
 
 		this.Tools.push(tool);
 	};
@@ -625,22 +625,6 @@ var Mesher = { REVISION: '1' };
 })(Mesher);
 
 (function (m$) {
-
-	// button for a tool
-	// accepts name, fa-icon, and popover
-	m$.Button = function (name, icon, popover) {
-		this.Name = name;
-		this.Icon = icon;
-		this.Popover = popover;
-	}
-
-	// returns html for a button
-	m$.Button.prototype.Html = function () {
-
-	}
-})(Mesher);
-
-(function (m$) {
 	m$.Controls = function () {
 		this.Index = 0;
 		this.Tools = [];
@@ -671,12 +655,23 @@ var Mesher = { REVISION: '1' };
 			icon.setAttribute('class', 'fa fa-fw ' + this.Tools[i].Icon);
 			control.appendChild(icon);
 			$(control).tooltip(); // tooltip implemented
+	        $(control).popover({
+		        placement: 'left',
+		        title: this.Tools[i].Name,
+		        html: true,
+		        content: function () {
+		        	return function (s) {
+			        	return this.Tools[s.id].Prep();
+		        	}.call(m$.controls, this);
+		        }
+		    });
 			$(m$.Settings.Controls).append(control);
 		}
 	};
 
 	m$.Controls.prototype.CheckTools = function () {
 		for (var i = 0; i < this.Tools.length; i++){
+			console.log(i);
 			if (!this.Tools[i].check(m$._cProj)){
 				$(m$.Settings.Controls).children('#'+i).attr('color', 'gray');
 			} else {
@@ -685,63 +680,6 @@ var Mesher = { REVISION: '1' };
 		}
 	};
 
-})(Mesher);
-
-(function (m$) {
-
-	// Popover for a tool
-	m$.Popover = function () {
-		this.UI = [];
-		this.Apply = [];
-	}
-
-	// returns html for a popover
-	// by calling Html() on all objects in the UI stack.
-	m$.Popover.prototype.Html = function () {
-		var html = "";
-		for (x in this.UI) {
-			html += x;
-		}
-		return html;
-	}
-
-	// adds a slider {val: , step: , min: , max: , axis: , units: }
-	m$.Popover.prototype.addSlider = function (name, range) {
-		// range config
-	    var rMax = (parseInt(range['max']) + parseInt(Math.abs(range['min']))) / parseFloat(range['step']);
-	    var rStep = 1/parseFloat(range['step']);
-	    var rMin = 0;
-	    var rOffset = parseInt(range['min']);
-	    var rVal = (parseInt(range['val']) - rOffset) * rStep;
-	    var rPrec = (String(range['step']).split('.')[1] || []).length;
-	    var axis = range['axis'];
-	    var units = range['units'];
-
-		this.UI.push([
-			'<!-- ', axis, ' ', name, ' -->',
-			'<div class="input-group">',
-			'<span class="input-group-addon">',axis.toUpperCase(), '</span>',
-			// input bit
-			'<input',
-				' id="', axis, '-', name, '"',
-				' type="text"',
-				' class="form-control"',
-				' placeholder="', name, '"',
-				' oninput="document.getElementById(\'', axis, '-', name, '-r\').value = (parseFloat(this.value).toFixed(', rPrec, ') - ', rOffset, ') * ', rStep, '"',
-				'onchange="document.getElementById(\'', axis, '-', name, '-r\').value = (parseFloat(this.value).toFixed(', rPrec, ') - ', rOffset, ' ) * ', rStep, '"',
-			' />',
-			'<span class="input-group-addon">', units, '</span>',
-			'</div>',
-			'<input',
-				' id="', axis, '-', name, '-r"',
-				' type="range"',
-				' value="', rVal, '"',
-				' min="', rMin, '"',
-				' max="', rMax, '"',
-				' oninput="document.getElementById(\'', axis, '-', name, '\').value = ((this.value / ', rStep, ') + ', rOffset, ').toFixed(', rPrec, ');"',
-				' onchange="document.getElementById(\'', axis, '-', name, '\').value = ((this.value / ', rStep, ') + ', rOffset, ').toFixed(', rPrec, ');"',
-			' />'].join(''));
-	};
 })(Mesher);
 
 (function (m$) {
@@ -758,6 +696,81 @@ var Mesher = { REVISION: '1' };
         evt.preventDefault();
         Mesher.addModel(evt.dataTransfer.files);
     }
+})(Mesher);
+
+// HTML library for popovers and stuffs
+(function (m$) {
+	m$.HTML = function () {
+		this.stack = [];
+	};
+
+	m$.HTML.Callback = function () {
+		//var n = 
+	}
+
+	// Return HTML
+
+	m$.HTML.TextInput = function (name) {
+		this.html = function () {
+			var i = document.createElement('input');
+			i.setAttribute('type', 'text');
+			if (typeof name != 'undefined') {
+				i.setAttribute('name', name);
+			} else {
+				i.setAttribute('name', 'text');
+			}
+			return i;
+		};
+		return this;
+	};
+
+	m$.HTML.RangeInput = function (name, min, max, prec) {
+		this.html = function () {
+			var i = document.createElement('input');
+			i.setAttribute('type', 'range');
+			if (typeof name != 'undefined') {
+				i.setAttribute('name', name);
+			} else {
+				i.setAttribute('name', 'color');
+			}
+			i.setAttribute('min', 0);
+			i.setAttribute('max', (max-min) / prec);
+			i.setAttribute('prec', prec);
+			i.setAttribute('omin', min);
+		};
+		return this;
+	};
+
+	m$.HTML.ColorInput = function (name) {
+		this.html = function () {
+			var i = document.createElement('input');
+			i.setAttribute('type', 'color');
+			if (typeof name != 'undefined') {
+				i.setAttribute('name', name);
+			} else {
+				i.setAttribute('name', 'color');
+			}
+		};
+		return this;
+	};
+
+	// Return VALUE
+
+	m$.HTML.GetColorInput = function () {
+		return this.value;
+	};
+
+	m$.HTML.GetTextInput = function () {
+		return this.value;
+	}
+
+	m$.HTML.GetRangeInput = function (min, prec) {
+		var v = this.value;
+		v = v + min;
+		v = v*prec;
+		return v;
+	};
+
 })(Mesher);
 
 // Mesher v0.1

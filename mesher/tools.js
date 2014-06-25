@@ -37,8 +37,8 @@
 			return (proj.SelectedModels.length == 1);
 		},
 		// prepare function
-		function () {
-			// prepares and shit...
+		function (proj) {
+			return m$.HTML.TextInput().html();
 		},
 		"fa-quote-right" // Font-Awesome Icon
 	);
