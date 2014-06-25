@@ -36,9 +36,9 @@
 		function (proj) {
 			return (proj.SelectedModels.length == 1);
 		},
-		// prepare function
+		// prepare function, use UIstack
 		function (proj) {
-			return m$.HTML.TextInput().html();
+			this.UIstack.push(m$.HTML.TextInput());
 		},
 		"fa-quote-right" // Font-Awesome Icon
 	);

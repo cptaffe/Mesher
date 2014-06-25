@@ -45,7 +45,7 @@ var Mesher = { REVISION: '1' };
 		this.Three.init(this.Display);
 	};
 
-	m$.Project.prototype._addModel = function (file) {
+	m$.Project.prototype._addModel = function (file, callback) {
 		// Create Three with new Model
 		if (typeof this.Three == 'undefined'){
 			this.Three = new m$.Three();
@@ -56,7 +56,7 @@ var Mesher = { REVISION: '1' };
 			// set Models to reference
 			this.Models = this.Three.Models;
 		}
-		this.Three.newModel(file, m$.File.NextFile);
+		this.Three.newModel(file, m$.File.NextFile, callback);
 	};
 
 	m$.Project.prototype.Originalize = function () {
@@ -177,9 +177,9 @@ var Mesher = { REVISION: '1' };
 		this.Reader = new FileReader();
 	};
 
-	// adds a Model object to the scene
-	m$.Three.prototype.newModel = function (file, callback) {
-		this.readFile(file, callback);
+	// adds a Model object to the scene, file, callbacks
+	m$.Three.prototype.newModel = function (file) {
+		this.readFile.call(this, arguments);
 	};
 
 	// Globalize allows requestAnimationFrame() to reference
@@ -204,16 +204,18 @@ var Mesher = { REVISION: '1' };
 		m$.Globals.Controls.update();
 	};
 
-	// Reads file into THREE map
-	m$.Three.prototype.readFile = function (file, callback) {
+	// Reads file into THREE map, file, callbacks
+	m$.Three.prototype.readFile = function (args) {
 		this.Reader.parent = this;
 		this.Reader.onload = function (e) {
-			this.parent.addModel(e.target.result, file.name);
-			if (typeof callback != 'undefined') {
-				callback();
+			this.parent.addModel(e.target.result, args[0].name);
+			if (args.length > 1) {
+				for (var i = 1; i < args.length; i++) {
+					args[i]();
+				}
 			}
 		};
-		this.Reader.readAsBinaryString(file);
+		this.Reader.readAsBinaryString(args[0]);
 	};
 
 	// Adds Model 
@@ -531,9 +533,27 @@ var Mesher = { REVISION: '1' };
 		// accessible globally
 		// takes project pointer, returns bool
 		tool.check = check;
-		tool.Prep = prep;
-
+		tool._Prep = new m$.Tool._Prep(prep);
+		tool.Prep = function () {
+			return this._Prep.Do(arguments);
+		};
 		this.Tools.push(tool);
+	};
+
+	m$.Tool._Prep = function (prep) {
+		this.UIstack = []; // UI stack for use.
+		this.Prep = prep;
+	};
+
+	m$.Tool._Prep.prototype.Do = function () {
+		this.Prep.call(this, arguments);
+		var con = document.createElement('div');
+		for (var i = 0; i < this.UIstack.length; i++) {
+			var html = this.UIstack.pop();
+			html = html.html();
+			con.appendChild(html);
+		}
+		return con;
 	};
 
 	// Get a tool by its name,
@@ -660,9 +680,10 @@ var Mesher = { REVISION: '1' };
 		        title: this.Tools[i].Name,
 		        html: true,
 		        content: function () {
-		        	return function (s) {
+		        	var f = function (s) {
 			        	return this.Tools[s.id].Prep();
 		        	}.call(m$.controls, this);
+		        	return f;
 		        }
 		    });
 			$(m$.Settings.Controls).append(control);
@@ -671,11 +692,10 @@ var Mesher = { REVISION: '1' };
 
 	m$.Controls.prototype.CheckTools = function () {
 		for (var i = 0; i < this.Tools.length; i++){
-			console.log(i);
 			if (!this.Tools[i].check(m$._cProj)){
-				$(m$.Settings.Controls).children('#'+i).attr('color', 'gray');
+				$(m$.Settings.Controls).children('#'+i).attr('color', 'gray').popover('disable');
 			} else {
-				$(m$.Settings.Controls).children('#'+i).attr('color', 'green');
+				$(m$.Settings.Controls).children('#'+i).attr('color', 'green').popover('enable');
 			}
 		}
 	};
@@ -694,7 +714,7 @@ var Mesher = { REVISION: '1' };
     m$.FileIO.Drop = function (evt) {
         evt.stopPropagation();
         evt.preventDefault();
-        Mesher.addModel(evt.dataTransfer.files);
+        Mesher.addModel(evt.dataTransfer.files, m$.RemoveIntroPanel);
     }
 })(Mesher);
 
@@ -704,7 +724,7 @@ var Mesher = { REVISION: '1' };
 		this.stack = [];
 	};
 
-	m$.HTML.Callback = function () {
+	m$.HTML.ValueOf = function (elem) {
 		//var n = 
 	}
 
@@ -722,6 +742,14 @@ var Mesher = { REVISION: '1' };
 			return i;
 		};
 		return this;
+	};
+
+	m$.HTML.TextInput.Val = function (elem) {
+		return elem.value;
+	};
+
+	m$.HTML.TextInput.Is = function (elem) {
+
 	};
 
 	m$.HTML.RangeInput = function (name, min, max, prec) {
@@ -773,13 +801,63 @@ var Mesher = { REVISION: '1' };
 
 })(Mesher);
 
+
+(function (m$) {
+	m$.IntroPanel = function () {
+
+		// page cover
+		var div = document.createElement('div');
+		$(div).attr('id', 'IntroPanel');
+		$(div).css('background-color', 'white');
+		$(div).css('position', 'absolute');
+		$(div).css('top', '0');
+		$(div).css('bottom', '0');
+		$(div).css('right', '0');
+		$(div).css('left', '0');
+
+		// img
+		var img = document.createElement('img');
+		$(img).attr('src', '../Mesher.png');
+		var HEIGHT = 212.8;
+		var WIDTH = 184.85;
+		$(img).attr('height', HEIGHT + 'px');
+		$(img).attr('width', WIDTH + 'px');
+		$(img).css('position', 'absolute');
+		$(img).css('top', (window.innerHeight/2)-(HEIGHT/2)+'px');
+		$(img).css('bottom', (window.innerHeight/2)-(HEIGHT/2)+'px');
+		$(img).css('right', (window.innerWidth/2)-(WIDTH/2)+'px');
+		$(img).css('left', (window.innerWidth/2)-(WIDTH/2)+'px');
+		div.appendChild(img);
+
+		// text
+		var text = document.createElement('p');
+		text.appendChild(document.createTextNode("Drag in an STL"));
+		$(text).css('font-family', 'Ubuntu');
+		$(text).css('font-size', '16px');
+		$(text).css('color', 'rgb(200,200,200)');
+		$(text).css('position', 'absolute');
+		$(text).css('top', (window.innerHeight/2)+(HEIGHT/2)+20+'px');
+		$(text).css('right', (window.innerWidth/2)-50+'px');
+
+		div.addEventListener('dragover', m$.FileIO.Drag, false);
+        div.addEventListener('drop', m$.FileIO.Drop, false);
+
+		div.appendChild(text);
+		document.body.appendChild(div);
+	}
+
+	m$.RemoveIntroPanel = function () {
+		$('#IntroPanel').fadeOut(1000);
+	};
+})(Mesher);
+
 // Mesher v0.1
 // Utilitarian functions
 
 (function (m$) {
 	// addModel adds the a Model
 	// to the current Project
-	m$.addModel = function (files) {
+	m$.addModel = function (files, callback) {
 		var l  = this.Projects.length;
 		if (l < 1){
 			l = this.Projects.push(new this.Project());
@@ -787,7 +865,7 @@ var Mesher = { REVISION: '1' };
 		this._cProj = m$.Projects[l-1];
 		this.Files = new m$.File(files);
 		this.Files.Project.Display = this.Settings.Display || document.body;
-		this.Files.Project._addModel(m$.Files.Next());
+		this.Files.Project._addModel(m$.Files.Next(), callback);
 	};
 
 	// Sets up m$ with appropriate settings
@@ -805,10 +883,14 @@ var Mesher = { REVISION: '1' };
 		this.controls.GetTools();
 		this.controls.WriteTools();
 
+        m$.IntroPanel();
+	};
+
+	m$.AfterIntroInit = function () {
 		// File interface setup
         settings.Drop.addEventListener('dragover', m$.FileIO.Drag, false);
         settings.Drop.addEventListener('drop', m$.FileIO.Drop, false);
-	};
+	}
 
 	// things that run on environmental changes
 	m$.registerChange = function () {
