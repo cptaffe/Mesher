@@ -817,7 +817,7 @@ var Mesher = { REVISION: '1' };
 
 		// img
 		var img = document.createElement('img');
-		$(img).attr('src', '../Mesher.png');
+		$(img).attr('src', 'Mesher.png');
 		var HEIGHT = 212.8;
 		var WIDTH = 184.85;
 		$(img).attr('height', HEIGHT + 'px');
