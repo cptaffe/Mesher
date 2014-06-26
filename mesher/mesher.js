@@ -716,6 +716,12 @@ var Mesher = { REVISION: '1' };
         evt.preventDefault();
         Mesher.addModel(evt.dataTransfer.files, m$.RemoveIntroPanel);
     }
+    m$.FileIO.Select = function (evt) {
+    	console.log("was here.");
+    	evt.stopPropagation();
+        evt.preventDefault();
+        Mesher.addModel(evt.target.files, m$.RemoveIntroPanel);
+    }
 })(Mesher);
 
 // HTML library for popovers and stuffs
@@ -739,17 +745,15 @@ var Mesher = { REVISION: '1' };
 			} else {
 				i.setAttribute('name', 'text');
 			}
+			i.setAttribute('id', '')
 			return i;
 		};
+		this.val = m$.HTML.TextInput.Val;
 		return this;
 	};
 
 	m$.HTML.TextInput.Val = function (elem) {
 		return elem.value;
-	};
-
-	m$.HTML.TextInput.Is = function (elem) {
-
 	};
 
 	m$.HTML.RangeInput = function (name, min, max, prec) {
@@ -829,20 +833,36 @@ var Mesher = { REVISION: '1' };
 		$(img).css('left', (window.innerWidth/2)-(WIDTH/2)+'px');
 		div.appendChild(img);
 
-		// text
+		var file_select = document.createElement('input');
+		$(file_select).attr('id', 'file-select');
+		$(file_select).attr('name', 'file[]');
+		$(file_select).attr('multiple');
+		$(file_select).attr('type', 'file');
+		$(file_select).css('display', 'none');
+
+		div.addEventListener('dragover', m$.FileIO.Drag, false);
+        div.addEventListener('drop', m$.FileIO.Drop, false);
+       	file_select.addEventListener('change', m$.FileIO.Select, false);
+        div.appendChild(file_select);
+
+        // text
 		var text = document.createElement('p');
-		text.appendChild(document.createTextNode("Drag in an STL"));
+		text.appendChild(document.createTextNode("Drag in an STL, "));
+		var browse = document.createElement('a');
+		browse.appendChild(document.createTextNode("browse"));
+		$(browse).click(function(event){
+			$(file_select).trigger('click');
+		});
+		$(browse).css('cursor', 'pointer');
+		text.appendChild(browse);
 		$(text).css('font-family', 'Ubuntu');
 		$(text).css('font-size', '16px');
 		$(text).css('color', 'rgb(200,200,200)');
 		$(text).css('position', 'absolute');
 		$(text).css('top', (window.innerHeight/2)+(HEIGHT/2)+20+'px');
-		$(text).css('right', (window.innerWidth/2)-50+'px');
-
-		div.addEventListener('dragover', m$.FileIO.Drag, false);
-        div.addEventListener('drop', m$.FileIO.Drop, false);
-
+		$(text).css('right', (window.innerWidth/2)-82+'px');
 		div.appendChild(text);
+
 		document.body.appendChild(div);
 	}
 
@@ -922,6 +942,17 @@ var Mesher = { REVISION: '1' };
 	    G = (num >> 8 & 0x00FF) + amt,
 	    B = (num & 0x0000FF) + amt;
 	    return (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)-0x1000000);
+	};
+
+	// UUID Generation
+	m$.UUIDGen = function (){
+	    var d = new Date().getTime();
+	    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+	        var r = (d + Math.random()*16)%16 | 0;
+	        d = Math.floor(d/16);
+	        return (c=='x' ? r : (r&0x7|0x8)).toString(16);
+	    });
+	    return uuid;
 	};
 
 })(Mesher);
