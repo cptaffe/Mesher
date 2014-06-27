@@ -439,14 +439,36 @@
 				saveAs(blob, model.name + '.stl');
 				return true;
 			} else {
-				var zip = new JSZip();
-				for (var i = 0; i < this.Project.SelectedModels.length; i++) {
-					var model = this.Project.SelectedModels[i];
-					var stlString = m$.STL.Generate(model);
-					zip.file(model.name+".stl", stlString);
+				// defualts to zipping
+				if (!this.Params['zip'] && !this.Params['merge']) {
+					this.Params['zip'] = true;
 				}
-				var content = zip.generate({type:"blob"});
-				saveAs(content, this.Params['Name']+".zip");
+				if (this.Params['zip']) {
+					var zip = new JSZip();
+					stlStringArray = [];
+					for (var i = 0; i < this.Project.SelectedModels.length; i++) {
+						var model = this.Project.SelectedModels[i];
+						var stlString = m$.STL.Generate(model);
+						if (!this.Params['merge']) {
+							zip.file(model.name+".stl", stlString);
+						} else {
+							stlStringArray.push(stlString);
+						}
+					}
+					if (this.Params['merge']) {
+						zip.file(this.Params['Name']+".stl", stlStringArray.join(''));
+					}
+					var content = zip.generate({type:"blob"});
+					saveAs(content, this.Params['Name']+".zip");
+				} else if (this.Params['merge']) {
+					stlStringArray = [];
+					for (var i = 0; i < this.Project.SelectedModels.length; i++) {
+						var model = this.Project.SelectedModels[i];
+						stlStringArray.push(m$.STL.Generate(model));
+					}
+					var blob = new Blob([stlStringArray.join('')], {type: 'text/plain'});
+					saveAs(blob, this.Params['Name']+".stl");
+				}
 			}
 		},
 		save: false, // not to be used often.
@@ -460,6 +482,14 @@
 					index: map['index']
 				}));
 			} else {
+				this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+					name: "zip", // what this param is called
+					def: "zip"
+				}));
+				this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+					name: "merge", // what this param is called
+					def: "merge"
+				}));
 				this.UIstack.push(new m$.HTML.List['TextInput'].New({
 					name: "Name", // what this param is called
 					def: "Name"
