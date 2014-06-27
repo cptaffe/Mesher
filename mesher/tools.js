@@ -440,7 +440,7 @@
 				return true;
 			} else {
 				// defualts to zipping
-				if (!this.Params['zip'] && !this.Params['merge']) {
+				if (!this.Params['zip'] && !this.Params['merge'] && !this.Params['multiple']) {
 					this.Params['zip'] = true;
 				}
 				if (this.Params['zip']) {
@@ -468,6 +468,13 @@
 					}
 					var blob = new Blob([stlStringArray.join('')], {type: 'text/plain'});
 					saveAs(blob, this.Params['Name']+".stl");
+				} else if (this.Params['multiple']) {
+					for (var i = 0; i < this.Project.SelectedModels.length; i++) {
+						var model = this.Project.SelectedModels[i];
+						stlString = m$.STL.Generate(model);
+						var blob = new Blob([stlString], {type: 'text/plain'});
+						saveAs(blob, model.name+".stl");
+					}
 				}
 			}
 		},
@@ -489,6 +496,10 @@
 				this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
 					name: "merge", // what this param is called
 					def: "merge"
+				}));
+				this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+					name: "multiple", // what this param is called
+					def: "multiple"
 				}));
 				this.UIstack.push(new m$.HTML.List['TextInput'].New({
 					name: "Name", // what this param is called
