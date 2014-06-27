@@ -865,8 +865,7 @@ var Mesher = { REVISION: '1' };
 	}
 
 	m$.RemoveIntroPanel = function () {
-		$('#IntroPanel').fadeOut(1000);
-		$('#IntroPanel').remove();
+		$('#IntroPanel').fadeOut(1000, $('#IntroPanel').remove);
 		m$.AfterIntroInit();
 	};
 })(Mesher, jQuery);
