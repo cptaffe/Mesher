@@ -50,6 +50,22 @@ html{
 	cursor: pointer;
 }
 
+#tool-nav>div>i{
+	color: rgba(100,100,100,0.2);
+	transition: all 0.25s ease;
+}
+#tool-nav>div>i:hover{
+	color: black;
+}
+
+#undo-redo>div>i{
+	color: rgba(100,100,100,0.2);
+	transition: all 0.25s ease;
+}
+#undo-redo>div>i:hover{
+	color: black;
+}
+
 #tool-bar{
 	margin: auto;
 	margin-top: 10px;

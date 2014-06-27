@@ -668,23 +668,49 @@ var Mesher = { REVISION: '1' };
 (function (m$, $) {
 	m$.Controls = function () {
 		this.Index = 0;
-		this.Tools = [];
 		this.SetSize = 8;
 		this.Proj = m$._cProj;
+		this.Panes = [];
+		this.Tools; // ref to Pane
+	};
+
+	m$.Controls.prototype.CreatePanes = function () {
+		var Index = 0;
+		for (var i = 0; Index != m$.tool.Tools.length; i++) {
+			var inIndex = Index;
+			this.Panes.push([])
+			for (; Index < m$.tool.Tools.length && (Index-inIndex) < this.SetSize; Index++) {
+				this.Panes[i].push(m$.tool.Tools[Index]);
+			}
+		}
 	};
 
 	// Get 8 tools from the set of all tools (per call)
 	m$.Controls.prototype.GetTools = function () {
-		if (this.Index == m$.tool.Tools.length){
-			this.Index = 0;
+		this.Tools = this.Panes[this.Index];
+	};
+
+	// Get 8 tools from the set of all tools (per call)
+	m$.Controls.prototype.GetPrevTools = function () {
+		if (this.Index > 0) {
+			this.Index--;
+		} else {
+			this.Index = this.Panes.length-1;
 		}
-		for (var i = this.Index; i < m$.tool.Tools.length && i-this.Index < this.SetSize; i++) {
-			this.Tools.push(m$.tool.Tools[i]);
+	};
+
+	m$.Controls.prototype.GetNextTools = function () {
+		if (this.Index < this.Panes.length-1) {
+			this.Index++;
+		} else {
+			this.Index = 0;
 		}
 	};
 
 	// write control elements to page
 	m$.Controls.prototype.WriteTools = function () {
+		$(m$.Settings.Controls).empty();
+		console.log(this.Tools);
 		for (var i = 0; i < this.Tools.length; i++){
 			var control = document.createElement('div');
 			control.setAttribute('color', 'green');
@@ -878,21 +904,26 @@ var Mesher = { REVISION: '1' };
 		this.Settings.Controls = settings.Controls;
 		this.Settings.Drop = settings.Drop;
 		this.Settings.Undo_Redo = settings.Undo_Redo;
+		this.Settings.Tool_Nav = settings.Tool_Nav;
+		this.controls.SetSize = settings.ToolNum;
 		// model is added, get stuff working
 		$(this.Settings.Display).click(this.click);
 		$(window).resize(this.resize);
 
 		// Undo/Redo setup
-		this.Undo_RedoInit();
+		this.UndoRedoInit();
+		// Nav setup
+		this.ToolNavInit();
 
 		// Controls Setup
+		this.controls.CreatePanes();
 		this.controls.GetTools();
 		this.controls.WriteTools();
 
         m$.IntroPanel();
 	};
 
-	m$.Undo_RedoInit = function () {
+	m$.UndoRedoInit = function () {
 		// Container
 		var undo_redo = document.createElement('div');
 		$(undo_redo).attr('id', 'undo_redo');
@@ -921,6 +952,42 @@ var Mesher = { REVISION: '1' };
 		undo_redo.appendChild(redo_i);
 
 		$(this.Settings.Undo_Redo).append(undo_redo);
+	}
+
+	m$.ToolNavInit = function () {
+		// Container
+		var undo_redo = document.createElement('div');
+		$(undo_redo).attr('id', 'undo_redo');
+
+		// Undo stuff
+		var undo_i = document.createElement('i');
+		$(undo_i).addClass('fa');
+		$(undo_i).addClass('fa-fw');
+		$(undo_i).addClass('fa-chevron-left');
+		$(undo_i).css('cursor', 'pointer');
+		$(undo_i).on('click', function () {
+			Mesher.controls.GetPrevTools();
+			Mesher.controls.GetTools();
+			Mesher.controls.WriteTools();
+			Mesher.controls.CheckTools();
+		})
+		undo_redo.appendChild(undo_i);
+
+		// Redo stuff
+		var redo_i = document.createElement('i');
+		$(redo_i).addClass('fa');
+		$(redo_i).addClass('fa-fw');
+		$(redo_i).addClass('fa-chevron-right');
+		$(redo_i).css('cursor', 'pointer');
+		$(redo_i).on('click', function () {
+			Mesher.controls.GetNextTools();
+			Mesher.controls.GetTools();
+			Mesher.controls.WriteTools();
+			Mesher.controls.CheckTools();
+		})
+		undo_redo.appendChild(redo_i);
+
+		$(this.Settings.Tool_Nav).append(undo_redo);
 	}
 
 	m$.AfterIntroInit = function () {

@@ -4,6 +4,7 @@
 // Rename Tool Definition
 	// TODO: Relocate
 	//(name, does, undo, toString, check, prepare)
+	for (var i = 0; i < 20; i++) {
 	m$.tool.New({
 		name: "Rename",
 		icon: "fa-quote-right", // Font-Awesome Icon
@@ -41,4 +42,5 @@
 			}));
 		}
 	});
+}
 })(Mesher);
