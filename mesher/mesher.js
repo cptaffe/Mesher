@@ -518,6 +518,12 @@ var Mesher = { REVISION: '1' };
 			tool.prototype.redo = map['redo'];
 		}
 
+		// should it save to the stack to be undone,
+		// DO NOT USE, unless ABSOLUTELY NECCESSARY
+		if (typeof map['save'] != 'undefined'){
+			tool.prototype.save = map['save'];
+		}
+
 		// Does the transformation, should return true on success
 		tool.prototype.do = map['do'];
 
@@ -591,7 +597,7 @@ var Mesher = { REVISION: '1' };
 				// create new tool of type in index
 				var tool = new toolType(proj, map);
 				// if successful push to Hist
-				if (tool.do()){
+				if (tool.do() && tool.save){
 					return proj.Hist.push(tool); // success
 				} else {
 					console.log("Tool do failed.");
@@ -900,7 +906,7 @@ var Mesher = { REVISION: '1' };
 		this.controls.SetSize = settings.ToolNum;
 		// model is added, get stuff working
 		$(this.Settings.Display).click(this.click);
-		$(window).resize(this.resize);
+		window.addEventListener( 'resize', Mesher.resize, false );
 
 		// Undo/Redo setup
 		this.UndoRedoInit();
@@ -1007,10 +1013,9 @@ var Mesher = { REVISION: '1' };
 
 	// NOT WORKING
 	m$.resize = function () {
-		m$.Globals.Camera.aspect = m$.Settings.Display.innerWidth / m$.Settings.Display.innerHeight;
-		m$.Globals.Camera.updateProjectionMatrix();
-
-		m$.Globals.Renderer.setSize( m$.Settings.Display.innerWidth, m$.Settings.Display.innerHeight );
+		Mesher._cProj.Three.Camera.aspect = window.innerWidth / window.innerHeight;
+		Mesher._cProj.Three.Camera.updateProjectionMatrix();
+		Mesher._cProj.Three.Renderer.setSize( window.innerWidth, window.innerHeight );
 	};
 
 	m$.click = function (event) {
@@ -1041,6 +1046,30 @@ var Mesher = { REVISION: '1' };
 	        return (c=='x' ? r : (r&0x7|0x8)).toString(16);
 	    });
 	    return uuid;
+	};
+
+	// STL Generation
+	m$.STL = {};
+	m$.STL.stringifyVector = function (vec) { return ""+vec.x+" "+vec.y+" "+vec.z; };
+	m$.STL.stringifyVertex = function (vec) { return "\t\tvertex "+this.stringifyVector(vec)+" \n"; };
+	m$.STL.Generate = function (model) {
+		var vertices = model.geometry.vertices;
+		var faces = model.geometry.faces;
+
+		var stl = "solid pixel\n";
+		for (var i = 0; i < faces.length; i++) {
+			stl += ("facet normal "+this.stringifyVector( faces[i].normal )+" \n");
+			stl += ("\touter loop \n");
+			stl += this.stringifyVertex( vertices[ faces[i].a ]);
+			stl += this.stringifyVertex( vertices[ faces[i].b ]);
+			stl += this.stringifyVertex( vertices[ faces[i].c ]);
+			stl += ("\tendloop \n");
+			stl += ("endfacet \n");
+		}
+
+		stl += ("endsolid");
+
+		return stl;
 	};
 
 })(Mesher, jQuery);

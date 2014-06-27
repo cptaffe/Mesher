@@ -427,4 +427,49 @@
 		}
 	});
 
+	// Save tool
+	m$.tool.New({
+		name: "Save",
+		icon: "fa-download",
+		do: function () {
+			if (this.Project.SelectedModels.length == 1) {
+				var model = this.Project.SelectedModels[0];
+				var stlString = m$.STL.Generate(model);
+				var blob = new Blob([stlString], {type: 'text/plain'});
+				saveAs(blob, model.name + '.stl');
+				return true;
+			} else {
+				var zip = new JSZip();
+				for (var i = 0; i < this.Project.SelectedModels.length; i++) {
+					var model = this.Project.SelectedModels[i];
+					var stlString = m$.STL.Generate(model);
+					zip.file(model.name+".stl", stlString);
+				}
+				var content = zip.generate({type:"blob"});
+				saveAs(content, this.Params['Name']+".zip");
+			}
+		},
+		save: false, // not to be used often.
+		check: function (map) {
+			return (map['project'].SelectedModels.length > 0);
+		},
+		prep: function (map) {
+			if (map['project'].SelectedModels.length == 1){
+				this.UIstack.push(new m$.HTML.List['ApplyInput'].New({
+					text: "Save",
+					index: map['index']
+				}));
+			} else {
+				this.UIstack.push(new m$.HTML.List['TextInput'].New({
+					name: "Name", // what this param is called
+					def: "Name"
+				}));
+				this.UIstack.push(new m$.HTML.List['ApplyInput'].New({
+					text: "Save",
+					index: map['index']
+				}));
+			}
+		}
+	});
+
 })(Mesher);
