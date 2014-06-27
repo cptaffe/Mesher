@@ -1,10 +1,7 @@
 // Tools defined here.
 
 (function (m$) {
-// Rename Tool Definition
-	// TODO: Relocate
-	//(name, does, undo, toString, check, prepare)
-	for (var i = 0; i < 20; i++) {
+	// Rename Tool Definition
 	m$.tool.New({
 		name: "Rename",
 		icon: "fa-quote-right", // Font-Awesome Icon
@@ -18,11 +15,13 @@
 			return true;
 		},
 		undo: function () {
+			if (typeof this.model == 'undefined'){return false;}
 			this.model.name = this.OldName;
 			m$.ModelTag.SelectTagByUUID(this.model.uuid).html(document.createTextNode(this.OldName));
 			return true;
 		},
 		redo: function () {
+			if (typeof this.model == 'undefined'){return false;}
 			var name = this.Params.name;
 			this.model.name = name;
 			m$.ModelTag.SelectTagByUUID(this.model.uuid).html(document.createTextNode(name));
@@ -42,5 +41,390 @@
 			}));
 		}
 	});
-}
+	
+	// Scale tool
+	m$.tool.New({
+		name: "Scale",
+		icon: "fa-expand",
+		do: function () {
+			var scalar = this.Params['scalar'];
+			this.models = [];
+			for (var i = 0; i < this.Project.SelectedModels.length; i++) {
+				this.models.push(this.Project.SelectedModels[i]);
+			}
+			for (var i = 0; i < this.models.length; i++) {
+				model = this.models[i];
+				for (var j = 0; j < model.geometry.vertices.length; j++) {
+					if (this.Params['x']){model.geometry.vertices[j].x *= scalar;}
+					if (this.Params['y']){model.geometry.vertices[j].y *= scalar;}
+					if (this.Params['z']){model.geometry.vertices[j].z *= scalar;}
+				}
+				model.geometry.verticesNeedUpdate = true;
+			}
+			return true;
+		},
+		undo: function () {
+			if (typeof this.model == 'undefined'){return false;}
+			var scalar = this.Params['scalar'];
+			for (var i = 0; i < this.models.length; i++) {
+				model = this.models[i];
+				for (var j = 0; j < model.geometry.vertices.length; j++) {
+					if (this.Params['x']){model.geometry.vertices[j].x /= scalar;}
+					if (this.Params['y']){model.geometry.vertices[j].y /= scalar;}
+					if (this.Params['z']){model.geometry.vertices[j].z /= scalar;}
+				}
+				model.geometry.verticesNeedUpdate = true;
+			}
+			return true;
+		},
+		redo: function () {
+			if (typeof this.model == 'undefined'){return false;}
+			var scalar = this.Params['scalar'];
+			for (var i = 0; i < this.models.length; i++) {
+				model = this.models[i];
+				for (var j = 0; j < model.geometry.vertices.length; j++) {
+					if (this.Params['x']){model.geometry.vertices[j].x *= scalar;}
+					if (this.Params['y']){model.geometry.vertices[j].y *= scalar;}
+					if (this.Params['z']){model.geometry.vertices[j].z *= scalar;}
+				}
+				model.geometry.verticesNeedUpdate = true;
+			}
+			return true;
+		},
+		check: function (map) {
+			return (map['project'].SelectedModels.length > 0);
+		},
+		prep: function (map) {
+			// Radio axes
+			this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+				name: "x", // what this param is called
+				def: "x"
+			}));
+			this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+				name: "y", // what this param is called
+				def: "y"
+			}));
+			this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+				name: "z", // what this param is called
+				def: "z"
+			}));
+
+			// scalar text box
+			this.UIstack.push(new m$.HTML.List['TextInput'].New({
+				name: "scalar", // what this param is called
+				def: "scalar"
+			}));
+			this.UIstack.push(new m$.HTML.List['ApplyInput'].New({
+				text: "Apply",
+				index: map['index']
+			}));
+		}
+	});
+
+	// Shift tool
+	m$.tool.New({
+		name: "GLITCHY Shift",
+		icon: "fa-arrows",
+		do: function () {
+			var scalar = this.Params['scalar'];
+			this.models = [];
+			for (var i = 0; i < this.Project.SelectedModels.length; i++) {
+				this.models.push(this.Project.SelectedModels[i]);
+			}
+			for (var i = 0; i < this.models.length; i++) {
+				model = this.models[i];
+				for (var j = 0; j < model.geometry.vertices.length; j++) {
+					if (this.Params['x']){model.geometry.vertices[j].x += scalar;}
+					if (this.Params['y']){model.geometry.vertices[j].y += scalar;}
+					if (this.Params['z']){model.geometry.vertices[j].z += scalar;}
+				}
+				model.geometry.verticesNeedUpdate = true;
+				model.geometry.normalsNeedUpdate = true;
+			}
+			return true;
+		},
+		undo: function () {
+			if (typeof this.model == 'undefined'){return false;}
+			var scalar = this.Params['scalar'];
+			for (var i = 0; i < this.models.length; i++) {
+				model = this.models[i];
+				for (var j = 0; j < model.geometry.vertices.length; j++) {
+					if (this.Params['x']){model.geometry.vertices[j].x -= scalar;}
+					if (this.Params['y']){model.geometry.vertices[j].y -= scalar;}
+					if (this.Params['z']){model.geometry.vertices[j].z -= scalar;}
+				}
+				model.geometry.verticesNeedUpdate = true;
+			}
+			return true;
+		},
+		redo: function () {
+			if (typeof this.model == 'undefined'){return false;}
+			var scalar = this.Params['scalar'];
+			for (var i = 0; i < this.models.length; i++) {
+				model = this.models[i];
+				for (var j = 0; j < model.geometry.vertices.length; j++) {
+					if (this.Params['x']){model.geometry.vertices[j].x += scalar;}
+					if (this.Params['y']){model.geometry.vertices[j].y += scalar;}
+					if (this.Params['z']){model.geometry.vertices[j].z += scalar;}
+				}
+				model.geometry.verticesNeedUpdate = true;
+			}
+			return true;
+		},
+		check: function (map) {
+			return (map['project'].SelectedModels.length > 0);
+		},
+		prep: function (map) {
+			// Radio axes
+			this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+				name: "x", // what this param is called
+				def: "x"
+			}));
+			this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+				name: "y", // what this param is called
+				def: "y"
+			}));
+			this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+				name: "z", // what this param is called
+				def: "z"
+			}));
+
+			// scalar text box
+			this.UIstack.push(new m$.HTML.List['TextInput'].New({
+				name: "scalar", // what this param is called
+				def: "units"
+			}));
+			this.UIstack.push(new m$.HTML.List['ApplyInput'].New({
+				text: "Apply",
+				index: map['index']
+			}));
+		}
+	});
+
+	// Rotate tool
+	m$.tool.New({
+		name: "Rotate",
+		icon: "fa-undo",
+		do: function () {
+			var scalar = this.Params['scalar'];
+			this.models = [];
+			for (var i = 0; i < this.Project.SelectedModels.length; i++) {
+				this.models.push(this.Project.SelectedModels[i]);
+			}
+
+			// Rotate matrixes
+			var rotx, roty, rotz = {};
+			if (this.Params['x']){
+				rotx = new THREE.Matrix4().makeRotationX(Math.PI*scalar/180);
+			} else {
+				rotx = new THREE.Matrix4().makeRotationX(0);
+			}
+			if (this.Params['y']){
+				roty = new THREE.Matrix4().makeRotationY(Math.PI*scalar/180);
+			} else {
+				roty = new THREE.Matrix4().makeRotationY(0);
+			}
+			if (this.Params['z']){
+				rotz = new THREE.Matrix4().makeRotationZ(Math.PI*scalar/180);
+			} else {
+				rotz = new THREE.Matrix4().makeRotationZ(0);
+			}
+
+			for (var i = 0; i < this.models.length; i++) {
+				model = this.models[i];
+				model.geometry.applyMatrix(rotx.multiply(roty).multiply(rotz));
+				model.geometry.computeFaceNormals();
+				model.geometry.verticesNeedUpdate = true;
+				model.geometry.normalsNeedUpdate = true;
+			}
+
+			return true;
+		},
+		undo: function () {
+			var scalar = this.Params['scalar'];
+
+			// Rotate matrixes
+			var rotx, roty, rotz = {};
+			if (this.Params['x']){
+				rotx = new THREE.Matrix4().makeRotationX(Math.PI*(-scalar)/180);
+			} else {
+				rotx = new THREE.Matrix4().makeRotationX(0);
+			}
+			if (this.Params['y']){
+				roty = new THREE.Matrix4().makeRotationY(Math.PI*(-scalar)/180);
+			} else {
+				roty = new THREE.Matrix4().makeRotationY(0);
+			}
+			if (this.Params['z']){
+				rotz = new THREE.Matrix4().makeRotationZ(Math.PI*(-scalar)/180);
+			} else {
+				rotz = new THREE.Matrix4().makeRotationZ(0);
+			}
+
+			for (var i = 0; i < this.models.length; i++) {
+				model = this.models[i];
+				model.geometry.applyMatrix(rotx.multiply(roty).multiply(rotz));
+				model.geometry.computeFaceNormals();
+				model.geometry.verticesNeedUpdate = true;
+				model.geometry.normalsNeedUpdate = true;
+			}
+
+			return true;
+		},
+		redo: function () {
+			var scalar = this.Params['scalar'];
+			// Rotate matrixes
+			var rotx, roty, rotz = {};
+			if (this.Params['x']){
+				rotx = new THREE.Matrix4().makeRotationX(Math.PI*scalar/180);
+			} else {
+				rotx = new THREE.Matrix4().makeRotationX(0);
+			}
+			if (this.Params['y']){
+				roty = new THREE.Matrix4().makeRotationY(Math.PI*scalar/180);
+			} else {
+				roty = new THREE.Matrix4().makeRotationY(0);
+			}
+			if (this.Params['z']){
+				rotz = new THREE.Matrix4().makeRotationZ(Math.PI*scalar/180);
+			} else {
+				rotz = new THREE.Matrix4().makeRotationZ(0);
+			}
+
+			for (var i = 0; i < this.models.length; i++) {
+				model = this.models[i];
+				model.geometry.applyMatrix(rotx.multiply(roty).multiply(rotz));
+				model.geometry.computeFaceNormals();
+				model.geometry.verticesNeedUpdate = true;
+				model.geometry.normalsNeedUpdate = true;
+			}
+
+			return true;
+		},
+		check: function (map) {
+			return (map['project'].SelectedModels.length > 0);
+		},
+		prep: function (map) {
+			// Radio axes
+			this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+				name: "x", // what this param is called
+				def: "x"
+			}));
+			this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+				name: "y", // what this param is called
+				def: "y"
+			}));
+			this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+				name: "z", // what this param is called
+				def: "z"
+			}));
+
+			// scalar text box
+			this.UIstack.push(new m$.HTML.List['TextInput'].New({
+				name: "scalar", // what this param is called
+				def: "degrees"
+			}));
+			this.UIstack.push(new m$.HTML.List['ApplyInput'].New({
+				text: "Apply",
+				index: map['index']
+			}));
+		}
+	});
+
+	// Slice tool
+	m$.tool.New({
+		name: "Slice",
+		icon: "fa-cube",
+		do: function () {
+			var scalar = this.Params['scalar'];
+			this.models = [];
+			for (var i = 0; i < this.Project.SelectedModels.length; i++) {
+				this.models.push(this.Project.SelectedModels[i]);
+			}
+			for (var i = 0; i < this.models.length; i++) {
+				model = this.models[i];
+				model.geometry.computeBoundingBox();
+				var b = model.geometry.boundingBox;
+				//experiments in slicing
+				var plane_geometry = new THREE.CubeGeometry( 1000, 1000, 1000 );
+				var plane_mesh = new THREE.Mesh( plane_geometry );
+				if (this.Params['x']){plane_mesh.position.x = 500+b.min.x+scalar*(b.max.x - b.min.x)/100;}
+				if (this.Params['y']){plane_mesh.position.y = 500+b.min.y+scalar*(b.max.y - b.min.y)/100;}
+				if (this.Params['z']){plane_mesh.position.z = 500+b.min.z+scalar*(b.max.z - b.min.z)/100;}
+
+				var plane_bsp = new ThreeBSP( plane_mesh );
+				var cube_mesh = new THREE.Mesh( model.geometry );
+				var cube_bsp = new ThreeBSP( cube_mesh );
+				var result = cube_bsp.subtract(plane_bsp);
+				this.Project.Three.Scene.remove(model);
+				var material = model.material;
+				cube = result.toMesh(material);
+				model.geometry = cube.geometry;
+				this.Project.Three.Scene.add(cube);
+
+				model.geometry.verticesNeedUpdate = true;
+				model.geometry.normalsNeedUpdate=true;
+			}
+			return true;
+		},
+		undo: function () {
+			return false;
+		},
+		redo: function () {
+			var scalar = this.Params['scalar'];
+			for (var i = 0; i < this.models.length; i++) {
+				model = this.models[i];
+				model.geometry.computeBoundingBox();
+				var b = model.geometry.boundingBox;
+				//experiments in slicing
+				var plane_geometry = new THREE.CubeGeometry( 1000, 1000, 1000 );
+				var plane_mesh = new THREE.Mesh( plane_geometry );
+				if (this.Params['x']){plane_mesh.position.x = 500+b.min.x+scalar*(b.max.x - b.min.x)/100;}
+				if (this.Params['y']){plane_mesh.position.y = 500+b.min.y+scalar*(b.max.y - b.min.y)/100;}
+				if (this.Params['z']){plane_mesh.position.z = 500+b.min.z+scalar*(b.max.z - b.min.z)/100;}
+
+				var plane_bsp = new ThreeBSP( plane_mesh );
+				var cube_mesh = new THREE.Mesh( model.geometry );
+				var cube_bsp = new ThreeBSP( cube_mesh );
+				var result = cube_bsp.subtract(plane_bsp);
+				this.Project.Three.Scene.remove(model);
+				var material = model.material;
+				cube = result.toMesh(material);
+				model.geometry = cube.geometry;
+				this.Project.Three.Scene.add(cube);
+
+				model.geometry.verticesNeedUpdate = true;
+				model.geometry.normalsNeedUpdate=true;
+			}
+		},
+		check: function (map) {
+			return (map['project'].SelectedModels.length > 0);
+		},
+		prep: function (map) {
+			// Radio axes
+			this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+				name: "x", // what this param is called
+				def: "x"
+			}));
+			this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+				name: "y", // what this param is called
+				def: "y"
+			}));
+			this.UIstack.push(new m$.HTML.List['InlineCheckboxInput'].New({
+				name: "z", // what this param is called
+				def: "z"
+			}));
+
+			// scalar text box
+			this.UIstack.push(new m$.HTML.List['TextInput'].New({
+				name: "scalar", // what this param is called
+				def: "scalar"
+			}));
+			this.UIstack.push(new m$.HTML.List['ApplyInput'].New({
+				text: "Apply",
+				index: map['index']
+			}));
+		}
+	});
+
 })(Mesher);

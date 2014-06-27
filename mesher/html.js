@@ -93,6 +93,39 @@
 		}
 	});
 
+	// Color Input
+	m$.HTML.New({
+		Name: "InlineCheckboxInput",
+		New: function (map) {
+			this.html = function () {
+				var l = document.createElement('label');
+				$(l).addClass('checkbox-inline');
+				var i = document.createElement('input');
+				$(i).attr('type', 'checkbox');
+				$(i).addClass('def-checkbox-input');
+				if (typeof map['name'] != 'undefined') {
+					i.setAttribute('name', map['name']);
+				} else {
+					i.setAttribute('name', 'checkbox');
+				}
+				$(l).append(i);
+				if (typeof map['def'] != 'undefined') {
+					$(l).append(document.createTextNode(map['def']))
+				}
+				return l;
+			};
+			return this;
+		},
+		Val: function () {
+			return $(this).attr("checked") ? 1 : 0;
+		},
+		Is: function () {
+			if ($(this).hasClass('def-checkbox-input')) {
+				return true;
+			} else { return false; }
+		}
+	});
+
 	// Apply Input
 	m$.HTML.New({
 		Name: "ApplyInput",
@@ -111,7 +144,7 @@
 				}
 				$(i).on('click', function (event) {
 					var elem = event.target;
-					var elems = $(elem).siblings('input');
+					var elems = $(elem).siblings('input').add($(elem).siblings().children('input'));
 					var map = {};
 					for (var i = 0; i < elems.length; i++) {
 						map[elems[i].name] = Mesher.HTML.Val(elems[i]);

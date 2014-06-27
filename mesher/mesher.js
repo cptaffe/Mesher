@@ -709,7 +709,6 @@ var Mesher = { REVISION: '1' };
 	// write control elements to page
 	m$.Controls.prototype.WriteTools = function () {
 		$(m$.Settings.Controls).empty();
-		console.log(this.Tools);
 		for (var i = 0; i < this.Tools.length; i++){
 			var control = document.createElement('div');
 			control.setAttribute('color', 'green');
