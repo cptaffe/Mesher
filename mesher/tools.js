@@ -460,6 +460,7 @@
 					}
 					var content = zip.generate({type:"blob"});
 					saveAs(content, this.Params['Name']+".zip");
+					return true;
 				} else if (this.Params['merge']) {
 					stlStringArray = [];
 					for (var i = 0; i < this.Project.SelectedModels.length; i++) {
@@ -468,6 +469,7 @@
 					}
 					var blob = new Blob([stlStringArray.join('')], {type: 'text/plain'});
 					saveAs(blob, this.Params['Name']+".stl");
+					return true;
 				} else if (this.Params['multiple']) {
 					for (var i = 0; i < this.Project.SelectedModels.length; i++) {
 						var model = this.Project.SelectedModels[i];
@@ -475,6 +477,9 @@
 						var blob = new Blob([stlString], {type: 'text/plain'});
 						saveAs(blob, model.name+".stl");
 					}
+					return true;
+				} else {
+					return false;
 				}
 			}
 		},
