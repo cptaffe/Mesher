@@ -548,7 +548,6 @@ var Mesher = { REVISION: '1' };
 	m$.Tool._Prep.prototype.Do = function (map) {
 		this.Prep.call(this, map);
 		var con = document.createElement('div');
-		$(con).addClass('form-group');
 		var l = this.UIstack.length;
 		for (var i = 0; i < this.UIstack.length; i++) {
 			var html = this.UIstack[i];
@@ -958,6 +957,8 @@ var Mesher = { REVISION: '1' };
 	}
 
 	m$.ToolNavInit = function () {
+		var DELAY = 300;
+		
 		// Container
 		var undo_redo = document.createElement('div');
 		$(undo_redo).attr('id', 'undo_redo');
@@ -971,12 +972,12 @@ var Mesher = { REVISION: '1' };
 		$(undo_i).on('click', function () {
 			Mesher.controls.GetPrevTools();
 			Mesher.controls.GetTools();
-			Mesher.Settings.Controls.fadeOut(250, function () {
+			Mesher.Settings.Controls.fadeOut(DELAY, function () {
 				Mesher.controls.WriteTools();
 				Mesher.controls.CheckTools();
 			});
 			Mesher.controls.CheckTools();
-			Mesher.Settings.Controls.fadeIn(250);
+			Mesher.Settings.Controls.fadeIn(DELAY);
 		})
 		undo_redo.appendChild(undo_i);
 
@@ -989,11 +990,11 @@ var Mesher = { REVISION: '1' };
 		$(redo_i).on('click', function () {
 			Mesher.controls.GetNextTools();
 			Mesher.controls.GetTools();
-			Mesher.Settings.Controls.fadeOut(250, function () {
+			Mesher.Settings.Controls.fadeOut(DELAY, function () {
 				Mesher.controls.WriteTools();
 				Mesher.controls.CheckTools();
 			});
-			Mesher.Settings.Controls.fadeIn(250);
+			Mesher.Settings.Controls.fadeIn(DELAY);
 		})
 		undo_redo.appendChild(redo_i);
 
