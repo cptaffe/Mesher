@@ -522,6 +522,8 @@ var Mesher = { REVISION: '1' };
 		// DO NOT USE, unless ABSOLUTELY NECCESSARY
 		if (typeof map['save'] != 'undefined'){
 			tool.prototype.save = map['save'];
+		} else {
+			tool.prototype.save = true;
 		}
 
 		// Does the transformation, should return true on success
@@ -597,7 +599,7 @@ var Mesher = { REVISION: '1' };
 				// create new tool of type in index
 				var tool = new toolType(proj, map);
 				// if successful push to Hist
-				if (tool.do() && tool.save){
+				if (tool.do() && tool.save == true){
 					return proj.Hist.push(tool); // success
 				} else {
 					console.log("Tool do failed.");

@@ -237,7 +237,6 @@
 				model.geometry.verticesNeedUpdate = true;
 				model.geometry.normalsNeedUpdate = true;
 			}
-
 			return true;
 		},
 		undo: function () {
