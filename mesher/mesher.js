@@ -920,6 +920,9 @@ var Mesher = { REVISION: '1' };
 		this.controls.GetTools();
 		this.controls.WriteTools();
 
+		// Set height of div as height when filled first
+		$(Mesher.Settings.Controls).height($(Mesher.Settings.Controls).height());
+
         m$.IntroPanel();
 	};
 
@@ -968,8 +971,12 @@ var Mesher = { REVISION: '1' };
 		$(undo_i).on('click', function () {
 			Mesher.controls.GetPrevTools();
 			Mesher.controls.GetTools();
-			Mesher.controls.WriteTools();
+			Mesher.Settings.Controls.fadeOut(250, function () {
+				Mesher.controls.WriteTools();
+				Mesher.controls.CheckTools();
+			});
 			Mesher.controls.CheckTools();
+			Mesher.Settings.Controls.fadeIn(250);
 		})
 		undo_redo.appendChild(undo_i);
 
@@ -982,8 +989,11 @@ var Mesher = { REVISION: '1' };
 		$(redo_i).on('click', function () {
 			Mesher.controls.GetNextTools();
 			Mesher.controls.GetTools();
-			Mesher.controls.WriteTools();
-			Mesher.controls.CheckTools();
+			Mesher.Settings.Controls.fadeOut(250, function () {
+				Mesher.controls.WriteTools();
+				Mesher.controls.CheckTools();
+			});
+			Mesher.Settings.Controls.fadeIn(250);
 		})
 		undo_redo.appendChild(redo_i);
 
