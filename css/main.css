@@ -13,6 +13,13 @@ html{
 	top: 10px;
 	right: 15px;
 	width: 185px;
+	/* Stop super annoying text-selection */
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 #container{

@@ -138,7 +138,7 @@ var Mesher = { REVISION: '1' };
  * THREE bindings
  */
 
-(function (m$, THREE) {
+(function (m$, $, THREE) {
 	// Three Object
 	// Used to store all the information about
 	// the THREE stuff
@@ -350,7 +350,7 @@ var Mesher = { REVISION: '1' };
 			this.Scene.add(lineY);
 		}  
 	};
-})(Mesher, THREE);
+})(Mesher, jQuery, THREE);
 
 // Select Object
 (function (m$, $) {
@@ -486,14 +486,14 @@ var Mesher = { REVISION: '1' };
 // Interfacing with tools,
 // & parsing tool declarations.
 
-(function (m$) {
+(function (m$, $) {
 
 	// Array of Tool types (tools)
 	m$.Tool = function () {
 		this.Tools = [];
 	};
 
-	m$.Tool.prototype.New = function (name, does, undo, redo, toString, check, prep, icon) {
+	m$.Tool.prototype.New = function (map) {
 
 		var tool = function (project, args) {
 			this.Params = args;
@@ -501,39 +501,39 @@ var Mesher = { REVISION: '1' };
 		}
 
 		// sets name
-		tool.Name = name;
-		tool.Icon = icon;
+		tool.Name = map['name'];
+		tool.Icon = map['icon'];
 
 		// set undo function, should return true on success
-		if (undo === false){
+		if (typeof map['undo'] == 'undefined'){
 			tool.prototype.undo = function () { return false; };
 		} else {
-			tool.prototype.undo = undo;
+			tool.prototype.undo = map['undo'];
 		}
 
 		// set redo function, should return true on success
-		if (undo === false){
+		if (typeof map['redo'] == 'undefined'){
 			tool.prototype.redo = function () { return false; };
 		} else {
-			tool.prototype.redo = redo;
+			tool.prototype.redo = map['redo'];
 		}
 
 		// Does the transformation, should return true on success
-		tool.prototype.do = does;
+		tool.prototype.do = map['do'];
 
 		// Returns a string like "Transform(12, 2)"
-		if (toString == 'false') {
+		if (typeof map['toString'] == 'undefined') {
 			tool.prototype.toString = function () {
 				return (this.Name + "(" + this.Params + ")");
 			};
 		} else {
-			tool.prototype.toString = toString;
+			tool.prototype.toString = map['toString'];
 		}
 
 		// accessible globally
 		// takes project pointer, returns bool
-		tool.check = check;
-		tool._Prep = new m$.Tool._Prep(prep);
+		tool.check = map['check'];
+		tool._Prep = new m$.Tool._Prep(map['prep']);
 		tool.Prep = function () {
 			return this._Prep.Do(arguments);
 		};
@@ -548,9 +548,15 @@ var Mesher = { REVISION: '1' };
 	m$.Tool._Prep.prototype.Do = function () {
 		this.Prep.call(this, arguments);
 		var con = document.createElement('div');
+		$(con).attr('class', 'form-group');
 		for (var i = 0; i < this.UIstack.length; i++) {
 			var html = this.UIstack.pop();
 			html = html.html();
+			// makes all inputs part of class 'form-control',
+			// bootstrap styling.
+			if ($(html).prop("tagName") == 'INPUT'){
+				$(html).attr('class', 'form-control');
+			}
 			con.appendChild(html);
 		}
 		return con;
@@ -642,9 +648,9 @@ var Mesher = { REVISION: '1' };
 		return true;
 	}
 
-})(Mesher);
+})(Mesher, jQuery);
 
-(function (m$) {
+(function (m$, $) {
 	m$.Controls = function () {
 		this.Index = 0;
 		this.Tools = [];
@@ -700,7 +706,7 @@ var Mesher = { REVISION: '1' };
 		}
 	};
 
-})(Mesher);
+})(Mesher, jQuery);
 
 (function (m$) {
 	m$.FileIO = function () {};
@@ -725,7 +731,7 @@ var Mesher = { REVISION: '1' };
 })(Mesher);
 
 // HTML library for popovers and stuffs
-(function (m$) {
+(function (m$, $) {
 	m$.HTML = function () {
 		this.stack = [];
 	};
@@ -736,15 +742,20 @@ var Mesher = { REVISION: '1' };
 
 	// Return HTML
 
-	m$.HTML.TextInput = function (name) {
+	m$.HTML.TextInput = function (map) {
 		this.html = function () {
 			var i = document.createElement('input');
 			i.setAttribute('type', 'text');
-			if (typeof name != 'undefined') {
-				i.setAttribute('name', name);
+			// sets name
+			if (typeof map['name'] != 'undefined') {
+				i.setAttribute('name', map['name']);
 			} else {
 				i.setAttribute('name', 'text');
 			}
+			// sets placeholder
+			if (typeof map['def'] != 'undefined') {
+				i.setAttribute('placeholder', map['def']);
+			} // else is not set
 			i.setAttribute('id', '')
 			return i;
 		};
@@ -787,6 +798,7 @@ var Mesher = { REVISION: '1' };
 	};
 
 	// Return VALUE
+	// TODO: get rid of...
 
 	m$.HTML.GetColorInput = function () {
 		return this.value;
@@ -803,10 +815,19 @@ var Mesher = { REVISION: '1' };
 		return v;
 	};
 
-})(Mesher);
+	// inputs given in order of argument.
+	m$.HTML.ApplyButton = function (inputs) {
+		this.html = function () {
+			var apply = document.createElement('button');
+			$('apply').attr('')
+
+		}
+	};
+
+})(Mesher, jQuery);
 
 
-(function (m$) {
+(function (m$, $) {
 	m$.IntroPanel = function () {
 
 		// page cover
@@ -869,12 +890,12 @@ var Mesher = { REVISION: '1' };
 	m$.RemoveIntroPanel = function () {
 		$('#IntroPanel').fadeOut(1000);
 	};
-})(Mesher);
+})(Mesher, jQuery);
 
 // Mesher v0.1
 // Utilitarian functions
 
-(function (m$) {
+(function (m$, $) {
 	// addModel adds the a Model
 	// to the current Project
 	m$.addModel = function (files, callback) {
@@ -955,7 +976,7 @@ var Mesher = { REVISION: '1' };
 	    return uuid;
 	};
 
-})(Mesher);
+})(Mesher, jQuery);
 
 // Mesher Library
 var Mesher = function (m$) {
