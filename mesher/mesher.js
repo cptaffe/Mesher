@@ -495,8 +495,8 @@ var Mesher = { REVISION: '1' };
 
 	m$.Tool.prototype.New = function (map) {
 
-		var tool = function (project, args) {
-			this.Params = args;
+		var tool = function (project, map) {
+			this.Params = map;
 			this.Project = project;
 		}
 
@@ -534,8 +534,8 @@ var Mesher = { REVISION: '1' };
 		// takes project pointer, returns bool
 		tool.check = map['check'];
 		tool._Prep = new m$.Tool._Prep(map['prep']);
-		tool.Prep = function () {
-			return this._Prep.Do(arguments);
+		tool.Prep = function (map) {
+			return this._Prep.Do(map);
 		};
 		this.Tools.push(tool);
 	};
@@ -545,19 +545,23 @@ var Mesher = { REVISION: '1' };
 		this.Prep = prep;
 	};
 
-	m$.Tool._Prep.prototype.Do = function () {
-		this.Prep.call(this, arguments);
+	m$.Tool._Prep.prototype.Do = function (map) {
+		this.Prep.call(this, map);
 		var con = document.createElement('div');
-		$(con).attr('class', 'form-group');
+		$(con).addClass('form-group');
+		var l = this.UIstack.length;
 		for (var i = 0; i < this.UIstack.length; i++) {
-			var html = this.UIstack.pop();
+			var html = this.UIstack[i];
 			html = html.html();
 			// makes all inputs part of class 'form-control',
 			// bootstrap styling.
-			if ($(html).prop("tagName") == 'INPUT'){
-				$(html).attr('class', 'form-control');
+			if ($(html).prop("tagName") == 'INPUT' || $(html).prop("tagName") == 'BUTTON'){
+				$(html).addClass('form-control');
 			}
 			con.appendChild(html);
+		}
+		while (this.UIstack.length > 0) {
+			this.UIstack.pop();
 		}
 		return con;
 	};
@@ -585,14 +589,17 @@ var Mesher = { REVISION: '1' };
 	// Create a new tool instance,
 	// push it to the hist stack,
 	// and execute its do function
-	m$.Tool.prototype.Do = function (index, args) {
+	m$.Tool.prototype.Do = function (index, map) {
 		var proj = m$._cProj; // record current project
 		if (index >= 0 && index < this.Tools.length) {
 			var toolType = this.Tools[index];
 			// check if can be done
-			if (toolType.check(proj)){
+			if (toolType.check({
+				project: proj,
+				index: index
+			})){
 				// create new tool of type in index
-				var tool = new toolType(proj, args);
+				var tool = new toolType(proj, map);
 				// if successful push to Hist
 				if (tool.do()){
 					return proj.Hist.push(tool); // success
@@ -605,7 +612,7 @@ var Mesher = { REVISION: '1' };
 				return false; // fail
 			}
 		} else {
-			console.log("Index out of bounds.");
+			console.log("Index out ("+index+") of bounds.");
 			return false; // fail
 		}
 	}
@@ -687,7 +694,10 @@ var Mesher = { REVISION: '1' };
 		        html: true,
 		        content: function () {
 		        	var f = function (s) {
-			        	return this.Tools[s.id].Prep();
+			        	return this.Tools[s.id].Prep({
+							project: m$._cProj,
+							index: s.id
+						});
 		        	}.call(m$.controls, this);
 		        	return f;
 		        }
@@ -698,7 +708,10 @@ var Mesher = { REVISION: '1' };
 
 	m$.Controls.prototype.CheckTools = function () {
 		for (var i = 0; i < this.Tools.length; i++){
-			if (!this.Tools[i].check(m$._cProj)){
+			if (!this.Tools[i].check({
+				project: m$._cProj,
+				index: i
+			})){
 				$(m$.Settings.Controls).children('#'+i).attr('color', 'gray').popover('disable');
 			} else {
 				$(m$.Settings.Controls).children('#'+i).attr('color', 'green').popover('enable');
@@ -732,97 +745,166 @@ var Mesher = { REVISION: '1' };
 
 // HTML library for popovers and stuffs
 (function (m$, $) {
-	m$.HTML = function () {
-		this.stack = [];
+
+	m$.HTML = function (map) {
+		this.Name = map['Name'];
+		this.New = map['New'];
+		this.Val = map['Val'];
+		this.Is = map['Is'];
 	};
 
-	m$.HTML.ValueOf = function (elem) {
-		//var n = 
-	}
+	// html functions map
+	m$.HTML.List = {};
 
-	// Return HTML
+	m$.HTML.New = function (map) {
+		m$.HTML.List[map['Name']] = new m$.HTML(map);
+	};
 
-	m$.HTML.TextInput = function (map) {
-		this.html = function () {
-			var i = document.createElement('input');
-			i.setAttribute('type', 'text');
-			// sets name
-			if (typeof map['name'] != 'undefined') {
-				i.setAttribute('name', map['name']);
-			} else {
-				i.setAttribute('name', 'text');
+	m$.HTML.Is = function (elem) {
+		for (key in this.List) {
+			if (this.List.hasOwnProperty(key)) {
+				if (this.List[key].Is.call(elem)) {
+					return this.List[key];
+				}
 			}
-			// sets placeholder
-			if (typeof map['def'] != 'undefined') {
-				i.setAttribute('placeholder', map['def']);
-			} // else is not set
-			i.setAttribute('id', '')
-			return i;
-		};
-		this.val = m$.HTML.TextInput.Val;
-		return this;
-	};
-
-	m$.HTML.TextInput.Val = function (elem) {
-		return elem.value;
-	};
-
-	m$.HTML.RangeInput = function (name, min, max, prec) {
-		this.html = function () {
-			var i = document.createElement('input');
-			i.setAttribute('type', 'range');
-			if (typeof name != 'undefined') {
-				i.setAttribute('name', name);
-			} else {
-				i.setAttribute('name', 'color');
-			}
-			i.setAttribute('min', 0);
-			i.setAttribute('max', (max-min) / prec);
-			i.setAttribute('prec', prec);
-			i.setAttribute('omin', min);
-		};
-		return this;
-	};
-
-	m$.HTML.ColorInput = function (name) {
-		this.html = function () {
-			var i = document.createElement('input');
-			i.setAttribute('type', 'color');
-			if (typeof name != 'undefined') {
-				i.setAttribute('name', name);
-			} else {
-				i.setAttribute('name', 'color');
-			}
-		};
-		return this;
-	};
-
-	// Return VALUE
-	// TODO: get rid of...
-
-	m$.HTML.GetColorInput = function () {
-		return this.value;
-	};
-
-	m$.HTML.GetTextInput = function () {
-		return this.value;
-	}
-
-	m$.HTML.GetRangeInput = function (min, prec) {
-		var v = this.value;
-		v = v + min;
-		v = v*prec;
-		return v;
-	};
-
-	// inputs given in order of argument.
-	m$.HTML.ApplyButton = function (inputs) {
-		this.html = function () {
-			var apply = document.createElement('button');
-			$('apply').attr('')
-
 		}
 	};
+
+	m$.HTML.Val = function (elem) {
+		console.log(elem);
+		return (this.Is(elem)).Val.call(elem);
+	}
+
+	// Text Input
+	m$.HTML.New({
+		Name: "TextInput",
+		New: function (map) {
+			this.html = function () {
+				var i = document.createElement('input');
+				i.setAttribute('type', 'text');
+				i.setAttribute('class', 'def-text-input');
+				// sets name
+				if (typeof map['name'] != 'undefined') {
+					i.setAttribute('name', map['name']);
+				} else {
+					i.setAttribute('name', 'text');
+				}
+				// sets placeholder
+				if (typeof map['def'] != 'undefined') {
+					i.setAttribute('placeholder', map['def']);
+				} // else is not set
+				i.setAttribute('id', '')
+				return i;
+			};
+		},
+		Val: function () {
+			return this.value;
+		},
+		Is: function () {
+			if ($(this).hasClass('def-text-input')) {
+				return true;
+			} else { return false; }
+		}
+	});
+
+	// Range Input
+	m$.HTML.New({
+		Name: "RangeInput",
+		New: function (map) {
+			this.html = function () {
+				var i = document.createElement('input');
+				i.setAttribute('type', 'range');
+				i.setAttribute('class', 'def-range-input');
+				if (typeof map['name'] != 'undefined') {
+					i.setAttribute('name', map['name']);
+				} else {
+					i.setAttribute('name', 'color');
+				}
+				i.setAttribute('min', 0);
+				i.setAttribute('max', (map['max']-map['min']) / map['prec']);
+				i.setAttribute('prec', map['prec']);
+				i.setAttribute('omin', map['min']);
+				return i;
+			};
+		},
+		Val: function () {
+			var v = this.value;
+			v = v + this.omin;
+			v = v * this.prec;
+			return v;
+		},
+		Is: function () {
+			if ($(this).hasClass('def-range-input')) {
+				return true;
+			} else { return false; }
+		}
+	});
+
+	// Color Input
+	m$.HTML.New({
+		Name: "ColorInput",
+		New: function (map) {
+			this.html = function () {
+				var i = document.createElement('input');
+				i.setAttribute('type', 'color');
+				i.setAttribute('class', 'def-color-input');
+				if (typeof map['name'] != 'undefined') {
+					i.setAttribute('name', map['name']);
+				} else {
+					i.setAttribute('name', 'color');
+				}
+				return i;
+			};
+			return this;
+		},
+		Val: function () {
+			return this.value;
+		},
+		Is: function () {
+			if ($(this).hasClass('def-color-input')) {
+				return true;
+			} else { return false; }
+		}
+	});
+
+	// Apply Input
+	m$.HTML.New({
+		Name: "ApplyInput",
+		New: function (map) {
+			this.html = function () {
+				var i = document.createElement('button');
+				$(i).attr('type', 'button');
+				$(i).addClass('btn');
+				$(i).addClass('btn-default');
+				$(i).addClass('class', 'def-apply-input');
+				$(i).attr('num', map['index']);
+				if (typeof map['text'] != 'undefined') {
+					i.appendChild(document.createTextNode(map['text']));
+				} else {
+					i.appendChild(document.createTextNode("Apply"));
+				}
+				$(i).on('click', function (event) {
+					var elem = event.target;
+					var elems = $(elem).siblings('input');
+					var map = {};
+					for (var i = 0; i < elems.length; i++) {
+						map[elems[i].name] = Mesher.HTML.Val(elems[i]);
+					}
+					Mesher.tool.Do($(elem).attr('num'), map);
+				})
+				return i;
+			};
+			return this;
+		},
+		Val: function () {
+			return null;
+		},
+		Is: function () {
+			if ($(this).hasClass('def-apply-input')) {
+				return true;
+			} else { return false; }
+		}
+	});
 
 })(Mesher, jQuery);
 
@@ -889,6 +971,8 @@ var Mesher = { REVISION: '1' };
 
 	m$.RemoveIntroPanel = function () {
 		$('#IntroPanel').fadeOut(1000);
+		$('#IntroPanel').remove();
+		m$.AfterIntroInit();
 	};
 })(Mesher, jQuery);
 
@@ -916,6 +1000,7 @@ var Mesher = { REVISION: '1' };
 		this.Settings.Selected = settings.Selected;
 		this.output.Elements.history = settings.History;
 		this.Settings.Controls = settings.Controls;
+		this.Settings.Drop = settings.Drop;
 		// model is added, get stuff working
 		$(this.Settings.Display).click(this.click);
 		$(window).resize(this.resize);
@@ -929,8 +1014,8 @@ var Mesher = { REVISION: '1' };
 
 	m$.AfterIntroInit = function () {
 		// File interface setup
-        settings.Drop.addEventListener('dragover', m$.FileIO.Drag, false);
-        settings.Drop.addEventListener('drop', m$.FileIO.Drop, false);
+        this.Settings.Drop.addEventListener('dragover', m$.FileIO.Drag, false);
+        this.Settings.Drop.addEventListener('drop', m$.FileIO.Drop, false);
 	}
 
 	// things that run on environmental changes

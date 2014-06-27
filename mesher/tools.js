@@ -8,7 +8,7 @@
 		name: "Rename",
 		icon: "fa-quote-right", // Font-Awesome Icon
 		do: function () {
-			var name = this.Params.name;
+			var name = this.Params['name'];
 			// stores model by ref.
 			this.model = this.Project.SelectedModels[0];
 			this.OldName = this.Project.SelectedModels[0].name;
@@ -27,12 +27,17 @@
 			m$.ModelTag.SelectTagByUUID(this.model.uuid).html(document.createTextNode(name));
 			return true;
 		},
-		check: function (proj) {
-			return (proj.SelectedModels.length == 1);
+		check: function (map) {
+			return (map['project'].SelectedModels.length == 1);
 		},
-		prep: function (proj) {
-			this.UIstack.push(m$.HTML.TextInput({
+		prep: function (map) {
+			this.UIstack.push(new m$.HTML.List['TextInput'].New({
+				name: "name", // what this param is called
 				def: "name"
+			}));
+			this.UIstack.push(new m$.HTML.List['ApplyInput'].New({
+				text: "Apply",
+				index: map['index']
 			}));
 		}
 	});
