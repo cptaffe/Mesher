@@ -64,7 +64,7 @@
 			return true;
 		},
 		undo: function () {
-			if (typeof this.model == 'undefined'){return false;}
+			if (typeof this.models == 'undefined'){return false;}
 			var scalar = this.Params['scalar'];
 			for (var i = 0; i < this.models.length; i++) {
 				model = this.models[i];
@@ -78,7 +78,7 @@
 			return true;
 		},
 		redo: function () {
-			if (typeof this.model == 'undefined'){return false;}
+			if (typeof this.models == 'undefined'){return false;}
 			var scalar = this.Params['scalar'];
 			for (var i = 0; i < this.models.length; i++) {
 				model = this.models[i];
@@ -144,7 +144,7 @@
 			return true;
 		},
 		undo: function () {
-			if (typeof this.model == 'undefined'){return false;}
+			if (typeof this.models == 'undefined'){return false;}
 			var scalar = this.Params['scalar'];
 			for (var i = 0; i < this.models.length; i++) {
 				model = this.models[i];
@@ -158,7 +158,7 @@
 			return true;
 		},
 		redo: function () {
-			if (typeof this.model == 'undefined'){return false;}
+			if (typeof this.models == 'undefined'){return false;}
 			var scalar = this.Params['scalar'];
 			for (var i = 0; i < this.models.length; i++) {
 				model = this.models[i];
