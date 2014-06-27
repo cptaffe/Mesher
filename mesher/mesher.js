@@ -621,38 +621,46 @@ var Mesher = { REVISION: '1' };
 	// execute its undo function
 	m$.Tool.prototype.Undo = function () {
 		var proj = m$._cProj; // record current project
-		var tool = proj.Hist.pop();
-		// try undo, it fail
-		if (!tool.undo()) {
-			// reload original models
-			proj.Originalize();
-			// do all operations from the ground up
-			for (var i = 0; i < proj.Hist.length; i++){
-				if (!proj.Hist[i].do()) { // if no work
-					// basically ignore it and move on.
-					// this should not ever happen
-					console.log(proj.Hist[i].toString() + ", it no work.");
+		if (proj.Hist.length > 0){
+			var tool = proj.Hist.pop();
+			// try undo, it fail
+			if (!tool.undo()) {
+				// reload original models
+				proj.Originalize();
+				// do all operations from the ground up
+				for (var i = 0; i < proj.Hist.length; i++){
+					if (!proj.Hist[i].do()) { // if no work
+						// basically ignore it and move on.
+						// this should not ever happen
+						console.log(proj.Hist[i].toString() + ", it no work.");
+					}
 				}
 			}
+			// at this point, undo has 'worked' somehow.
+			proj.Fut.push(tool);
+			return true;
+		} else {
+			console.log('Nothing to undo.');
 		}
-		// at this point, undo has 'worked' somehow.
-		proj.Fut.push(tool);
-		return true;
 	}
 
 	// pop from Fut to Hist
 	// execute do.
 	m$.Tool.prototype.Redo = function () {
 		var proj = m$._cProj; // record current project
-		var tool = proj.Fut.pop();
-		// try do, it fail
-		if (!tool.redo()) {
-			console.log(tool.toString + ", it no work.");
-			// essentially throws away
-			return false; // fail
+		if (proj.Fut.length > 0) {
+			var tool = proj.Fut.pop();
+			// try do, it fail
+			if (!tool.redo()) {
+				console.log(tool.toString + ", it no work.");
+				// essentially throws away
+				return false; // fail
+			}
+			proj.Hist.push(tool);
+			return true;
+		} else {
+			console.log('Nothing to redo.');
 		}
-		proj.Hist.push(tool);
-		return true;
 	}
 
 })(Mesher, jQuery);
@@ -869,9 +877,13 @@ var Mesher = { REVISION: '1' };
 		this.output.Elements.history = settings.History;
 		this.Settings.Controls = settings.Controls;
 		this.Settings.Drop = settings.Drop;
+		this.Settings.Undo_Redo = settings.Undo_Redo;
 		// model is added, get stuff working
 		$(this.Settings.Display).click(this.click);
 		$(window).resize(this.resize);
+
+		// Undo/Redo setup
+		this.Undo_RedoInit();
 
 		// Controls Setup
 		this.controls.GetTools();
@@ -879,6 +891,37 @@ var Mesher = { REVISION: '1' };
 
         m$.IntroPanel();
 	};
+
+	m$.Undo_RedoInit = function () {
+		// Container
+		var undo_redo = document.createElement('div');
+		$(undo_redo).attr('id', 'undo_redo');
+
+		// Undo stuff
+		var undo_i = document.createElement('i');
+		$(undo_i).addClass('fa');
+		$(undo_i).addClass('fa-fw');
+		$(undo_i).addClass('fa-undo');
+		$(undo_i).css('cursor', 'pointer');
+		$(undo_i).on('click', function () {
+			Mesher.tool.Undo();
+		})
+		undo_redo.appendChild(undo_i);
+
+		// Redo stuff
+		var redo_i = document.createElement('i');
+		$(redo_i).addClass('fa');
+		$(redo_i).addClass('fa-fw');
+		$(redo_i).addClass('fa-undo');
+		$(redo_i).addClass('fa-flip-horizontal');
+		$(redo_i).css('cursor', 'pointer');
+		$(redo_i).on('click', function () {
+			Mesher.tool.Redo();
+		})
+		undo_redo.appendChild(redo_i);
+
+		$(this.Settings.Undo_Redo).append(undo_redo);
+	}
 
 	m$.AfterIntroInit = function () {
 		// File interface setup

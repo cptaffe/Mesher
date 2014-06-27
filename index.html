@@ -39,6 +39,9 @@
                 <div id="output"></div>
                 <div id="selected"></div>
 
+                <!--Undo/redo-->
+                <div id='undo-redo'></div>
+
                 <!-- Tools -->
                 <div id='tool-bar'></div>
             </div>
@@ -79,7 +82,8 @@
         Display: $('#container'), // container for model
         Drop: document.body, // drag 'n drop selector
         Selected: $('#selected'), // selected pane
-        History: $('#hist') // history pane
+        History: $('#hist'), // history pane
+        Undo_Redo: $('#undo-redo')
     }));
 
     </script>
