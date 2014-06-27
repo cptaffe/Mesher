@@ -121,7 +121,7 @@ var Mesher = { REVISION: '1' };
 	    this.histPrinter = function (e) {
 				for (var i = 0; i < m$._cProj.Hist.length; i++) {
 					var s = document.createElement('div');
-					s.appendChild(document.createTextNode(m$._cProj.Hist[i].toString()));
+					s.appendChild(document.createTextNode(m$._cProj.Hist[i].getString()));
 					s.setAttribute('onclick', 'Hist['+i+'].call()');
 					e.history.insertBefore(s, e.history.firstChild);
 				}
@@ -521,15 +521,6 @@ var Mesher = { REVISION: '1' };
 		// Does the transformation, should return true on success
 		tool.prototype.do = map['do'];
 
-		// Returns a string like "Transform(12, 2)"
-		if (typeof map['toString'] == 'undefined') {
-			tool.prototype.toString = function () {
-				return (this.Name + "(" + this.Params + ")");
-			};
-		} else {
-			tool.prototype.toString = map['toString'];
-		}
-
 		// accessible globally
 		// takes project pointer, returns bool
 		tool.check = map['check'];
@@ -631,7 +622,7 @@ var Mesher = { REVISION: '1' };
 					if (!proj.Hist[i].do()) { // if no work
 						// basically ignore it and move on.
 						// this should not ever happen
-						console.log(proj.Hist[i].toString() + ", it no work.");
+						console.log(proj.Hist[i].getString() + ", it no work.");
 					}
 				}
 			}
@@ -651,7 +642,7 @@ var Mesher = { REVISION: '1' };
 			var tool = proj.Fut.pop();
 			// try do, it fail
 			if (!tool.redo()) {
-				console.log(tool.toString + ", it no work.");
+				console.log(tool.getString + ", it no work.");
 				// essentially throws away
 				return false; // fail
 			}
@@ -725,6 +716,10 @@ var Mesher = { REVISION: '1' };
 		        title: this.Tools[i].Name,
 		        html: true,
 		        content: function () {
+		        	// close all popovers
+		        	var _ = function () {
+		        		$(this).siblings().popover('hide');
+		        	}.call(this);
 		        	var f = function (s) {
 			        	return this.Tools[s.id].Prep({
 							project: m$._cProj,

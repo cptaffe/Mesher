@@ -123,18 +123,3 @@ input {
 #file-tool{
 	margin-left: 5px;
 }
-
-#hist>p{
-	cursor: pointer;
-	color: gray;
-	transition: all 0.25s ease;
-}
-
-#hist>p:hover{
-	color: black;
-}
-
-#hist{
-	height: 200px;
-	overflow: auto;
-}
