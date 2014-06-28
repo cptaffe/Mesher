@@ -123,7 +123,7 @@
 
 	// Shift tool
 	m$.tool.New({
-		name: "GLITCHY Shift",
+		name: "Shift",
 		icon: "fa-arrows",
 		do: function () {
 			var scalar = this.Params['scalar'];
@@ -133,13 +133,9 @@
 			}
 			for (var i = 0; i < this.models.length; i++) {
 				model = this.models[i];
-				for (var j = 0; j < model.geometry.vertices.length; j++) {
-					if (this.Params['x']){model.geometry.vertices[j].x += scalar;}
-					if (this.Params['y']){model.geometry.vertices[j].y += scalar;}
-					if (this.Params['z']){model.geometry.vertices[j].z += scalar;}
-				}
-				model.geometry.verticesNeedUpdate = true;
-				model.geometry.normalsNeedUpdate = true;
+				if (this.Params['x']){model.translateX(scalar);}
+				if (this.Params['y']){model.translateY(scalar);}
+				if (this.Params['z']){model.translateZ(scalar);}
 			}
 			return true;
 		},
@@ -148,12 +144,9 @@
 			var scalar = this.Params['scalar'];
 			for (var i = 0; i < this.models.length; i++) {
 				model = this.models[i];
-				for (var j = 0; j < model.geometry.vertices.length; j++) {
-					if (this.Params['x']){model.geometry.vertices[j].x -= scalar;}
-					if (this.Params['y']){model.geometry.vertices[j].y -= scalar;}
-					if (this.Params['z']){model.geometry.vertices[j].z -= scalar;}
-				}
-				model.geometry.verticesNeedUpdate = true;
+				if (this.Params['x']){model.translateX(-scalar);}
+				if (this.Params['y']){model.translateY(-scalar);}
+				if (this.Params['z']){model.translateZ(-scalar);}
 			}
 			return true;
 		},
@@ -162,12 +155,9 @@
 			var scalar = this.Params['scalar'];
 			for (var i = 0; i < this.models.length; i++) {
 				model = this.models[i];
-				for (var j = 0; j < model.geometry.vertices.length; j++) {
-					if (this.Params['x']){model.geometry.vertices[j].x += scalar;}
-					if (this.Params['y']){model.geometry.vertices[j].y += scalar;}
-					if (this.Params['z']){model.geometry.vertices[j].z += scalar;}
-				}
-				model.geometry.verticesNeedUpdate = true;
+				if (this.Params['x']){model.translateX(scalar);}
+				if (this.Params['y']){model.translateY(scalar);}
+				if (this.Params['z']){model.translateZ(scalar);}
 			}
 			return true;
 		},
