@@ -602,15 +602,15 @@ var Mesher = { REVISION: '1' };
 				if (tool.do() && tool.save == true){
 					return proj.Hist.push(tool); // success
 				} else {
-					console.log("Tool do failed.");
+					throw "Tool.Do: Tool do() failed.";
 					return false; // fail
 				}
 			} else {
-				console.log("Tool check returned false.");
+				throw "Tool.Do: Tool check() returned false.";
 				return false; // fail
 			}
 		} else {
-			console.log("Index out ("+index+") of bounds.");
+			throw "Tool.Do: Index out ("+index+") of bounds.";
 			return false; // fail
 		}
 	}
@@ -630,7 +630,7 @@ var Mesher = { REVISION: '1' };
 					if (!proj.Hist[i].do()) { // if no work
 						// basically ignore it and move on.
 						// this should not ever happen
-						console.log(proj.Hist[i].getString() + ", it no work.");
+						throw "Tool.Undo: " + proj.Hist[i].getString() + " undo() failed";
 					}
 				}
 			}
@@ -650,9 +650,7 @@ var Mesher = { REVISION: '1' };
 			var tool = proj.Fut.pop();
 			// try do, it fail
 			if (!tool.redo()) {
-				console.log(tool.getString + ", it no work.");
-				// essentially throws away
-				return false; // fail
+				throw "Tool.Redo: " + tool.getString + " redo() failed";
 			}
 			proj.Hist.push(tool);
 			return true;
