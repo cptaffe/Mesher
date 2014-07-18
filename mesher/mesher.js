@@ -1,6 +1,6 @@
 // Mesher v0.1
-// Copyright 2014 Concept Forge
-// Liscensed under MIT
+// Copyright 2014 the Mesher authors
+// Licensed under the MIT license
 
 // Check for Dependencies
 if (typeof THREE === 'undefined') { throw new Error('Mesher\'s JavaScript requires THREE'); }
@@ -9,6 +9,8 @@ if (typeof jQuery === 'undefined') { throw new Error('Mesher\'s JavaScript requi
 var Mesher = { REVISION: '1' };
 
 // Project object
+// The project represents a collection of several
+// models, and their collective history and future.
 (function (m$, THREE, $) {
 	'use strict';
 
@@ -16,14 +18,18 @@ var Mesher = { REVISION: '1' };
 
 		this.Index // how to get via top-down
 
-		// set as _cModel's display
+		// set as the current model (_cModel) display
 		this.Display;
 
 		// reference to this.Three model stack
-		// just shorter from top-down :)
+		// just shorter from top-down
 		this.Models;
 		this.OriginalModels = [];
+
 		// Transformations Array stack
+		// IMPLEMENTS 4TH DIMENSION
+		// (Not the Euclidean one, gosh)
+		// Possible to branch time.
 		this.Trans = [
 			[],
 			[]
@@ -955,6 +961,8 @@ var Mesher = { REVISION: '1' };
 		$(this.Settings.Undo_Redo).append(undo_redo);
 	}
 
+	// Inits the tool panel, creating the functions called
+	// when the right and left buttons are clicked.
 	m$.ToolNavInit = function () {
 		var DELAY = 300;
 		
@@ -962,7 +970,7 @@ var Mesher = { REVISION: '1' };
 		var undo_redo = document.createElement('div');
 		$(undo_redo).attr('id', 'undo_redo');
 
-		// Undo stuff
+		// Load previous tools
 		var undo_i = document.createElement('i');
 		$(undo_i).addClass('fa');
 		$(undo_i).addClass('fa-fw');
@@ -980,7 +988,7 @@ var Mesher = { REVISION: '1' };
 		})
 		undo_redo.appendChild(undo_i);
 
-		// Redo stuff
+		// Load next tools
 		var redo_i = document.createElement('i');
 		$(redo_i).addClass('fa');
 		$(redo_i).addClass('fa-fw');
