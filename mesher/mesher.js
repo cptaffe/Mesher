@@ -1008,12 +1008,6 @@ var Mesher = { REVISION: '1' };
 		$(this.Settings.Tool_Nav).append(undo_redo);
 	}
 
-	// This is what should be called when begenning/ending
-	// a tool, undo, redo, etc.
-	m$.Wait = function () {
-		
-	}
-
 	m$.AfterIntroInit = function () {
 		// File interface setup
         this.Settings.Drop.addEventListener('dragover', m$.FileIO.Drag, false);
