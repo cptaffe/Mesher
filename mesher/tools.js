@@ -360,6 +360,64 @@
 		}
 	});
 
+	// AutoCenter tool
+	m$.tool.New({
+		name: "Auto Center",
+		icon: "fa-arrows-alt",
+		do: function () {
+			this.models = [];
+			this.shift = [];
+			this.AutoCenter = function () {
+				for (var i = 0; i < this.models.length; i++) {
+					model = this.models[i];
+					var box = new THREE.Box3().setFromObject( model );
+					shiftX = (-box.min.x) - (box.max.x - box.min.x)/2;
+					shiftY = (-box.min.y) - (box.max.y - box.min.y)/2;
+					shiftZ = -box.min.z;
+					this.shift.push(shiftX);
+					this.shift.push(shiftY);
+					this.shift.push(shiftZ);
+					model.translateX(shiftX);
+					model.translateY(shiftY);
+					model.translateZ(shiftZ);
+				}
+				return true;
+			}
+
+			for (var i = 0; i < this.Project.SelectedModels.length; i++) {
+				this.models.push(this.Project.SelectedModels[i]);
+			}
+
+			return this.AutoCenter();
+		},
+		undo: function () {
+			if (typeof this.models == 'undefined'){return false;}
+			for (var i = 0; i < this.models.length; i++) {
+				model = this.models[i];
+				shiftZ = this.shift.pop()
+				shiftY = this.shift.pop()
+				shiftX = this.shift.pop()
+				model.translateX(-shiftX);
+				model.translateY(-shiftY);
+				model.translateZ(-shiftZ);
+			}
+			return true;
+		},
+		redo: function () {
+			if (typeof this.models == 'undefined'){return false;}
+			return this.AutoCenter();
+		},
+		check: function (map) {
+			return (map['project'].SelectedModels.length > 0);
+		},
+		prep: function (map) {
+			this.UIstack.push(new m$.HTML.List['ApplyInput'].New({
+				text: "Apply",
+				index: map['index']
+			}));
+		}
+	});
+
 	// Save tool
 	m$.tool.New({
 		name: "Save",
@@ -448,64 +506,6 @@
 					index: map['index']
 				}));
 			}
-		}
-	});
-
-	// AutoCenter tool
-	m$.tool.New({
-		name: "Auto Center",
-		icon: "fa-arrows-alt",
-		do: function () {
-			this.models = [];
-			this.shift = [];
-			this.AutoCenter = function () {
-				for (var i = 0; i < this.models.length; i++) {
-					model = this.models[i];
-					var box = new THREE.Box3().setFromObject( model );
-					shiftX = (-box.min.x) - (box.max.x - box.min.x)/2;
-					shiftY = (-box.min.y) - (box.max.y - box.min.y)/2;
-					shiftZ = -box.min.z;
-					this.shift.push(shiftX);
-					this.shift.push(shiftY);
-					this.shift.push(shiftZ);
-					model.translateX(shiftX);
-					model.translateY(shiftY);
-					model.translateZ(shiftZ);
-				}
-				return true;
-			}
-
-			for (var i = 0; i < this.Project.SelectedModels.length; i++) {
-				this.models.push(this.Project.SelectedModels[i]);
-			}
-
-			return this.AutoCenter();
-		},
-		undo: function () {
-			if (typeof this.models == 'undefined'){return false;}
-			for (var i = 0; i < this.models.length; i++) {
-				model = this.models[i];
-				shiftZ = this.shift.pop()
-				shiftY = this.shift.pop()
-				shiftX = this.shift.pop()
-				model.translateX(-shiftX);
-				model.translateY(-shiftY);
-				model.translateZ(-shiftZ);
-			}
-			return true;
-		},
-		redo: function () {
-			if (typeof this.models == 'undefined'){return false;}
-			return this.AutoCenter();
-		},
-		check: function (map) {
-			return (map['project'].SelectedModels.length > 0);
-		},
-		prep: function (map) {
-			this.UIstack.push(new m$.HTML.List['ApplyInput'].New({
-				text: "Apply",
-				index: map['index']
-			}));
 		}
 	});
 
