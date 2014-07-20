@@ -52,16 +52,19 @@
 			for (var i = 0; i < this.Project.SelectedModels.length; i++) {
 				this.models.push(this.Project.SelectedModels[i]);
 			}
-			for (var i = 0; i < this.models.length; i++) {
-				model = this.models[i];
-				for (var j = 0; j < model.geometry.vertices.length; j++) {
-					if (this.Params['x']){model.geometry.vertices[j].x *= scalar;}
-					if (this.Params['y']){model.geometry.vertices[j].y *= scalar;}
-					if (this.Params['z']){model.geometry.vertices[j].z *= scalar;}
+			this.Scale = function () {
+				for (var i = 0; i < this.models.length; i++) {
+					model = this.models[i];
+					for (var j = 0; j < model.geometry.vertices.length; j++) {
+						if (this.Params['x']){model.geometry.vertices[j].x *= scalar;}
+						if (this.Params['y']){model.geometry.vertices[j].y *= scalar;}
+						if (this.Params['z']){model.geometry.vertices[j].z *= scalar;}
+					}
+					model.geometry.verticesNeedUpdate = true;
+					return true;
 				}
-				model.geometry.verticesNeedUpdate = true;
 			}
-			return true;
+			return this.Scale();
 		},
 		undo: function () {
 			if (typeof this.models == 'undefined'){return false;}
@@ -79,17 +82,7 @@
 		},
 		redo: function () {
 			if (typeof this.models == 'undefined'){return false;}
-			var scalar = this.Params['scalar'];
-			for (var i = 0; i < this.models.length; i++) {
-				model = this.models[i];
-				for (var j = 0; j < model.geometry.vertices.length; j++) {
-					if (this.Params['x']){model.geometry.vertices[j].x *= scalar;}
-					if (this.Params['y']){model.geometry.vertices[j].y *= scalar;}
-					if (this.Params['z']){model.geometry.vertices[j].z *= scalar;}
-				}
-				model.geometry.verticesNeedUpdate = true;
-			}
-			return true;
+			return this.Scale();
 		},
 		check: function (map) {
 			return (map['project'].SelectedModels.length > 0);
