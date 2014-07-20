@@ -469,8 +469,8 @@
 				for (var i = 0; i < this.models.length; i++) {
 					model = this.models[i];
 					var box = new THREE.Box3().setFromObject( model );
-					shiftX = -box.min.x;
-					shiftY = -box.min.y;
+					shiftX = (-box.min.x) - (box.max.x - box.min.x)/2;
+					shiftY = (-box.min.y) - (box.max.y - box.min.y)/2;
 					shiftZ = -box.min.z;
 					this.shift.push(shiftX);
 					this.shift.push(shiftY);
